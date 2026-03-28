@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 
 const PROGRESS_BARS = [true, false, false, false];
@@ -32,23 +33,51 @@ const NAV_ITEMS = [
 ];
 
 export default function SessionPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [activeNav, setActiveNav] = useState("session");
   const [revealed, setRevealed] = useState(false);
   const [cardIdx, setCardIdx] = useState(0);
 
+  // Pull context from query params (set by sessions dashboard)
+  const partnerName = searchParams.get("partner") ?? "Study Group";
+  const course = searchParams.get("course") ?? "Your Course";
+  const location = searchParams.get("location") ?? "PCL Library, Room 402";
+  const duration = Number(searchParams.get("duration") ?? 90);
+
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
+
+      {/* Session banner */}
+      <div className="flex items-center gap-3 border-b border-green-200 bg-green-600 px-8 py-2.5 text-white">
+        <span className="h-2 w-2 animate-pulse rounded-full bg-white" />
+        <span className="text-[13px] font-bold">
+          Live Session · {course} with {partnerName}
+        </span>
+        <span className="ml-auto text-[12px] font-medium text-white/70">
+          {duration} min · {location}
+        </span>
+        <button
+          onClick={() => router.push("/sessions")}
+          className="ml-4 flex items-center gap-1.5 rounded-lg border border-white/30 px-3 py-1 text-[12px] font-semibold transition-colors hover:bg-white/20"
+        >
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            <line x1="13" y1="8" x2="3" y2="8" /><polyline points="7,4 3,8 7,12" />
+          </svg>
+          Back to Sessions
+        </button>
+      </div>
 
       <div className="grid flex-1" style={{ gridTemplateColumns: "260px 1fr 260px" }}>
         {/* ── Left sidebar ── */}
         <aside className="flex flex-col border-r border-[var(--color-border)] p-6">
           <div className="mb-5">
             <h2 className="text-lg font-extrabold leading-tight tracking-tight">
-              MVP Study Management
+              Study Session
             </h2>
             <p className="mt-1 text-[11px] font-semibold uppercase tracking-widest text-[var(--color-text-muted)]">
-              Macroeconomics 101
+              {course}
             </p>
           </div>
 
@@ -230,7 +259,7 @@ export default function SessionPage() {
             <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
               Location
             </p>
-            <p className="text-[13px] font-semibold">PCL Library, Room 402</p>
+            <p className="text-[13px] font-semibold">{location}</p>
           </div>
 
           {/* Amenities */}

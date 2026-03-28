@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Button from "@/components/Button";
+import { addSession } from "@/lib/sessionsStore";
 
 const PARTNERS = [
   {
@@ -53,6 +54,132 @@ const BUTTON_LABELS: Record<string, string> = {
   "silent-co-study": "Join Group",
 };
 
+interface RequestTarget {
+  partnerName: string;
+  partnerInitials: string;
+  course: string;
+  location: string;
+}
+
+function RequestModal({
+  target,
+  onClose,
+  onSend,
+}: {
+  target: RequestTarget;
+  onClose: () => void;
+  onSend: (date: string, time: string, duration: number, notes: string) => void;
+}) {
+  const todayStr = new Date().toISOString().split("T")[0];
+  const [date, setDate] = useState(todayStr);
+  const [time, setTime] = useState("10:00");
+  const [duration, setDuration] = useState(60);
+  const [notes, setNotes] = useState("");
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+      <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden">
+        {/* Header */}
+        <div className="bg-[var(--color-primary)] px-6 py-5 text-white">
+          <h2 className="text-lg font-extrabold">Request a Study Session</h2>
+          <p className="mt-0.5 text-[13px] text-white/70">
+            with {target.partnerName} · {target.course}
+          </p>
+        </div>
+
+        <div className="p-6 flex flex-col gap-4">
+          {/* Date + time */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
+                Date
+              </label>
+              <input
+                type="date"
+                value={date}
+                min={todayStr}
+                onChange={(e) => setDate(e.target.value)}
+                className="h-11 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 text-sm text-[var(--color-text-base)] outline-none focus:border-[var(--color-primary)]"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
+                Time
+              </label>
+              <input
+                type="time"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                className="h-11 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 text-sm text-[var(--color-text-base)] outline-none focus:border-[var(--color-primary)]"
+              />
+            </div>
+          </div>
+
+          {/* Duration */}
+          <div>
+            <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
+              Duration
+            </label>
+            <div className="flex gap-2">
+              {[30, 60, 90, 120].map((d) => (
+                <button
+                  key={d}
+                  onClick={() => setDuration(d)}
+                  className={`flex-1 rounded-xl border-[1.5px] py-2 text-[13px] font-semibold transition-all ${
+                    duration === d
+                      ? "border-[var(--color-primary)] bg-[var(--color-primary-light)] text-[var(--color-primary)]"
+                      : "border-[var(--color-border)] text-[var(--color-text-base)] hover:border-[var(--color-primary-muted)]"
+                  }`}
+                >
+                  {d < 60 ? `${d}m` : `${d / 60}h`}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Notes */}
+          <div>
+            <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
+              What do you want to work on? (optional)
+            </label>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={2}
+              placeholder="e.g. Assignment 4, exam prep, chapter 7..."
+              className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2.5 text-sm text-[var(--color-text-base)] outline-none resize-none placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary)]"
+            />
+          </div>
+
+          {/* Location (read-only from partner) */}
+          <div className="flex items-center gap-2 rounded-xl bg-[var(--color-surface)] px-3 py-2.5">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b6b65" strokeWidth="2" strokeLinecap="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+            </svg>
+            <span className="text-[12px] text-[var(--color-text-secondary)]">{target.location}</span>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex gap-3 pt-1">
+            <button
+              onClick={onClose}
+              className="flex-1 rounded-xl border border-[var(--color-border)] py-3 text-[14px] font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-surface)] transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => onSend(date, time, duration, notes)}
+              className="flex-1 rounded-xl bg-[var(--color-primary)] py-3 text-[14px] font-bold text-white shadow-[var(--shadow-primary)] hover:bg-[var(--color-primary-hover)] transition-all"
+            >
+              Send Request
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function MatchesPage() {
   const router = useRouter();
   const [selectedStyles, setSelectedStyles] = useState<string[]>(["prefer-to-teach"]);
@@ -60,6 +187,8 @@ export default function MatchesPage() {
     courses: ["CS 312: Algorithms", "PHYS 201: Mechanics", "MATH 445: Stats"],
     counts: [12, 8, 4],
   });
+  const [requestTarget, setRequestTarget] = useState<RequestTarget | null>(null);
+  const [sentIds, setSentIds] = useState<Set<string>>(new Set());
 
   function toggleStyle(s: string) {
     setSelectedStyles((prev) =>
@@ -67,8 +196,36 @@ export default function MatchesPage() {
     );
   }
 
+  function handleSendRequest(date: string, time: string, duration: number, notes: string) {
+    if (!requestTarget) return;
+    const scheduledAt = new Date(`${date}T${time}`);
+    addSession({
+      id: Date.now().toString(),
+      partnerName: requestTarget.partnerName,
+      partnerInitials: requestTarget.partnerInitials,
+      course: requestTarget.course,
+      location: requestTarget.location,
+      scheduledAt,
+      duration,
+      status: "pending",
+      requestedByMe: true,
+      studyMethods: ["Discussion"],
+      notes: notes || undefined,
+    });
+    setSentIds((prev) => new Set([...prev, requestTarget.partnerName]));
+    setRequestTarget(null);
+    router.push("/sessions");
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
+      {requestTarget && (
+        <RequestModal
+          target={requestTarget}
+          onClose={() => setRequestTarget(null)}
+          onSend={handleSendRequest}
+        />
+      )}
       <Navbar showSearch />
 
       <div className="flex flex-1">
@@ -174,7 +331,15 @@ export default function MatchesPage() {
               <MatchCard
                 key={p.id}
                 partner={p}
-                onAction={() => router.push("/session")}
+                sent={sentIds.has(p.name)}
+                onAction={() =>
+                  setRequestTarget({
+                    partnerName: p.name,
+                    partnerInitials: p.name.split(" ").map((w) => w[0]).slice(0, 2).join(""),
+                    course: p.course,
+                    location: p.location,
+                  })
+                }
               />
             ))}
 
@@ -210,9 +375,11 @@ export default function MatchesPage() {
 
 function MatchCard({
   partner,
+  sent,
   onAction,
 }: {
   partner: (typeof PARTNERS)[0];
+  sent: boolean;
   onAction: () => void;
 }) {
   return (
@@ -240,9 +407,16 @@ function MatchCard({
         <button className="cursor-pointer text-[13px] font-semibold text-[var(--color-primary)] hover:underline">
           View Profile
         </button>
-        <Button size="sm" onClick={onAction}>
-          {BUTTON_LABELS[partner.style]}
-        </Button>
+        {sent ? (
+          <span className="flex items-center gap-1.5 rounded-lg bg-amber-50 px-3 py-1.5 text-[12px] font-semibold text-amber-700">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-500" />
+            Request sent
+          </span>
+        ) : (
+          <Button size="sm" onClick={onAction}>
+            {BUTTON_LABELS[partner.style]}
+          </Button>
+        )}
       </div>
     </div>
   );

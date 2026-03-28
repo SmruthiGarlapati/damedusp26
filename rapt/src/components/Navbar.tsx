@@ -7,7 +7,7 @@ const navLinks = [
   { label: "Schedule", href: "/schedule" },
   { label: "Matching", href: "/matching" },
   { label: "Browse", href: "/matches" },
-  { label: "Session", href: "/session" },
+  { label: "Sessions", href: "/sessions" },
 ];
 
 interface NavbarProps {
