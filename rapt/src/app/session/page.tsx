@@ -67,6 +67,15 @@ export default function SessionPage() {
           </svg>
           Back to Sessions
         </button>
+        <button
+          onClick={() => router.push("/sessions")}
+          className="flex items-center gap-1.5 rounded-lg bg-red-500 px-3 py-1 text-[12px] font-bold text-white shadow transition-colors hover:bg-red-600"
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/>
+          </svg>
+          End Session
+        </button>
       </div>
 
       <div className="grid flex-1" style={{ gridTemplateColumns: "260px 1fr 260px" }}>
@@ -267,7 +276,7 @@ export default function SessionPage() {
             <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
               Confirmed Amenities
             </p>
-            <div className="grid grid-cols-2 gap-2">
+                <div className="flex flex-col gap-2">
               {[
                 { label: "Projector", icon: <ProjectorIcon /> },
                 { label: "Whiteboard", icon: <WhiteboardIcon /> },
@@ -276,7 +285,7 @@ export default function SessionPage() {
               ].map((a) => (
                 <div
                   key={a.label}
-                  className="flex items-center gap-1.5 rounded border border-[var(--color-border)] bg-white px-2.5 py-2 text-[12px] font-medium"
+                  className="flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-white px-3 py-2.5 text-[12px] font-medium"
                 >
                   {a.icon} {a.label}
                 </div>

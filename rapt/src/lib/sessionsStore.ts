@@ -15,6 +15,7 @@ export interface StudySession {
   requestedByMe: boolean;
   studyMethods: string[];
   notes?: string;
+  started?: boolean; // true once the user has entered the session at least once
 }
 
 // Pre-seeded demo sessions so the dashboard is never empty

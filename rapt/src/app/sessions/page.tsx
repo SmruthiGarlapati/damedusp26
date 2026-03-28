@@ -139,9 +139,12 @@ function SessionCard({
         </div>
 
         {session.notes && (
-          <p className="mb-4 rounded-lg bg-[var(--color-surface)] px-3 py-2 text-[12px] text-[var(--color-text-secondary)]">
-            {session.notes}
-          </p>
+          <div className="mb-4 flex items-start gap-2 rounded-lg bg-[var(--color-surface)] px-3 py-2.5">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6b6b65" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 shrink-0">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            <p className="text-[12px] text-[var(--color-text-secondary)]">{session.notes}</p>
+          </div>
         )}
 
         {/* Countdown */}
@@ -201,7 +204,7 @@ function SessionCard({
                     : "cursor-not-allowed bg-[var(--color-surface)] text-[var(--color-text-muted)]"
                 }`}
               >
-                {isPast ? "Join Session" : "Start Session"}
+                {session.started ? "Resume Session" : isPast ? "Join Session" : "Start Session"}
               </button>
               <button
                 onClick={onCancel}
@@ -264,7 +267,8 @@ export default function SessionsPage() {
 
   const start = useCallback(
     (session: StudySession) => {
-      // Keep status as "accepted" so the card stays in Upcoming when user comes back
+      // Mark as started so the button shows "Resume" when they come back
+      updateSession(session.id, { started: true });
       router.push(`/session?partner=${encodeURIComponent(session.partnerName)}&course=${encodeURIComponent(session.course)}&location=${encodeURIComponent(session.location)}&duration=${session.duration}`);
     },
     [router]
