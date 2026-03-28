@@ -201,7 +201,7 @@ function SessionCard({
                     : "cursor-not-allowed bg-[var(--color-surface)] text-[var(--color-text-muted)]"
                 }`}
               >
-                {isPast ? "Join Session" : isReady ? "Start Session" : "Not yet"}
+                {isPast ? "Join Session" : "Start Session"}
               </button>
               <button
                 onClick={onCancel}
@@ -264,7 +264,7 @@ export default function SessionsPage() {
 
   const start = useCallback(
     (session: StudySession) => {
-      updateSession(session.id, { status: "live" });
+      // Keep status as "accepted" so the card stays in Upcoming when user comes back
       router.push(`/session?partner=${encodeURIComponent(session.partnerName)}&course=${encodeURIComponent(session.course)}&location=${encodeURIComponent(session.location)}&duration=${session.duration}`);
     },
     [router]
