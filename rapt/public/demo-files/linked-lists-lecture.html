@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Week 7 — Linked Lists Lecture · CS 314</title>
+<style>
+  body { font-family: Georgia, serif; max-width: 760px; margin: 0 auto; padding: 40px 48px; color: #1a1a1a; background: #fff; font-size: 14px; line-height: 1.7; }
+  .header { border-bottom: 2px solid #1d4ed8; padding-bottom: 16px; margin-bottom: 28px; }
+  .course { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #1d4ed8; margin-bottom: 6px; }
+  h1 { font-size: 24px; font-weight: 700; margin: 0 0 4px; }
+  .meta { font-size: 12px; color: #666; }
+  h2 { font-size: 16px; font-weight: 700; margin: 28px 0 10px; border-left: 4px solid #1d4ed8; padding-left: 12px; }
+  h3 { font-size: 14px; font-weight: 700; margin: 18px 0 8px; color: #333; }
+  code { font-family: 'Courier New', monospace; background: #f4f4f4; padding: 2px 6px; border-radius: 4px; font-size: 12.5px; }
+  pre { background: #1e293b; color: #a5f3fc; padding: 16px 20px; border-radius: 8px; font-size: 12.5px; line-height: 1.6; overflow-x: auto; margin: 12px 0; }
+  .note { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px 16px; margin: 16px 0; font-size: 13px; }
+  .note strong { color: #1d4ed8; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+  th { background: #eff6ff; font-weight: 700; text-align: left; padding: 8px 12px; border: 1px solid #bfdbfe; }
+  td { padding: 8px 12px; border: 1px solid #e2e8f0; }
+  tr:nth-child(even) td { background: #f8fafc; }
+  .diagram { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 14px 0; font-family: monospace; font-size: 13px; line-height: 1.8; }
+  ul { padding-left: 20px; }
+  li { margin: 4px 0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="course">CS 314 · Data Structures · University of Texas at Austin</div>
+  <h1>Week 7 — Linked Lists</h1>
+  <div class="meta">Prof. Scott · Fall 2024 · Lecture 14 &amp; 15</div>
+</div>
+
+<h2>1. Motivation</h2>
+<p>Arrays have fixed size and require contiguous memory. <strong>Linked lists</strong> solve both problems by using dynamically allocated nodes that each hold a pointer to the next.</p>
+
+<div class="note"><strong>Key idea:</strong> Linked lists trade O(1) random access for O(1) head insertion and flexible size. Know when each matters.</div>
+
+<h2>2. Node Structure (C++)</h2>
+<pre>struct Node {
+    int val;
+    Node* next;
+    Node(int v) : val(v), next(nullptr) {}
+};</pre>
+
+<h2>3. Singly Linked List Operations</h2>
+
+<h3>3.1 Insert at Head — O(1)</h3>
+<pre>void insertFront(Node*& head, int val) {
+    Node* n = new Node(val);
+    n->next = head;
+    head = n;
+}</pre>
+
+<h3>3.2 Insert at Tail — O(n) without tail pointer</h3>
+<pre>void insertBack(Node*& head, int val) {
+    Node* n = new Node(val);
+    if (!head) { head = n; return; }
+    Node* cur = head;
+    while (cur->next) cur = cur->next;
+    cur->next = n;
+}</pre>
+
+<h3>3.3 Delete a Node — O(n) to find, O(1) to remove</h3>
+<pre>void deleteVal(Node*& head, int val) {
+    if (!head) return;
+    if (head->val == val) {
+        Node* tmp = head;
+        head = head->next;
+        delete tmp; return;
+    }
+    Node* cur = head;
+    while (cur->next && cur->next->val != val)
+        cur = cur->next;
+    if (cur->next) {
+        Node* tmp = cur->next;
+        cur->next = tmp->next;
+        delete tmp;
+    }
+}</pre>
+
+<div class="diagram">
+  head → [1 | ●] → [2 | ●] → [3 | ●] → [4 | nullptr]
+</div>
+
+<h2>4. Doubly Linked List</h2>
+<pre>struct DNode {
+    int val;
+    DNode* prev;
+    DNode* next;
+    DNode(int v) : val(v), prev(nullptr), next(nullptr) {}
+};</pre>
+
+<p>With a direct pointer to a node, deletion becomes <strong>O(1)</strong> — you can relink prev and next without traversal.</p>
+
+<pre>void deleteNode(DNode* n) {
+    if (n->prev) n->prev->next = n->next;
+    if (n->next) n->next->prev = n->prev;
+    delete n;
+}</pre>
+
+<h2>5. Time Complexity Summary</h2>
+<table>
+  <tr><th>Operation</th><th>Singly LL</th><th>Doubly LL</th></tr>
+  <tr><td>Search</td><td>O(n)</td><td>O(n)</td></tr>
+  <tr><td>Insert at head</td><td>O(1)</td><td>O(1)</td></tr>
+  <tr><td>Insert at tail</td><td>O(n)*</td><td>O(n)*</td></tr>
+  <tr><td>Delete (with ptr)</td><td>O(n)</td><td>O(1)</td></tr>
+  <tr><td>Delete (by value)</td><td>O(n)</td><td>O(n)</td></tr>
+</table>
+<p style="font-size:11px;color:#666">* O(1) if tail pointer maintained separately</p>
+
+<h2>6. Common Pitfalls</h2>
+<ul>
+  <li>Deleting <code>head</code> before saving <code>head->next</code> → dangling pointer</li>
+  <li>Forgetting to update <code>prev</code> pointer in doubly linked list operations</li>
+  <li>Off-by-one: loop condition <code>cur != nullptr</code> vs <code>cur->next != nullptr</code></li>
+  <li>Memory leak: always <code>delete</code> removed nodes</li>
+</ul>
+
+<div class="note"><strong>Exam tip:</strong> Draw the pointer diagram step-by-step. Most lost points are from skipping the diagram and getting the order of pointer updates wrong.</div>
+
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CS 314 Exam 2 Practice Problems</title>
+<style>
+  body { font-family: Georgia, serif; max-width: 760px; margin: 0 auto; padding: 40px 48px; color: #1a1a1a; background: #fff; font-size: 14px; line-height: 1.7; }
+  .header { border-bottom: 2px solid #7c3aed; padding-bottom: 16px; margin-bottom: 28px; }
+  .course { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #7c3aed; margin-bottom: 6px; }
+  h1 { font-size: 24px; font-weight: 700; margin: 0 0 4px; }
+  .meta { font-size: 12px; color: #666; }
+  h2 { font-size: 16px; font-weight: 700; margin: 28px 0 10px; border-left: 4px solid #7c3aed; padding-left: 12px; }
+  .problem { background: #fafafa; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px 20px; margin: 14px 0; }
+  .problem-num { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #7c3aed; margin-bottom: 8px; }
+  code { font-family: 'Courier New', monospace; background: #f4f4f4; padding: 2px 6px; border-radius: 4px; font-size: 12.5px; }
+  pre { background: #1e293b; color: #a5f3fc; padding: 16px 20px; border-radius: 8px; font-size: 12.5px; line-height: 1.6; overflow-x: auto; margin: 12px 0; }
+  .answer { background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 8px; padding: 12px 16px; margin-top: 10px; font-size: 13px; }
+  .answer strong { color: #6d28d9; }
+  .pts { float: right; font-size: 11px; font-weight: 700; color: #94a3b8; background: #f1f5f9; padding: 2px 8px; border-radius: 4px; }
+  ol { padding-left: 20px; }
+  li { margin: 6px 0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="course">CS 314 · Data Structures · University of Texas at Austin</div>
+  <h1>Exam 2 Practice Problems</h1>
+  <div class="meta">Panav Mhatre · Topics: Linked Lists, BSTs, Tree Traversals · Fall 2024</div>
+</div>
+
+<h2>Section A — Short Answer</h2>
+
+<div class="problem">
+  <div class="problem-num">Problem 1 <span class="pts">5 pts</span></div>
+  <p>What is the output of the following code?</p>
+  <pre>Node* head = new Node(10);
+head->next = new Node(20);
+head->next->next = new Node(30);
+
+Node* cur = head;
+while (cur) {
+    cout << cur->val << " ";
+    cur = cur->next;
+}
+delete head;</pre>
+  <div class="answer"><strong>Answer:</strong> <code>10 20 30</code> — traverses from head to nullptr printing each value. Note: <code>delete head</code> only frees the first node — this is a memory leak! Should traverse and delete each node.</div>
+</div>
+
+<div class="problem">
+  <div class="problem-num">Problem 2 <span class="pts">5 pts</span></div>
+  <p>Given a BST with root 5, and insert order: 3, 7, 1, 4, 6, 8. Draw the tree and give the in-order traversal output.</p>
+  <div class="answer"><strong>Answer:</strong> In-order: <code>1 3 4 5 6 7 8</code> (always sorted for a BST). Tree structure: 5 is root, left subtree has 3 (with children 1, 4), right subtree has 7 (with children 6, 8).</div>
+</div>
+
+<div class="problem">
+  <div class="problem-num">Problem 3 <span class="pts">5 pts</span></div>
+  <p>What is the time complexity of deleting a node from a singly linked list given a direct pointer to that node (not a value to search for)?</p>
+  <div class="answer"><strong>Answer:</strong> <strong>O(n)</strong> — even with a direct pointer to the node, you must traverse from head to find the <em>previous</em> node to update its <code>next</code>. (For a doubly linked list the answer would be O(1).)</div>
+</div>
+
+<h2>Section B — Tracing</h2>
+
+<div class="problem">
+  <div class="problem-num">Problem 4 <span class="pts">10 pts</span></div>
+  <p>Trace the following recursive function on the BST with root=8, nodes: 4, 12, 2, 6, 10, 14.</p>
+  <pre>int mystery(Node* n) {
+    if (!n) return 0;
+    return 1 + max(mystery(n->left), mystery(n->right));
+}</pre>
+  <p>What does <code>mystery(root)</code> return? What does this function compute?</p>
+  <div class="answer"><strong>Answer:</strong> Returns <code>3</code>. This is the <strong>height</strong> function — counts the number of nodes on the longest root-to-leaf path.</div>
+</div>
+
+<div class="problem">
+  <div class="problem-num">Problem 5 <span class="pts">10 pts</span></div>
+  <p>What is the pre-order traversal of a BST built by inserting: 5, 2, 8, 1, 3, 7, 9?</p>
+  <div class="answer"><strong>Answer:</strong> <code>5, 2, 1, 3, 8, 7, 9</code> — pre-order visits Root first, then recursively left, then right subtree.</div>
+</div>
+
+<h2>Section C — Code Writing</h2>
+
+<div class="problem">
+  <div class="problem-num">Problem 6 <span class="pts">15 pts</span></div>
+  <p>Write a function <code>int sumList(Node* head)</code> that returns the sum of all values in a linked list.</p>
+  <div class="answer">
+<strong>Answer:</strong>
+<pre style="margin:8px 0 0">int sumList(Node* head) {
+    int total = 0;
+    while (head) {
+        total += head->val;
+        head = head->next;
+    }
+    return total;
+}</pre>
+  </div>
+</div>
+
+<div class="problem">
+  <div class="problem-num">Problem 7 <span class="pts">15 pts</span></div>
+  <p>Write a function <code>bool isBST(Node* n, int min, int max)</code> that returns true if a binary tree is a valid BST.</p>
+  <div class="answer">
+<strong>Answer:</strong>
+<pre style="margin:8px 0 0">bool isBST(Node* n, int mn = INT_MIN, int mx = INT_MAX) {
+    if (!n) return true;
+    if (n->val <= mn || n->val >= mx) return false;
+    return isBST(n->left,  mn, n->val) &&
+           isBST(n->right, n->val, mx);
+}</pre>
+  </div>
+</div>
+
+<h2>Section D — Multiple Choice</h2>
+<ol>
+  <li>What traversal of a BST gives sorted output? <strong>(A) In-order</strong> (B) Pre-order (C) Post-order (D) Level-order</li>
+  <li>Inserting n elements into a BST in sorted order gives what height? <strong>(D) O(n)</strong> — degenerates to a linked list</li>
+  <li>Which operation is O(1) for a singly linked list? <strong>(B) Insert at head</strong></li>
+  <li>A node in a doubly linked list can be deleted in O(1) if you have a direct pointer to it. <strong>True</strong> (you have both prev and next)</li>
+</ol>
+
+</body>
+</html>

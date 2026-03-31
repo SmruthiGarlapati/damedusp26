@@ -9,6 +9,8 @@ import AvailabilityGrid, {
   makeEmptyGrid,
   DEFAULT_INITIAL_GRID,
 } from "@/components/AvailabilityGrid";
+import { createClient } from "@/lib/supabase/client";
+import { useCurrentUser } from "@/lib/useCurrentUser";
 
 /* ─────────────────────────────────────────────
    Types
@@ -87,11 +89,6 @@ const AMENITIES = [
 
 const DURATION_OPTIONS = ["30 min", "1 hr", "1.5 hr", "2 hr", "3+ hr"];
 const GROUP_SIZES = ["1-on-1", "Small (2-3)", "Any"];
-const STUDY_ROLES = [
-  { value: "teacher", label: "Teacher", desc: "I like explaining concepts to others" },
-  { value: "learner", label: "Learner", desc: "I need material taught to me" },
-  { value: "collaborative", label: "Collaborative", desc: "I prefer working through things together" },
-];
 
 /* ─────────────────────────────────────────────
    Step Indicator
@@ -154,6 +151,9 @@ export default function SchedulePage() {
   const searchParams = useSearchParams();
   const [step, setStep] = useState(1);
 
+  const { user, loading: userLoading } = useCurrentUser();
+  const [dbLoading, setDbLoading] = useState(false);
+
   // Honor ?step=N deep-links (from matching page Edit buttons)
   useEffect(() => {
     const s = Number(searchParams.get("step"));
@@ -169,7 +169,7 @@ export default function SchedulePage() {
   const [canvasConnected, setCanvasConnected] = useState(false);
 
   // Step 2 state
-  const [studyRole, setStudyRole] = useState("collaborative");
+
   const [studyMethods, setStudyMethods] = useState<string[]>(["Pomodoro", "Flashcards"]);
   const [groupSize, setGroupSize] = useState("Small (2-3)");
   const [environment, setEnvironment] = useState("Silent (Library Level 5)");
@@ -187,6 +187,60 @@ export default function SchedulePage() {
 
   // Step 4 state
   const [grid, setGrid] = useState<CellState[][]>(DEFAULT_INITIAL_GRID);
+
+  // Load existing data from DB when user loads
+  useEffect(() => {
+    if (!user) return;
+
+    const supabase = createClient();
+
+    async function loadFromDb() {
+      if (!user) return;
+      setDbLoading(true);
+      try {
+        // Load course_records
+        const { data: courseRecords } = await supabase
+          .from("course_records")
+          .select("*")
+          .eq("user_id", user.id);
+
+        if (courseRecords && courseRecords.length > 0) {
+          const loadedCourses: Course[] = courseRecords.map((record) => ({
+            id: record.id,
+            code: record.course_number.split(" ")[0] || "?",
+            name: record.course_number,
+            professor: record.professor || "TBA",
+            schedule: "TBD",
+            color: "teal" as const,
+            priority: false,
+            skillLevel: "Intermediate" as const,
+          }));
+          setCourses(loadedCourses);
+        }
+
+        // Pre-fill preferences
+        const prefs = user.preferences as Record<string, unknown>;
+        if (prefs) {
+          if (Array.isArray(prefs.techniques)) setStudyMethods(prefs.techniques as string[]);
+          if (typeof prefs.group_size === "string") setGroupSize(prefs.group_size);
+          if (typeof prefs.environment_type === "string") setEnvironment(prefs.environment_type);
+          if (typeof prefs.preferred_study_spot === "string") setStudySpot(prefs.preferred_study_spot);
+        }
+
+        // Pre-fill availability grid
+        const avail = user.availability as Record<string, unknown>;
+        if (avail && Array.isArray(avail.grid)) {
+          setGrid(avail.grid as CellState[][]);
+        }
+      } catch (err) {
+        console.error("Failed to load data from DB:", err);
+      } finally {
+        setDbLoading(false);
+      }
+    }
+
+    void loadFromDb();
+  }, [user]);
 
   function addCourse() {
     if (!courseNum.trim()) return;
@@ -238,6 +292,101 @@ export default function SchedulePage() {
   const handleGridChange = useCallback((g: CellState[][]) => setGrid(g), []);
 
   const priorityCourses = courses.filter((c) => c.priority);
+
+  // Step transition handlers
+  function handleStep1Continue() {
+    if (user) {
+      const supabase = createClient();
+      const userId = user.id;
+      const courseSnapshot = courses;
+      void (async () => {
+        try {
+          await supabase.from("course_records").delete().eq("user_id", userId);
+          await supabase.from("course_records").insert(
+            courseSnapshot.map((c) => ({
+              user_id: userId,
+              course_number: c.name.split(":")[0].trim(),
+              professor: c.professor || null,
+            }))
+          );
+        } catch (err) {
+          console.error("Failed to save courses:", err);
+        }
+      })();
+    }
+    setStep(2);
+  }
+
+  function handleStep2Continue() {
+    if (user) {
+      const supabase = createClient();
+      const userId = user.id;
+      const existingPrefs = (user.preferences as Record<string, unknown>) ?? {};
+      void (async () => {
+        try {
+          await supabase
+            .from("users")
+            .update({
+              preferences: {
+                ...existingPrefs,
+                techniques: studyMethods,
+                group_size: groupSize,
+                environment_type: environment,
+              },
+            })
+            .eq("id", userId);
+        } catch (err) {
+          console.error("Failed to save study preferences:", err);
+        }
+      })();
+    }
+    setStep(3);
+  }
+
+  function handleStep3Continue() {
+    if (user) {
+      const supabase = createClient();
+      const userId = user.id;
+      const existingPrefs = (user.preferences as Record<string, unknown>) ?? {};
+      void (async () => {
+        try {
+          await supabase
+            .from("users")
+            .update({
+              preferences: {
+                ...existingPrefs,
+                preferred_study_spot: studySpot,
+              },
+            })
+            .eq("id", userId);
+        } catch (err) {
+          console.error("Failed to save spot preference:", err);
+        }
+      })();
+    }
+    setStep(4);
+  }
+
+  function handleStep4Finish() {
+    if (user) {
+      const supabase = createClient();
+      const userId = user.id;
+      const gridSnapshot = grid;
+      void (async () => {
+        try {
+          await supabase
+            .from("users")
+            .update({ availability: { grid: gridSnapshot } })
+            .eq("id", userId);
+        } catch (err) {
+          console.error("Failed to save availability:", err);
+        }
+      })();
+    }
+    router.push("/matching");
+  }
+
+  const continueDisabled = userLoading || dbLoading;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -429,7 +578,7 @@ export default function SchedulePage() {
               )}
 
               <div className="flex justify-end">
-                <Button size="lg" onClick={() => setStep(2)}>
+                <Button size="lg" onClick={handleStep1Continue} disabled={continueDisabled}>
                   Continue to Preferences
                   <ArrowRightIcon />
                 </Button>
@@ -511,44 +660,6 @@ export default function SchedulePage() {
         {step === 2 && (
           <div className="mx-auto max-w-2xl">
             <div className="flex flex-col gap-6">
-              {/* Study role */}
-              <div className="rounded-xl border border-[var(--color-border)] bg-white p-6 shadow-[var(--shadow-sm)]">
-                <h3 className="mb-4 text-[15px] font-bold">Your study role</h3>
-                <div className="flex flex-col gap-3">
-                  {STUDY_ROLES.map((r) => (
-                    <button
-                      key={r.value}
-                      onClick={() => setStudyRole(r.value)}
-                      className={`flex items-start gap-3.5 rounded-xl border-[1.5px] px-5 py-4 text-left transition-all ${
-                        studyRole === r.value
-                          ? "border-[var(--color-primary)] bg-[var(--color-primary-light)]"
-                          : "border-[var(--color-border)] hover:border-[var(--color-primary-muted)]"
-                      }`}
-                    >
-                      <div
-                        className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
-                          studyRole === r.value
-                            ? "border-[var(--color-primary)] bg-[var(--color-primary)]"
-                            : "border-[var(--color-border)]"
-                        }`}
-                      >
-                        {studyRole === r.value && (
-                          <div className="h-2 w-2 rounded-full bg-white" />
-                        )}
-                      </div>
-                      <div>
-                        <div className={`text-sm font-bold ${studyRole === r.value ? "text-[var(--color-primary)]" : ""}`}>
-                          {r.label}
-                        </div>
-                        <div className="text-[12px] text-[var(--color-text-secondary)]">
-                          {r.desc}
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               {/* Study methods */}
               <div className="rounded-xl border border-[var(--color-border)] bg-white p-6 shadow-[var(--shadow-sm)]">
                 <h3 className="mb-1.5 text-[15px] font-bold">Preferred study methods</h3>
@@ -632,7 +743,7 @@ export default function SchedulePage() {
                 <Button variant="outline" onClick={() => setStep(1)}>
                   <ArrowLeftIcon /> Back
                 </Button>
-                <Button size="lg" onClick={() => setStep(3)}>
+                <Button size="lg" onClick={handleStep2Continue} disabled={continueDisabled}>
                   Continue to Logistics
                   <ArrowRightIcon />
                 </Button>
@@ -804,7 +915,7 @@ export default function SchedulePage() {
                 <Button variant="outline" onClick={() => setStep(2)}>
                   <ArrowLeftIcon /> Back
                 </Button>
-                <Button size="lg" onClick={() => setStep(4)}>
+                <Button size="lg" onClick={handleStep3Continue} disabled={continueDisabled}>
                   Continue to Availability
                   <ArrowRightIcon />
                 </Button>
@@ -838,7 +949,7 @@ export default function SchedulePage() {
               <Button variant="outline" onClick={() => setStep(3)}>
                 <ArrowLeftIcon /> Back
               </Button>
-              <Button size="lg" onClick={() => router.push("/matching")}>
+              <Button size="lg" onClick={handleStep4Finish}>
                 Find my study matches
                 <ArrowRightIcon />
               </Button>

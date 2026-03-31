@@ -1,251 +1,218 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import { addSession } from "@/lib/sessionsStore";
+import { createClient } from "@/lib/supabase/client";
+import { useCurrentUser } from "@/lib/useCurrentUser";
 
 /* ─────────────────────────────────────────────
-   Data
+   Types
 ───────────────────────────────────────────── */
-type MatchType = "1-on-1" | "group" | "co-study";
-
 interface Partner {
   id: string;
   name: string;
   initials: string;
-  role: string;        // "Teaches" | "Needs guidance" | "Co-study"
-  course: string;
+  sharedCourses: string[];
+  allCourses: string[];
   location: string;
   matchPct: number;
-  type: MatchType;
+  matchBreakdown: MatchBreakdown;
   methods: string[];
-  availability: string;
+  rating: number;
+  bio: string;
+  major: string;
+  year: string;
+  sessionsCompleted: number;
 }
 
-const PARTNERS: Partner[] = [
-  {
-    id: "1",
-    name: "Rhea Patel",
-    initials: "RP",
-    role: "Prefers to teach",
-    course: "CS 312: Algorithms",
-    location: "PCL Level 3",
-    matchPct: 97,
-    type: "1-on-1",
-    methods: ["Whiteboard", "Practice Problems"],
-    availability: "MWF 10–12 PM",
-  },
-  {
-    id: "2",
-    name: "Jason Yao",
-    initials: "JY",
-    role: "Needs guidance",
-    course: "PHYS 201: Mechanics",
-    location: "Union Building",
-    matchPct: 89,
-    type: "1-on-1",
-    methods: ["Cliff Notes", "Discussion"],
-    availability: "Tue/Thu afternoons",
-  },
-  {
-    id: "3",
-    name: "Elena Chen",
-    initials: "EC",
-    role: "Collaborative",
-    course: "CS 3450: Software Eng",
-    location: "FAC 214",
-    matchPct: 94,
-    type: "1-on-1",
-    methods: ["Pomodoro", "Flashcards"],
-    availability: "Weekdays 2–5 PM",
-  },
-  {
-    id: "4",
-    name: "Jasmine Ball, Ayan Jannu, Neel Asija",
-    initials: "JB",
-    role: "Silent co-working",
-    course: "MATH 445: Statistics",
-    location: "Botanical Cafe",
-    matchPct: 81,
-    type: "group",
-    methods: ["Co-study", "Practice Problems"],
-    availability: "Sat mornings",
-  },
-  {
-    id: "5",
-    name: "Marcus Thorne",
-    initials: "MT",
-    role: "Collaborative",
-    course: "MATH 2210: Multivariable",
-    location: "PCL Level 5",
-    matchPct: 91,
-    type: "1-on-1",
-    methods: ["Discussion", "Whiteboard"],
-    availability: "MWF 3–5 PM",
-  },
-  {
-    id: "6",
-    name: "Study Pod · CS 314",
-    initials: "SP",
-    role: "Group study",
-    course: "CS 314: Data Structures",
-    location: "GDC 2.210",
-    matchPct: 78,
-    type: "group",
-    methods: ["Discussion", "Practice Problems"],
-    availability: "Thu evenings",
-  },
-];
+interface MatchBreakdown {
+  courseScore: number;    // 0–50
+  methodScore: number;   // 0–30
+  groupScore: number;    // 0–12
+  envScore: number;      // 0–8
+}
 
-const TYPE_LABEL: Record<MatchType, string> = {
-  "1-on-1": "1-on-1",
-  group: "Group",
-  "co-study": "Co-study",
-};
+/* ─────────────────────────────────────────────
+   Matching algorithm
+───────────────────────────────────────────── */
 
-const TYPE_STYLE: Record<MatchType, string> = {
-  "1-on-1": "bg-[var(--color-teal-light)] text-[var(--color-primary)]",
-  group: "bg-indigo-50 text-indigo-700",
-  "co-study": "bg-[var(--color-surface)] text-[var(--color-text-secondary)]",
-};
+/**
+ * Student-to-student matching.
+ * Weights: course overlap 50%, study methods 30%, group size 12%, environment 8%.
+ */
+function computeMatch(
+  me: { preferences: Record<string, unknown>; courses: string[] },
+  them: { preferences: Record<string, unknown>; courses: string[] }
+): { pct: number; breakdown: MatchBreakdown } {
+  // ── 1. Course overlap (weight 0.50) ──────────────────────────────
+  const shared = me.courses.filter((c) => them.courses.includes(c));
+  const courseRaw = shared.length === 0 ? 0 : shared.length === 1 ? 0.7 : 1.0;
 
-const REQUEST_LABEL: Record<MatchType, string> = {
-  "1-on-1": "Request Session",
-  group: "Request to Join Group",
-  "co-study": "Request to Co-study",
-};
+  // ── 2. Study methods – Jaccard similarity (weight 0.30) ──────────
+  const myM = (me.preferences.techniques as string[]) ?? [];
+  const thM = (them.preferences.techniques as string[]) ?? [];
+  let methodRaw = 0.5;
+  if (myM.length > 0 && thM.length > 0) {
+    const intersection = myM.filter((m) => thM.includes(m)).length;
+    const union = new Set([...myM, ...thM]).size;
+    methodRaw = union > 0 ? intersection / union : 0;
+  }
 
-const MODAL_TITLE: Record<MatchType, string> = {
-  "1-on-1": "Request a 1-on-1 Session",
-  group: "Request to Join Group",
-  "co-study": "Request a Co-study Session",
-};
+  // ── 3. Group size preference (weight 0.12) ───────────────────────
+  const myGrp = (me.preferences.group_size as string) ?? "";
+  const thGrp = (them.preferences.group_size as string) ?? "";
+  const groupRaw = !myGrp || !thGrp ? 0.5 : myGrp === thGrp ? 1.0 : 0.25;
+
+  // ── 4. Environment type (weight 0.08) ─────────────────────────────
+  const myEnv = (me.preferences.environment_type as string) ?? "";
+  const thEnv = (them.preferences.environment_type as string) ?? "";
+  const envRaw = !myEnv || !thEnv ? 0.5 : myEnv === thEnv ? 1.0 : 0.25;
+
+  const pct = Math.round(
+    courseRaw * 50 + methodRaw * 30 + groupRaw * 12 + envRaw * 8
+  );
+
+  return {
+    pct: Math.min(100, pct),
+    breakdown: {
+      courseScore: Math.round(courseRaw * 50),
+      methodScore: Math.round(methodRaw * 30),
+      groupScore:  Math.round(groupRaw  * 12),
+      envScore:    Math.round(envRaw    *  8),
+    },
+  };
+}
+
+function toInitials(name: string): string {
+  return name
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
+
 
 /* ─────────────────────────────────────────────
    Request modal
 ───────────────────────────────────────────── */
-interface RequestTarget {
-  partner: Partner;
-}
-
 function RequestModal({
   target,
   onClose,
   onSend,
 }: {
-  target: RequestTarget;
+  target: Partner;
   onClose: () => void;
   onSend: (date: string, time: string, duration: number, notes: string) => void;
 }) {
-  const { partner } = target;
   const todayStr = new Date().toISOString().split("T")[0];
-  const [date, setDate] = useState(todayStr);
-  const [time, setTime] = useState("10:00");
+  const [date,     setDate]     = useState(todayStr);
+  const [time,     setTime]     = useState("10:00");
   const [duration, setDuration] = useState(60);
-  const [notes, setNotes] = useState("");
+  const [notes,    setNotes]    = useState("");
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
       <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden">
-        {/* Header */}
         <div className="bg-[var(--color-primary)] px-6 py-5 text-white">
-          <h2 className="text-lg font-extrabold">{MODAL_TITLE[partner.type]}</h2>
+          <h2 className="text-lg font-extrabold">Request a Study Session</h2>
           <p className="mt-0.5 text-[13px] text-white/70">
-            {partner.type === "group"
-              ? `Joining ${partner.name} · ${partner.course}`
-              : `with ${partner.name} · ${partner.course}`}
+            with {target.name} · {target.sharedCourses[0] ?? target.allCourses[0] ?? ""}
           </p>
         </div>
 
         <div className="p-6 flex flex-col gap-4">
-          {/* Date + time */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">Date</label>
-              <input
-                type="date"
-                value={date}
-                min={todayStr}
-                onChange={(e) => setDate(e.target.value)}
-                className="h-11 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 text-sm outline-none focus:border-[var(--color-primary)]"
-              />
+              <input type="date" value={date} min={todayStr} onChange={(e) => setDate(e.target.value)}
+                className="h-11 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 text-sm outline-none focus:border-[var(--color-primary)]" />
             </div>
             <div>
               <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">Time</label>
-              <input
-                type="time"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                className="h-11 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 text-sm outline-none focus:border-[var(--color-primary)]"
-              />
+              <input type="time" value={time} onChange={(e) => setTime(e.target.value)}
+                className="h-11 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 text-sm outline-none focus:border-[var(--color-primary)]" />
             </div>
           </div>
 
-          {/* Duration */}
           <div>
             <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">Duration</label>
             <div className="flex gap-2">
               {[30, 60, 90, 120].map((d) => (
-                <button
-                  key={d}
-                  onClick={() => setDuration(d)}
+                <button key={d} onClick={() => setDuration(d)}
                   className={`flex-1 rounded-xl border-[1.5px] py-2 text-[13px] font-semibold transition-all ${
                     duration === d
                       ? "border-[var(--color-primary)] bg-[var(--color-primary-light)] text-[var(--color-primary)]"
                       : "border-[var(--color-border)] hover:border-[var(--color-primary-muted)]"
-                  }`}
-                >
+                  }`}>
                   {d < 60 ? `${d}m` : `${d / 60}h`}
                 </button>
               ))}
             </div>
           </div>
 
-          {/* What to work on */}
           <div>
             <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
-              {partner.type === "group" ? "Why do you want to join?" : "What do you want to work on?"}
-              {" "}(optional)
+              What do you want to work on? (optional)
             </label>
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              rows={2}
-              placeholder={
-                partner.type === "group"
-                  ? "e.g. Need help with Stats hw, want to co-study for exam..."
-                  : "e.g. Assignment 4, exam prep, chapter 7..."
-              }
-              className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2.5 text-sm outline-none resize-none placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary)]"
-            />
+            <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2}
+              placeholder="e.g. Assignment 4, exam prep, chapter 7..."
+              className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2.5 text-sm outline-none resize-none placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary)]" />
           </div>
 
-          {/* Location */}
-          <div className="flex items-center gap-2 rounded-xl bg-[var(--color-surface)] px-3 py-2.5">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6b6b65" strokeWidth="2" strokeLinecap="round">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
-            </svg>
-            <span className="text-[12px] text-[var(--color-text-secondary)]">{partner.location}</span>
-          </div>
+          {target.location && (
+            <div className="flex items-center gap-2 rounded-xl bg-[var(--color-surface)] px-3 py-2.5">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6b6b65" strokeWidth="2" strokeLinecap="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+              </svg>
+              <span className="text-[12px] text-[var(--color-text-secondary)]">{target.location}</span>
+            </div>
+          )}
 
-          {/* Buttons */}
           <div className="flex gap-3 pt-1">
-            <button
-              onClick={onClose}
-              className="flex-1 rounded-xl border border-[var(--color-border)] py-3 text-[14px] font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-surface)] transition-colors"
-            >
+            <button onClick={onClose}
+              className="flex-1 rounded-xl border border-[var(--color-border)] py-3 text-[14px] font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-surface)] transition-colors">
               Cancel
             </button>
-            <button
-              onClick={() => onSend(date, time, duration, notes)}
-              className="flex-1 rounded-xl bg-[var(--color-primary)] py-3 text-[14px] font-bold text-white shadow-[var(--shadow-primary)] hover:bg-[var(--color-primary-hover)] transition-all"
-            >
-              {partner.type === "group" ? "Send Join Request" : "Send Request"}
+            <button onClick={() => onSend(date, time, duration, notes)}
+              className="flex-1 rounded-xl bg-[var(--color-primary)] py-3 text-[14px] font-bold text-white shadow-[var(--shadow-primary)] hover:bg-[var(--color-primary-hover)] transition-all">
+              Send Request
             </button>
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────
+   Match score breakdown tooltip
+───────────────────────────────────────────── */
+function ScoreBreakdown({ bd }: { bd: MatchBreakdown }) {
+  const bars: Array<{ label: string; score: number; max: number; color: string }> = [
+    { label: "Courses",    score: bd.courseScore, max: 50, color: "bg-[var(--color-primary)]" },
+    { label: "Methods",    score: bd.methodScore, max: 30, color: "bg-indigo-500" },
+    { label: "Group size", score: bd.groupScore,  max: 12, color: "bg-amber-500" },
+    { label: "Environment",score: bd.envScore,    max:  8, color: "bg-pink-400" },
+  ];
+  return (
+    <div className="flex flex-col gap-1.5 py-1">
+      {bars.map((b) => (
+        <div key={b.label}>
+          <div className="mb-0.5 flex justify-between text-[10px] font-medium text-[var(--color-text-muted)]">
+            <span>{b.label}</span>
+            <span>{b.score}/{b.max}</span>
+          </div>
+          <div className="h-1.5 w-full rounded-full bg-[var(--color-border)]">
+            <div
+              className={`h-full rounded-full ${b.color}`}
+              style={{ width: `${(b.score / b.max) * 100}%` }}
+            />
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -264,59 +231,82 @@ function MatchCard({
   onRequest: () => void;
   onProfile: () => void;
 }) {
+  const [showBreakdown, setShowBreakdown] = useState(false);
+
   const pctColor =
-    partner.matchPct >= 90
-      ? "text-green-600"
-      : partner.matchPct >= 75
-      ? "text-amber-600"
-      : "text-[var(--color-text-muted)]";
+    partner.matchPct >= 90 ? "text-green-600"
+    : partner.matchPct >= 75 ? "text-amber-600"
+    : "text-[var(--color-text-muted)]";
+
+  const displayCourse = partner.sharedCourses[0] ?? partner.allCourses[0] ?? "—";
 
   return (
     <div className="flex flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white shadow-[var(--shadow-sm)] transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)]">
-      {/* Card header */}
       <div className="p-5 pb-3">
         <div className="mb-3 flex items-start gap-3">
-          {/* Avatar */}
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] text-[13px] font-bold text-white">
             {partner.initials}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <h3 className="truncate text-[15px] font-bold leading-tight">{partner.name}</h3>
-            </div>
-            <p className="text-[12px] text-[var(--color-text-secondary)]">{partner.role}</p>
+            <h3 className="truncate text-[15px] font-bold leading-tight">{partner.name}</h3>
+            <p className="text-[12px] text-[var(--color-text-secondary)]">Student</p>
           </div>
-          {/* Match % */}
-          <div className="shrink-0 text-right">
-            <div className={`text-[22px] font-extrabold leading-none ${pctColor}`}>
-              {partner.matchPct}%
-            </div>
-            <div className="text-[10px] font-medium text-[var(--color-text-muted)]">match</div>
+          {/* Match % with breakdown toggle */}
+          <div className="relative shrink-0 text-right">
+            <button
+              onClick={() => setShowBreakdown((v) => !v)}
+              className="group"
+              title="View score breakdown"
+            >
+              <div className={`text-[22px] font-extrabold leading-none ${pctColor}`}>
+                {partner.matchPct}%
+              </div>
+              <div className="text-[10px] font-medium text-[var(--color-text-muted)] group-hover:text-[var(--color-primary)] transition-colors">
+                match ▾
+              </div>
+            </button>
+            {showBreakdown && (
+              <div className="absolute right-0 top-10 z-20 w-48 rounded-xl border border-[var(--color-border)] bg-white p-3 shadow-[var(--shadow-lg)]">
+                <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">Score Breakdown</p>
+                <ScoreBreakdown bd={partner.matchBreakdown} />
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Details */}
         <div className="mb-3 flex flex-col gap-1.5">
           <div className="flex items-center gap-2 text-[12px] text-[var(--color-text-secondary)]">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-            {partner.course}
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+            </svg>
+            {displayCourse}
+            {partner.sharedCourses.length > 1 && (
+              <span className="rounded-full bg-[var(--color-teal-light)] px-1.5 py-0.5 text-[9px] font-bold text-[var(--color-primary)]">
+                +{partner.sharedCourses.length - 1} more
+              </span>
+            )}
           </div>
+          {partner.location && (
+            <div className="flex items-center gap-2 text-[12px] text-[var(--color-text-secondary)]">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+              </svg>
+              {partner.location}
+            </div>
+          )}
           <div className="flex items-center gap-2 text-[12px] text-[var(--color-text-secondary)]">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            {partner.location}
-          </div>
-          <div className="flex items-center gap-2 text-[12px] text-[var(--color-text-secondary)]">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            {partner.availability}
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            {partner.rating.toFixed(1)} · {partner.sessionsCompleted} sessions
           </div>
         </div>
 
-        {/* Tags */}
         <div className="flex flex-wrap gap-1.5">
-          <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${TYPE_STYLE[partner.type]}`}>
-            {TYPE_LABEL[partner.type]}
+          <span className="rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-[var(--color-teal-light)] text-[var(--color-primary)]">
+            Student
           </span>
-          {partner.methods.map((m) => (
+          {partner.methods.slice(0, 3).map((m) => (
             <span key={m} className="rounded-full border border-[var(--color-border)] px-2.5 py-0.5 text-[10px] font-medium text-[var(--color-text-secondary)]">
               {m}
             </span>
@@ -324,7 +314,6 @@ function MatchCard({
         </div>
       </div>
 
-      {/* Action row */}
       <div className="mt-auto flex items-center justify-between border-t border-[var(--color-border-light)] px-5 py-3.5">
         <button onClick={onProfile} className="text-[12px] font-semibold text-[var(--color-primary)] hover:underline">
           View Profile
@@ -335,11 +324,9 @@ function MatchCard({
             Request sent
           </span>
         ) : (
-          <button
-            onClick={onRequest}
-            className="rounded-xl bg-[var(--color-primary)] px-4 py-2 text-[12px] font-bold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-primary-hover)] hover:-translate-y-px"
-          >
-            {REQUEST_LABEL[partner.type]}
+          <button onClick={onRequest}
+            className="rounded-xl bg-[var(--color-primary)] px-4 py-2 text-[12px] font-bold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-primary-hover)] hover:-translate-y-px">
+            Request Session
           </button>
         )}
       </div>
@@ -348,35 +335,17 @@ function MatchCard({
 }
 
 /* ─────────────────────────────────────────────
-   Partner profile modal
+   Profile modal
 ───────────────────────────────────────────── */
-const PARTNER_EXTRA: Record<string, {
-  major: string; year: string; rating: number; sessions: number;
-  bio: string; badges: string[];
-}> = {
-  "1": { major: "Computer Science", year: "Junior", rating: 4.9, sessions: 18, bio: "I love breaking down complex algorithms into simple steps. Happy to walk through anything from sorting to dynamic programming!", badges: ["Top Teacher", "Reliable", "5+ Sessions"] },
-  "2": { major: "Physics", year: "Sophomore", rating: 4.5, sessions: 7, bio: "Working through mechanics labs and looking for someone patient to help me solidify the concepts. I come prepared!", badges: ["Motivated", "Prepared"] },
-  "3": { major: "Computer Science", year: "Senior", rating: 4.8, sessions: 24, bio: "Fourth year CS student who loves collaborative problem-solving. I bring snacks 😄", badges: ["Top Collaborator", "Reliable", "10+ Sessions"] },
-  "4": { major: "Mathematics", year: "Mixed", rating: 4.6, sessions: 31, bio: "A small group of us meet weekly for stats. We keep it quiet and focused — great for grinding problem sets.", badges: ["Group Lead", "Consistent", "Weekly"] },
-  "5": { major: "Mathematics", year: "Junior", rating: 4.7, sessions: 15, bio: "Math major who enjoys talking through proofs and concepts on the whiteboard. Let's figure it out together.", badges: ["Reliable", "Whiteboard Pro"] },
-  "6": { major: "Computer Science", year: "Mixed", rating: 4.4, sessions: 9, bio: "A study pod for CS 314. We do practice problems and discuss concepts before exams. Open to new members!", badges: ["Group", "Open to All"] },
-};
-
 function ProfileModal({ partner, onClose, onRequest }: {
   partner: Partner;
   onClose: () => void;
   onRequest: () => void;
 }) {
-  const extra = PARTNER_EXTRA[partner.id] ?? {
-    major: "Undeclared", year: "Unknown", rating: 4.5, sessions: 0,
-    bio: "No bio yet.", badges: [],
-  };
   const pctColor = partner.matchPct >= 90 ? "text-green-600" : partner.matchPct >= 75 ? "text-amber-600" : "text-[var(--color-text-muted)]";
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
       <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl overflow-hidden">
-        {/* Header */}
         <div className="relative bg-[var(--color-primary)] px-6 pt-6 pb-14 text-white">
           <button onClick={onClose} className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors">
             <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
@@ -389,18 +358,17 @@ function ProfileModal({ partner, onClose, onRequest }: {
             </div>
             <div>
               <h2 className="text-xl font-extrabold">{partner.name}</h2>
-              <p className="text-[13px] text-white/70">{extra.major} · {extra.year}</p>
-              <p className="text-[12px] text-white/60">{partner.course}</p>
+              <p className="text-[13px] text-white/70">{partner.major || "—"} · {partner.year || "—"}</p>
+              <p className="text-[12px] text-white/60">{partner.sharedCourses[0] ?? partner.allCourses[0] ?? ""}</p>
             </div>
           </div>
         </div>
 
-        {/* Stats strip */}
         <div className="-mt-8 mx-5 grid grid-cols-3 gap-3">
           {[
-            { label: "Match", value: `${partner.matchPct}%`, color: pctColor },
-            { label: "Rating", value: `${extra.rating}`, color: "text-[var(--color-text-base)]" },
-            { label: "Sessions", value: `${extra.sessions}`, color: "text-[var(--color-text-base)]" },
+            { label: "Match",    value: `${partner.matchPct}%`, color: pctColor },
+            { label: "Rating",   value: partner.rating.toFixed(1), color: "text-[var(--color-text-base)]" },
+            { label: "Sessions", value: `${partner.sessionsCompleted}`, color: "text-[var(--color-text-base)]" },
           ].map((s) => (
             <div key={s.label} className="rounded-xl border border-[var(--color-border)] bg-white px-3 py-3 text-center shadow-[var(--shadow-sm)]">
               <div className={`text-[20px] font-extrabold ${s.color}`}>{s.value}</div>
@@ -410,33 +378,36 @@ function ProfileModal({ partner, onClose, onRequest }: {
         </div>
 
         <div className="px-6 py-5 flex flex-col gap-4">
-          {/* Bio */}
+          {partner.bio && (
+            <div>
+              <p className="mb-1.5 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">About</p>
+              <p className="text-[13px] leading-relaxed text-[var(--color-text-secondary)]">{partner.bio}</p>
+            </div>
+          )}
+
+          {/* Score breakdown */}
           <div>
-            <p className="mb-1.5 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">About</p>
-            <p className="text-[13px] leading-relaxed text-[var(--color-text-secondary)]">{extra.bio}</p>
+            <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">Match Breakdown</p>
+            <ScoreBreakdown bd={partner.matchBreakdown} />
           </div>
 
-          {/* Badges */}
-          {extra.badges.length > 0 && (
+          {partner.sharedCourses.length > 0 && (
             <div>
-              <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">Badges</p>
+              <p className="mb-1.5 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">Shared Courses</p>
               <div className="flex flex-wrap gap-1.5">
-                {extra.badges.map((b) => (
-                  <span key={b} className="rounded-full bg-[var(--color-tag-green)] px-3 py-1 text-[11px] font-semibold text-[var(--color-primary)]">
-                    {b}
+                {partner.sharedCourses.map((c) => (
+                  <span key={c} className="rounded-full bg-[var(--color-teal-light)] px-3 py-1 text-[11px] font-semibold text-[var(--color-primary)]">
+                    {c}
                   </span>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Details */}
           <div className="grid grid-cols-2 gap-2">
             {[
-              { icon: "📍", label: partner.location },
-              { icon: "🕐", label: partner.availability },
-              { icon: "🎯", label: partner.role },
-              { icon: "📚", label: partner.methods.join(", ") },
+              { icon: "📍", label: partner.location || "No location set" },
+              { icon: "📚", label: partner.methods.join(", ") || "No methods set" },
             ].map((d) => (
               <div key={d.label} className="flex items-center gap-2 rounded-xl bg-[var(--color-surface)] px-3 py-2.5">
                 <span className="text-sm">{d.icon}</span>
@@ -445,13 +416,12 @@ function ProfileModal({ partner, onClose, onRequest }: {
             ))}
           </div>
 
-          {/* Actions */}
           <div className="flex gap-3 pt-1">
             <button onClick={onClose} className="flex-1 rounded-xl border border-[var(--color-border)] py-3 text-[14px] font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-surface)] transition-colors">
               Close
             </button>
             <button onClick={() => { onClose(); onRequest(); }} className="flex-1 rounded-xl bg-[var(--color-primary)] py-3 text-[14px] font-bold text-white shadow-[var(--shadow-primary)] hover:bg-[var(--color-primary-hover)] transition-all">
-              {REQUEST_LABEL[partner.type]}
+              Request Session
             </button>
           </div>
         </div>
@@ -463,48 +433,169 @@ function ProfileModal({ partner, onClose, onRequest }: {
 /* ─────────────────────────────────────────────
    Page
 ───────────────────────────────────────────── */
-const COURSE_FILTERS = ["All", "CS 312", "PHYS 201", "CS 3450", "MATH 445", "MATH 2210", "CS 314"];
-const TYPE_FILTERS: Array<"all" | MatchType> = ["all", "1-on-1", "group", "co-study"];
-
 export default function MatchesPage() {
   const router = useRouter();
-  const [courseFilter, setCourseFilter] = useState("All");
-  const [typeFilter, setTypeFilter] = useState<"all" | MatchType>("all");
-  const [requestTarget, setRequestTarget] = useState<Partner | null>(null);
-  const [profileTarget, setProfileTarget] = useState<Partner | null>(null);
-  const [sentIds, setSentIds] = useState<Set<string>>(new Set());
+  const { user, loading: userLoading } = useCurrentUser();
 
-  const filtered = PARTNERS.filter((p) => {
-    const courseOk = courseFilter === "All" || p.course.startsWith(courseFilter);
-    const typeOk = typeFilter === "all" || p.type === typeFilter;
-    return courseOk && typeOk;
-  }).sort((a, b) => b.matchPct - a.matchPct);
+  const [partners,       setPartners]       = useState<Partner[]>([]);
+  const [fetchLoading,   setFetchLoading]   = useState(true);
+  const [courseFilter,   setCourseFilter]   = useState("All");
+  const [requestTarget,  setRequestTarget]  = useState<Partner | null>(null);
+  const [profileTarget,  setProfileTarget]  = useState<Partner | null>(null);
+  const [sentIds,        setSentIds]        = useState<Set<string>>(new Set());
 
-  function handleSendRequest(date: string, time: string, duration: number, notes: string) {
-    if (!requestTarget) return;
+  /* ── Fetch & compute matches ───────────────────────────────────── */
+  useEffect(() => {
+    if (userLoading || !user) return;
+
+    async function fetchMatches() {
+      setFetchLoading(true);
+      const supabase = createClient();
+
+      // Fetch current user's courses
+      const { data: myCourses } = await supabase
+        .from("course_records")
+        .select("course_number")
+        .eq("user_id", user!.id);
+
+      const myCourseList = (myCourses ?? []).map((r) => r.course_number);
+
+      // Fetch all other users
+      const { data: otherUsers } = await supabase
+        .from("users")
+        .select("id, full_name, overall_rating, preferences")
+        .neq("id", user!.id);
+
+      if (!otherUsers || otherUsers.length === 0) {
+        setPartners([]);
+        setFetchLoading(false);
+        return;
+      }
+
+      const otherIds = otherUsers.map((u) => u.id);
+
+      // Fetch all their courses + their completed session counts in parallel
+      const [{ data: theirCourses }, { data: theirCounts }] = await Promise.all([
+        supabase
+          .from("course_records")
+          .select("user_id, course_number")
+          .in("user_id", otherIds),
+        supabase
+          .from("matches")
+          .select("requester_id, partner_id")
+          .eq("status", "completed")
+          .or(otherIds.map((id) => `requester_id.eq.${id},partner_id.eq.${id}`).join(",")),
+      ]);
+
+      // Build course map: userId → course list
+      const courseMap: Record<string, string[]> = {};
+      for (const row of theirCourses ?? []) {
+        if (!courseMap[row.user_id]) courseMap[row.user_id] = [];
+        courseMap[row.user_id].push(row.course_number);
+      }
+
+      // Build sessions count map: userId → count
+      const sessionCountMap: Record<string, number> = {};
+      for (const row of theirCounts ?? []) {
+        sessionCountMap[row.requester_id] = (sessionCountMap[row.requester_id] ?? 0) + 1;
+        sessionCountMap[row.partner_id]   = (sessionCountMap[row.partner_id]   ?? 0) + 1;
+      }
+
+      const computed: Partner[] = otherUsers.map((them) => {
+        const prefs = (them.preferences as Record<string, unknown>) ?? {};
+        const theirCourseList = courseMap[them.id] ?? [];
+        const shared = myCourseList.filter((c) => theirCourseList.includes(c));
+
+        const { pct, breakdown } = computeMatch(
+          { preferences: user!.preferences, courses: myCourseList },
+          { preferences: prefs,             courses: theirCourseList }
+        );
+
+        return {
+          id:               them.id,
+          name:             them.full_name || "Unknown",
+          initials:         toInitials(them.full_name || "?"),
+          sharedCourses:    shared,
+          allCourses:       theirCourseList,
+          location:         (prefs.preferred_study_spot as string) ?? "",
+          matchPct:         pct,
+          matchBreakdown:   breakdown,
+          methods:          (prefs.techniques as string[]) ?? [],
+          rating:           Number(them.overall_rating ?? 0),
+          bio:              (prefs.bio as string) ?? "",
+          major:            (prefs.major as string) ?? "",
+          year:             (prefs.year as string) ?? "",
+          sessionsCompleted: sessionCountMap[them.id] ?? 0,
+        };
+      });
+
+      // Sort by match % descending
+      computed.sort((a, b) => b.matchPct - a.matchPct);
+      setPartners(computed);
+      setFetchLoading(false);
+    }
+
+    fetchMatches();
+  }, [user, userLoading]);
+
+  /* ── Derived course filter list ────────────────────────────────── */
+  const allSharedCourses = Array.from(
+    new Set(partners.flatMap((p) => p.sharedCourses))
+  ).sort();
+  const courseFilters = ["All", ...allSharedCourses];
+
+  /* ── Filter + sort ─────────────────────────────────────────────── */
+  const filtered = partners.filter((p) =>
+    courseFilter === "All" || p.sharedCourses.includes(courseFilter)
+  );
+
+  /* ── Send request ──────────────────────────────────────────────── */
+  async function handleSendRequest(date: string, time: string, duration: number, notes: string) {
+    if (!requestTarget || !user) return;
+
+    const supabase = createClient();
+    const scheduledAt = new Date(`${date}T${time}`).toISOString();
+
+    await supabase.from("matches").insert({
+      requester_id:    user.id,
+      partner_id:      requestTarget.id,
+      course_number:   requestTarget.sharedCourses[0] ?? requestTarget.allCourses[0] ?? "",
+      status:          "pending",
+      match_type:      "1-on-1",
+      scheduled_at:    scheduledAt,
+      duration_minutes: duration,
+      study_methods:   requestTarget.methods,
+      notes:           notes || null,
+      final_study_spot: requestTarget.location || null,
+    });
+
+    // Also add to local session store for immediate UI feedback
     addSession({
       id: Date.now().toString(),
-      partnerName: requestTarget.name,
+      partnerName:    requestTarget.name,
       partnerInitials: requestTarget.initials,
-      course: requestTarget.course,
-      location: requestTarget.location,
-      scheduledAt: new Date(`${date}T${time}`),
+      course:         requestTarget.sharedCourses[0] ?? requestTarget.allCourses[0] ?? "",
+      location:       requestTarget.location,
+      scheduledAt:    new Date(`${date}T${time}`),
       duration,
-      status: "pending",
-      requestedByMe: true,
-      studyMethods: requestTarget.methods,
-      notes: notes || undefined,
+      status:         "pending",
+      requestedByMe:  true,
+      studyMethods:   requestTarget.methods,
+      notes:          notes || undefined,
     });
+
     setSentIds((prev) => new Set([...prev, requestTarget.id]));
     setRequestTarget(null);
     router.push("/sessions");
   }
 
+  const isLoading = userLoading || fetchLoading;
+
   return (
     <div className="flex min-h-screen flex-col bg-[var(--color-bg)]">
       {requestTarget && (
         <RequestModal
-          target={{ partner: requestTarget }}
+          target={requestTarget}
           onClose={() => setRequestTarget(null)}
           onSend={handleSendRequest}
         />
@@ -519,7 +610,6 @@ export default function MatchesPage() {
       <Navbar showSearch />
 
       <main className="flex-1 px-12 py-10">
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-[38px] font-extrabold tracking-[-1.5px] leading-tight">
             Your Matches
@@ -529,70 +619,70 @@ export default function MatchesPage() {
           </p>
         </div>
 
-        {/* Filter bar */}
-        <div className="mb-6 flex flex-wrap items-center gap-3">
-          {/* Course filter */}
-          <div className="flex flex-wrap gap-1.5">
-            {COURSE_FILTERS.map((c) => (
-              <button
-                key={c}
-                onClick={() => setCourseFilter(c)}
-                className={`rounded-full border-[1.5px] px-3.5 py-1.5 text-[12px] font-semibold transition-all ${
-                  courseFilter === c
-                    ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-white"
-                    : "border-[var(--color-border)] bg-white text-[var(--color-text-secondary)] hover:border-[var(--color-primary-muted)]"
-                }`}
-              >
-                {c}
-              </button>
-            ))}
+        {isLoading ? (
+          <div className="flex items-center justify-center py-32">
+            <div className="flex flex-col items-center gap-3">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--color-primary)] border-t-transparent" />
+              <p className="text-[13px] text-[var(--color-text-muted)]">Finding your matches…</p>
+            </div>
           </div>
-
-          <div className="ml-auto flex gap-1.5">
-            {TYPE_FILTERS.map((t) => (
-              <button
-                key={t}
-                onClick={() => setTypeFilter(t)}
-                className={`rounded-full border-[1.5px] px-3.5 py-1.5 text-[12px] font-semibold capitalize transition-all ${
-                  typeFilter === t
-                    ? "border-[var(--color-primary)] bg-[var(--color-primary-light)] text-[var(--color-primary)]"
-                    : "border-[var(--color-border)] bg-white text-[var(--color-text-secondary)] hover:border-[var(--color-primary-muted)]"
-                }`}
-              >
-                {t === "all" ? "All types" : TYPE_LABEL[t]}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Results count */}
-        <p className="mb-5 text-[13px] text-[var(--color-text-muted)]">
-          {filtered.length} match{filtered.length !== 1 ? "es" : ""} found
-        </p>
-
-        {/* Cards */}
-        {filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--color-border)] bg-white py-20 text-center">
-            <p className="text-[15px] font-semibold text-[var(--color-text-secondary)]">No matches for these filters</p>
-            <button
-              onClick={() => { setCourseFilter("All"); setTypeFilter("all"); }}
-              className="mt-4 text-[13px] font-semibold text-[var(--color-primary)] hover:underline"
-            >
-              Clear filters
-            </button>
+        ) : partners.length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--color-border)] bg-white py-28 text-center">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-surface)]">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" strokeWidth="1.5" strokeLinecap="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <p className="text-[15px] font-semibold text-[var(--color-text-secondary)]">No matches yet</p>
+            <p className="mt-1.5 max-w-xs text-[13px] text-[var(--color-text-muted)]">
+              You&apos;ll see matches here once other students join and add their courses.
+            </p>
           </div>
         ) : (
-          <div className="grid grid-cols-3 gap-5">
-            {filtered.map((p) => (
-              <MatchCard
-                key={p.id}
-                partner={p}
-                sent={sentIds.has(p.id)}
-                onRequest={() => setRequestTarget(p)}
-                onProfile={() => setProfileTarget(p)}
-              />
-            ))}
-          </div>
+          <>
+            {/* Filter bar */}
+            <div className="mb-6 flex flex-wrap items-center gap-3">
+              <div className="flex flex-wrap gap-1.5">
+                {courseFilters.map((c) => (
+                  <button key={c} onClick={() => setCourseFilter(c)}
+                    className={`rounded-full border-[1.5px] px-3.5 py-1.5 text-[12px] font-semibold transition-all ${
+                      courseFilter === c
+                        ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-white"
+                        : "border-[var(--color-border)] bg-white text-[var(--color-text-secondary)] hover:border-[var(--color-primary-muted)]"
+                    }`}>
+                    {c}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <p className="mb-5 text-[13px] text-[var(--color-text-muted)]">
+              {filtered.length} match{filtered.length !== 1 ? "es" : ""} found
+            </p>
+
+            {filtered.length === 0 ? (
+              <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--color-border)] bg-white py-20 text-center">
+                <p className="text-[15px] font-semibold text-[var(--color-text-secondary)]">No matches for these filters</p>
+                <button onClick={() => setCourseFilter("All")}
+                  className="mt-4 text-[13px] font-semibold text-[var(--color-primary)] hover:underline">
+                  Clear filters
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-5">
+                {filtered.map((p) => (
+                  <MatchCard
+                    key={p.id}
+                    partner={p}
+                    sent={sentIds.has(p.id)}
+                    onRequest={() => setRequestTarget(p)}
+                    onProfile={() => setProfileTarget(p)}
+                  />
+                ))}
+              </div>
+            )}
+          </>
         )}
       </main>
     </div>

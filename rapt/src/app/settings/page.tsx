@@ -1,68 +1,128 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import { createClient } from "@/lib/supabase/client";
+import { useCurrentUser } from "@/lib/useCurrentUser";
 
 const TABS = ["Profile", "Study Preferences", "Notifications", "Account"] as const;
 type Tab = (typeof TABS)[number];
 
 const STUDY_METHODS = ["Pomodoro", "Flashcards", "Discussion", "Cliff Notes", "Practice Problems", "Whiteboard"];
-const STUDY_ROLES = [
-  { value: "teacher", label: "Teacher", desc: "I like explaining concepts to others" },
-  { value: "learner", label: "Learner", desc: "I need material taught to me" },
-  { value: "collaborative", label: "Collaborative", desc: "I work through things together" },
-];
 
 export default function SettingsPage() {
   const router = useRouter();
+  const { user, loading } = useCurrentUser();
   const [activeTab, setActiveTab] = useState<Tab>("Profile");
 
   // Profile state
-  const [name, setName] = useState("Panav Mhatre");
-  const [email] = useState("panav@utexas.edu");
-  const [major, setMajor] = useState("Computer Science");
-  const [year, setYear] = useState("Junior");
-  const [bio, setBio] = useState("CS junior at UT Austin. I love collaborative problem-solving and helping others understand tough concepts.");
-  const [university] = useState("University of Texas at Austin");
+  const [name,  setName]  = useState("");
+  const [major, setMajor] = useState("");
+  const [year,  setYear]  = useState("Junior");
+  const [bio,   setBio]   = useState("");
 
   // Study prefs state
-  const [studyRole, setStudyRole] = useState("collaborative");
   const [studyMethods, setStudyMethods] = useState<string[]>(["Pomodoro", "Flashcards"]);
-  const [groupSize, setGroupSize] = useState("Small (2-3)");
-  const [environment, setEnvironment] = useState("Silent (Library Level 5)");
-  const [studySpot, setStudySpot] = useState("PCL (Library)");
+  const [groupSize,    setGroupSize]    = useState("Small (2-3)");
+  const [environment,  setEnvironment]  = useState("Silent (Library Level 5)");
+  const [studySpot,    setStudySpot]    = useState("PCL (Library)");
 
   // Notification state
   const [notifs, setNotifs] = useState({
     sessionRequests: true,
     sessionAccepted: true,
     sessionReminders: true,
-    messages: true,
-    weeklyDigest: false,
-    marketingEmails: false,
+    messages:         true,
+    weeklyDigest:     false,
+    marketingEmails:  false,
   });
 
-  // Privacy state
-  const [privacy, setPrivacy] = useState({
-    showProfile: true,
-    showSchedule: false,
-    showRating: true,
-    allowRequests: true,
-  });
+  const [saved,   setSaved]   = useState(false);
+  const [saving,  setSaving]  = useState(false);
+  const [saveErr, setSaveErr] = useState("");
 
-  const [saved, setSaved] = useState(false);
+  // Populate form fields once the user profile loads
+  useEffect(() => {
+    if (!user) return;
+    const p = user.preferences;
 
-  function handleSave() {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+    setName(user.full_name ?? "");
+    setMajor((p.major  as string) ?? "");
+    setYear ((p.year   as string) ?? "Junior");
+    setBio  ((p.bio    as string) ?? "");
+
+    setStudyMethods((p.techniques as string[]) ?? ["Pomodoro", "Flashcards"]);
+    setGroupSize   ((p.group_size           as string)   ?? "Small (2-3)");
+    setEnvironment ((p.environment_type     as string)   ?? "Silent (Library Level 5)");
+    setStudySpot   ((p.preferred_study_spot as string)   ?? "PCL (Library)");
+
+    if (p.notifications) {
+      setNotifs((prev) => ({ ...prev, ...(p.notifications as typeof prev) }));
+    }
+  }, [user]);
+
+  async function handleSave() {
+    if (!user) return;
+    setSaving(true);
+    setSaveErr("");
+
+    const supabase = createClient();
+
+    const updatedPrefs = {
+      // Profile extras
+      major,
+      year,
+      bio,
+      // Study prefs
+      techniques:           studyMethods,
+      group_size:           groupSize,
+      environment_type:     environment,
+      preferred_study_spot: studySpot,
+      // Notifications
+      notifications: notifs,
+    };
+
+    const { error } = await supabase
+      .from("users")
+      .update({
+        full_name:   name,
+        preferences: updatedPrefs,
+      })
+      .eq("id", user.id);
+
+    setSaving(false);
+
+    if (error) {
+      setSaveErr(error.message);
+    } else {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    }
+  }
+
+  async function handleSignOut() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/");
   }
 
   function toggleMethod(m: string) {
-    setStudyMethods((prev) => prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m]);
+    setStudyMethods((prev) =>
+      prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m]
+    );
   }
 
-  const initials = name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+  const initials = name
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase() || "?";
+
+  const rating           = user?.overall_rating ?? 0;
+  const sessionsCompleted = user?.sessionsCompleted ?? 0;
+  const email            = user?.email ?? "";
 
   return (
     <div className="flex min-h-screen flex-col bg-[var(--color-bg)]">
@@ -74,25 +134,33 @@ export default function SettingsPage() {
           {/* Avatar */}
           <div className="mb-6 flex flex-col items-center gap-2 text-center">
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[var(--color-primary)] text-[24px] font-extrabold text-white">
-              {initials}
+              {loading ? "…" : initials}
             </div>
             <div>
-              <p className="text-[15px] font-bold text-[var(--color-text-base)]">{name}</p>
+              <p className="text-[15px] font-bold text-[var(--color-text-base)]">
+                {loading ? "Loading…" : name || "Your Name"}
+              </p>
               <p className="text-[12px] text-[var(--color-text-muted)]">{email}</p>
             </div>
             <div className="flex items-center gap-3 text-[11px] font-semibold text-[var(--color-text-muted)]">
               <span className="flex flex-col items-center">
-                <span className="text-[16px] font-extrabold text-[var(--color-text-base)]">4.8</span>
+                <span className="text-[16px] font-extrabold text-[var(--color-text-base)]">
+                  {rating > 0 ? rating.toFixed(1) : "—"}
+                </span>
                 Rating
               </span>
               <div className="h-6 w-px bg-[var(--color-border)]" />
               <span className="flex flex-col items-center">
-                <span className="text-[16px] font-extrabold text-[var(--color-text-base)]">12</span>
+                <span className="text-[16px] font-extrabold text-[var(--color-text-base)]">
+                  {sessionsCompleted}
+                </span>
                 Sessions
               </span>
               <div className="h-6 w-px bg-[var(--color-border)]" />
               <span className="flex flex-col items-center">
-                <span className="text-[16px] font-extrabold text-[var(--color-text-base)]">Jr</span>
+                <span className="text-[16px] font-extrabold text-[var(--color-text-base)]">
+                  {year ? year.slice(0, 2) : "—"}
+                </span>
                 Year
               </span>
             </div>
@@ -116,9 +184,8 @@ export default function SettingsPage() {
             ))}
           </nav>
 
-          {/* Sign out */}
           <button
-            onClick={() => router.push("/")}
+            onClick={handleSignOut}
             className="mt-8 flex w-full items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-red-500 transition-colors hover:bg-red-50"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -137,6 +204,11 @@ export default function SettingsPage() {
                 <polyline points="1,5 4.5,8.5 13,1" />
               </svg>
               Changes saved successfully.
+            </div>
+          )}
+          {saveErr && (
+            <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-[13px] font-semibold text-red-600">
+              {saveErr}
             </div>
           )}
 
@@ -171,10 +243,6 @@ export default function SettingsPage() {
                   </Field>
                 </div>
 
-                <Field label="University">
-                  <input value={university} readOnly className={`${INPUT_CLS} cursor-not-allowed opacity-60`} />
-                </Field>
-
                 <Field label="Bio">
                   <textarea
                     value={bio}
@@ -184,18 +252,6 @@ export default function SettingsPage() {
                     placeholder="Tell other students about yourself..."
                   />
                 </Field>
-
-                {/* Badges */}
-                <div>
-                  <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">Earned Badges</p>
-                  <div className="flex flex-wrap gap-2">
-                    {["Top Collaborator", "Reliable", "10+ Sessions"].map((b) => (
-                      <span key={b} className="rounded-full bg-[var(--color-tag-green)] px-3 py-1 text-[11px] font-semibold text-[var(--color-primary)]">
-                        {b}
-                      </span>
-                    ))}
-                  </div>
-                </div>
               </div>
             </section>
           )}
@@ -209,31 +265,6 @@ export default function SettingsPage() {
               </p>
 
               <div className="flex flex-col gap-6">
-                {/* Study role */}
-                <div>
-                  <p className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">Study role</p>
-                  <div className="flex flex-col gap-2">
-                    {STUDY_ROLES.map((r) => (
-                      <button
-                        key={r.value}
-                        onClick={() => setStudyRole(r.value)}
-                        className={`flex items-center gap-3 rounded-xl border-[1.5px] px-4 py-3.5 text-left transition-all ${
-                          studyRole === r.value
-                            ? "border-[var(--color-primary)] bg-[var(--color-primary-light)]"
-                            : "border-[var(--color-border)] hover:border-[var(--color-primary-muted)]"
-                        }`}
-                      >
-                        <div className={`flex h-4 w-4 items-center justify-center rounded-full border-2 ${studyRole === r.value ? "border-[var(--color-primary)] bg-[var(--color-primary)]" : "border-[var(--color-border)]"}`}>
-                          {studyRole === r.value && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
-                        </div>
-                        <div>
-                          <div className={`text-[13px] font-bold ${studyRole === r.value ? "text-[var(--color-primary)]" : ""}`}>{r.label}</div>
-                          <div className="text-[11px] text-[var(--color-text-muted)]">{r.desc}</div>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
 
                 {/* Study methods */}
                 <div>
@@ -300,8 +331,6 @@ export default function SettingsPage() {
             </section>
           )}
 
-          
-
           {/* ── Account Tab ── */}
           {activeTab === "Account" && (
             <section>
@@ -316,11 +345,11 @@ export default function SettingsPage() {
                   </div>
                   <div className="divide-y divide-[var(--color-border-light)]">
                     {[
-                      { name: "myUT Portal", connected: true, sub: "Schedule imported" },
-                      { name: "Google Calendar", connected: false, sub: "Not connected" },
-                      { name: "Canvas LMS", connected: false, sub: "Not connected" },
-                      { name: "Notion", connected: false, sub: "Not connected" },
-                      { name: "Google Drive", connected: false, sub: "Not connected" },
+                      { name: "myUT Portal",      connected: true,  sub: "Schedule imported" },
+                      { name: "Google Calendar",  connected: false, sub: "Not connected" },
+                      { name: "Canvas LMS",       connected: false, sub: "Not connected" },
+                      { name: "Notion",           connected: false, sub: "Not connected" },
+                      { name: "Google Drive",     connected: false, sub: "Not connected" },
                     ].map((int) => (
                       <div key={int.name} className="flex items-center justify-between px-5 py-3.5">
                         <div>
@@ -346,10 +375,32 @@ export default function SettingsPage() {
                   <p className="mb-1 text-[13px] font-bold text-red-700">Danger Zone</p>
                   <p className="mb-4 text-[12px] text-red-500">These actions are permanent and cannot be undone.</p>
                   <div className="flex gap-3">
-                    <button className="rounded-xl border border-red-300 bg-white px-4 py-2 text-[13px] font-semibold text-red-600 hover:bg-red-100 transition-colors">
+                    <button
+                      onClick={async () => {
+                        if (!user) return;
+                        const supabase = createClient();
+                        await supabase.from("users").update({
+                          preferences: {},
+                          availability: {},
+                        }).eq("id", user.id);
+                        window.location.reload();
+                      }}
+                      className="rounded-xl border border-red-300 bg-white px-4 py-2 text-[13px] font-semibold text-red-600 hover:bg-red-100 transition-colors"
+                    >
                       Reset Preferences
                     </button>
-                    <button className="rounded-xl bg-red-600 px-4 py-2 text-[13px] font-bold text-white hover:bg-red-700 transition-colors">
+                    <button
+                      onClick={async () => {
+                        if (!user) return;
+                        if (!confirm("Delete your account? This cannot be undone.")) return;
+                        const supabase = createClient();
+                        // Delete auth user — cascade wipes all public.users data
+                        await supabase.auth.admin?.deleteUser(user.id);
+                        await supabase.auth.signOut();
+                        router.push("/");
+                      }}
+                      className="rounded-xl bg-red-600 px-4 py-2 text-[13px] font-bold text-white hover:bg-red-700 transition-colors"
+                    >
                       Delete Account
                     </button>
                   </div>
@@ -358,14 +409,15 @@ export default function SettingsPage() {
             </section>
           )}
 
-          {/* Save button (not shown on Account tab) */}
+          {/* Save button */}
           {activeTab !== "Account" && (
             <div className="mt-8">
               <button
                 onClick={handleSave}
-                className="rounded-xl bg-[var(--color-primary)] px-8 py-3 text-[14px] font-bold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-primary-hover)]"
+                disabled={saving || !user}
+                className="rounded-xl bg-[var(--color-primary)] px-8 py-3 text-[14px] font-bold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Save changes
+                {saving ? "Saving…" : "Save changes"}
               </button>
             </div>
           )}
@@ -375,6 +427,7 @@ export default function SettingsPage() {
   );
 }
 
+/* ── Sub-components ── */
 function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
   return (
     <button
@@ -395,7 +448,6 @@ function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
   );
 }
 
-/* ─── Helpers ─── */
 const INPUT_CLS = "h-11 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 text-sm text-[var(--color-text-base)] outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/10 transition-all";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -411,29 +463,17 @@ const NOTIF_LABELS: Record<string, string> = {
   sessionRequests: "Session Requests",
   sessionAccepted: "Session Accepted",
   sessionReminders: "Session Reminders",
-  messages: "Messages",
-  weeklyDigest: "Weekly Digest",
-  marketingEmails: "Marketing Emails",
+  messages:         "Messages",
+  weeklyDigest:     "Weekly Digest",
+  marketingEmails:  "Marketing Emails",
 };
 const NOTIF_DESC: Record<string, string> = {
-  sessionRequests: "When someone requests a study session with you",
-  sessionAccepted: "When your request is accepted by a partner",
+  sessionRequests:  "When someone requests a study session with you",
+  sessionAccepted:  "When your request is accepted by a partner",
   sessionReminders: "15-minute reminder before a session starts",
-  messages: "Direct messages from study partners",
-  weeklyDigest: "Summary of your activity and new matches",
-  marketingEmails: "Product updates and feature announcements",
-};
-const PRIVACY_LABELS: Record<string, string> = {
-  showProfile: "Public Profile",
-  showSchedule: "Show Schedule",
-  showRating: "Show Rating",
-  allowRequests: "Allow Session Requests",
-};
-const PRIVACY_DESC: Record<string, string> = {
-  showProfile: "Let other students find and view your profile",
-  showSchedule: "Show your weekly availability to matches",
-  showRating: "Display your rating score on your profile",
-  allowRequests: "Allow other students to send you session requests",
+  messages:         "Direct messages from study partners",
+  weeklyDigest:     "Summary of your activity and new matches",
+  marketingEmails:  "Product updates and feature announcements",
 };
 
 function TabIcon({ tab, active }: { tab: Tab; active: boolean }) {

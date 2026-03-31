@@ -20,7 +20,7 @@ export default function RootLayout({
     <html lang="en" className={inter.className}>
       <body suppressHydrationWarning className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text-base)] antialiased">
         {children}
-        <Script src="https://mcp.figma.com/mcp/html-to-design/capture.js" strategy="afterInteractive" />
+        <Script src="https://mcp.figma.com/mcp/html-to-design/capture.js" strategy="beforeInteractive" />
       </body>
     </html>
   );
