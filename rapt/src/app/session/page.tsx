@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import { createClient } from "@/lib/supabase/client";
@@ -88,7 +88,7 @@ TODO before Exam 2:
 /* ════════════════════════════════════════
    PAGE
 ════════════════════════════════════════ */
-export default function SessionPage() {
+function SessionPageInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -1088,3 +1088,7 @@ function WhiteboardIcon() { return <svg width="13" height="11" viewBox="0 0 13 1
 function WifiIcon() { return <svg width="14" height="10" viewBox="0 0 16 11" fill="none" stroke="#6b6b65" strokeWidth="1.5" strokeLinecap="round"><path d="M1 4C4 1.5 7 1 8 4C9 1 12 1.5 15 4"/><path d="M3 6.5C5 5 6.5 5 8 6.5C9.5 5 11 5 13 6.5"/><circle cx="8" cy="9" r="1" fill="#6b6b65"/></svg>; }
 function QuietIcon() { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6b6b65" strokeWidth="1.8" strokeLinecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>; }
 function CafeIcon() { return <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#6b6b65" strokeWidth="1.5" strokeLinecap="round"><path d="M3 1h6l1 4H2L3 1z"/><path d="M2 5v5a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V5"/></svg>; }
+
+export default function SessionPage() {
+  return <Suspense><SessionPageInner /></Suspense>;
+}

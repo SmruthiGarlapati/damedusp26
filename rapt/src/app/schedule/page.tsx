@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Button from "@/components/Button";
@@ -146,7 +146,7 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
 /* ─────────────────────────────────────────────
    Main page
 ───────────────────────────────────────────── */
-export default function SchedulePage() {
+function SchedulePageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [step, setStep] = useState(1);
@@ -1074,4 +1074,8 @@ function ArrowLeftIcon() {
       <line x1="13" y1="8" x2="3" y2="8" /><polyline points="7,4 3,8 7,12" />
     </svg>
   );
+}
+
+export default function SchedulePage() {
+  return <Suspense><SchedulePageInner /></Suspense>;
 }
