@@ -1,107 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,900;1,9..144,700;1,9..144,900&family=DM+Sans:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #1a4a42;
-  --color-primary-hover: #163d36;
-  --color-primary-light: #e8f2f0;
-  --color-primary-muted: #5a8a80;
-  --color-accent: #2d7a6e;
-  --color-surface: #f5f5f2;
-  --color-bg: #fafaf8;
-  --color-card: #ffffff;
-  --color-border: #e5e5e0;
-  --color-border-light: #efefeb;
-  --color-text-base: #1a1a18;
-  --color-text-secondary: #6b6b65;
-  --color-text-muted: #9b9b95;
-  --color-tag-green: #d4edda;
-  --color-tag-green-text: #1a4a42;
-  --color-tag-peach: #f7e8d8;
-  --color-tag-peach-text: #8b4a1a;
-  --color-teal-light: #d4f1ec;
-  --color-peach-light: #f7e8d8;
+  --color-forest:   #152b15;
+  --color-canopy:   #1e3d1e;
+  --color-deepfern: #2a5a2a;
+  --color-fern:     #3d7a2a;
+  --color-leaf:     #72b84a;
+  --color-lime:     #c8e898;
+  --color-bone:     #f5f0e8;
+  --color-raptor:   #e85a0a;
+  --color-ember:    #ff7c38;
+  --color-fossil:   #fae0c8;
+  --color-mud:      #2a2010;
 
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-sans:    'DM Sans', ui-sans-serif, system-ui, sans-serif;
 
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
-  --shadow-lg: 0 8px 24px rgba(0,0,0,0.1), 0 4px 8px rgba(0,0,0,0.04);
-  --shadow-primary: 0 4px 12px rgba(26,74,66,0.3);
+  --shadow-sm:    0 1px 3px rgba(0,0,0,0.12);
+  --shadow-md:    0 4px 16px rgba(0,0,0,0.15);
+  --shadow-lg:    0 8px 32px rgba(0,0,0,0.2);
+  --shadow-ember: 0 4px 20px rgba(232,90,10,0.35);
 }
 
 @layer base {
-  html {
-    font-family: var(--font-sans);
-    -webkit-font-smoothing: antialiased;
-  }
-
-  body {
-    background-color: var(--color-bg);
-    color: var(--color-text-base);
-  }
-
-  * {
-    box-sizing: border-box;
-  }
-
-  a {
-    text-decoration: none;
-    color: inherit;
-  }
-}
-
-/* Slider range input styling */
-input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: 6px;
-  border-radius: 9999px;
-  background: var(--color-border);
-  outline: none;
-}
-
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--color-primary);
-  border: 3px solid white;
-  box-shadow: 0 0 0 2px var(--color-primary);
-  cursor: pointer;
-}
-
-/* Calendar cell animations */
-.cal-event {
-  transition: opacity 0.15s;
-}
-
-/* Flashcard flip */
-.flashcard-inner {
-  transition: transform 0.4s ease;
-  transform-style: preserve-3d;
-}
-
-.flashcard-inner.flipped {
-  transform: rotateY(180deg);
-}
-
-.flashcard-face {
-  backface-visibility: hidden;
-}
-
-.flashcard-back {
-  transform: rotateY(180deg);
-}
-
-/* When2meet grid cell */
-.grid-cell {
-  transition: transform 0.1s, opacity 0.1s;
-}
-
-.grid-cell:hover {
-  transform: scale(0.93);
-  opacity: 0.85;
+  html { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+  body { background-color: var(--color-forest); color: var(--color-bone); }
+  * { box-sizing: border-box; }
+  a { text-decoration: none; color: inherit; }
 }
