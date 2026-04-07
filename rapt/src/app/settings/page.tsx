@@ -3,6 +3,14 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import {
+  clearDemoAdminSession,
+  isDemoAdminUser,
+  isSupabaseAuthConfigured,
+  persistDemoAdminProfile,
+  readDemoAdminProfile,
+  updateDemoAdminProfile,
+} from "@/lib/demoAdmin";
 import { createClient } from "@/lib/supabase/client";
 import { useCurrentUser } from "@/lib/useCurrentUser";
 
@@ -14,6 +22,7 @@ const STUDY_METHODS = ["Pomodoro", "Flashcards", "Discussion", "Cliff Notes", "P
 export default function SettingsPage() {
   const router = useRouter();
   const { user, loading } = useCurrentUser();
+  const isDemoUser = isDemoAdminUser(user);
   const [activeTab, setActiveTab] = useState<Tab>("Profile");
 
   // Profile state
@@ -67,8 +76,6 @@ export default function SettingsPage() {
     setSaving(true);
     setSaveErr("");
 
-    const supabase = createClient();
-
     const updatedPrefs = {
       // Profile extras
       major,
@@ -83,6 +90,18 @@ export default function SettingsPage() {
       notifications: notifs,
     };
 
+    if (isDemoUser) {
+      updateDemoAdminProfile({
+        full_name: name,
+        preferences: updatedPrefs,
+      });
+      setSaving(false);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+      return;
+    }
+
+    const supabase = createClient();
     const { error } = await supabase
       .from("users")
       .update({
@@ -102,8 +121,13 @@ export default function SettingsPage() {
   }
 
   async function handleSignOut() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
+    clearDemoAdminSession();
+
+    if (isSupabaseAuthConfigured() && !isDemoUser) {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+    }
+
     router.push("/");
   }
 
@@ -125,40 +149,40 @@ export default function SettingsPage() {
   const email            = user?.email ?? "";
 
   return (
-    <div className="flex min-h-screen flex-col bg-[var(--color-bg)]">
+    <div className="rapt-app-shell flex min-h-screen flex-col bg-[var(--color-bg)]">
       <Navbar />
 
-      <main className="flex flex-1 gap-0">
+      <main className="rapt-app-main flex flex-1 gap-6 px-4 py-4 md:px-8 md:py-8">
         {/* Sidebar */}
-        <aside className="w-64 shrink-0 border-r border-[var(--color-border)] bg-white px-6 py-8">
+        <aside className="w-72 shrink-0 rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,#173417,#102310)] px-6 py-8 text-[var(--color-bone)] shadow-[var(--shadow-lg)]">
           {/* Avatar */}
           <div className="mb-6 flex flex-col items-center gap-2 text-center">
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[var(--color-primary)] text-[24px] font-extrabold text-white">
               {loading ? "…" : initials}
             </div>
             <div>
-              <p className="text-[15px] font-bold text-[var(--color-text-base)]">
+              <p className="text-[15px] font-bold text-white">
                 {loading ? "Loading…" : name || "Your Name"}
               </p>
-              <p className="text-[12px] text-[var(--color-text-muted)]">{email}</p>
+              <p className="text-[12px] text-[#c8e898]/60">{email}</p>
             </div>
-            <div className="flex items-center gap-3 text-[11px] font-semibold text-[var(--color-text-muted)]">
+            <div className="flex items-center gap-3 text-[11px] font-semibold text-[#c8e898]/58">
               <span className="flex flex-col items-center">
-                <span className="text-[16px] font-extrabold text-[var(--color-text-base)]">
+                <span className="text-[16px] font-extrabold text-white">
                   {rating > 0 ? rating.toFixed(1) : "—"}
                 </span>
                 Rating
               </span>
-              <div className="h-6 w-px bg-[var(--color-border)]" />
+              <div className="h-6 w-px bg-white/12" />
               <span className="flex flex-col items-center">
-                <span className="text-[16px] font-extrabold text-[var(--color-text-base)]">
+                <span className="text-[16px] font-extrabold text-white">
                   {sessionsCompleted}
                 </span>
                 Sessions
               </span>
-              <div className="h-6 w-px bg-[var(--color-border)]" />
+              <div className="h-6 w-px bg-white/12" />
               <span className="flex flex-col items-center">
-                <span className="text-[16px] font-extrabold text-[var(--color-text-base)]">
+                <span className="text-[16px] font-extrabold text-white">
                   {year ? year.slice(0, 2) : "—"}
                 </span>
                 Year
@@ -175,7 +199,7 @@ export default function SettingsPage() {
                 className={`flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-left transition-all ${
                   activeTab === t
                     ? "bg-[var(--color-primary)] text-white shadow-[var(--shadow-primary)]"
-                    : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface)]"
+                    : "text-[#f5f0e8]/72 hover:bg-white/6 hover:text-white"
                 }`}
               >
                 <TabIcon tab={t} active={activeTab === t} />
@@ -186,7 +210,7 @@ export default function SettingsPage() {
 
           <button
             onClick={handleSignOut}
-            className="mt-8 flex w-full items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-red-500 transition-colors hover:bg-red-50"
+            className="mt-8 flex w-full items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-[#ff7c38] transition-colors hover:bg-white/6"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
@@ -196,7 +220,20 @@ export default function SettingsPage() {
         </aside>
 
         {/* Content */}
-        <div className="flex-1 px-10 py-10 max-w-2xl">
+        <div className="rapt-glass-card flex-1 max-w-3xl px-8 py-8 md:px-10 md:py-10">
+          <div className="mb-8">
+            <span className="rapt-eyebrow">
+              <span className="h-2 w-2 rounded-full bg-[var(--color-primary)]" />
+              Account center
+            </span>
+            <h1 className="rapt-display mt-5 text-[38px] leading-[0.95] text-[var(--color-text-base)] md:text-[44px]">
+              Settings
+            </h1>
+            <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-[var(--color-text-secondary)]">
+              Tune your profile, study preferences, and notifications so the matching side of RAPT feels as intentional as the homepage.
+            </p>
+          </div>
+
           {/* Save banner */}
           {saved && (
             <div className="mb-6 flex items-center gap-2 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-[13px] font-semibold text-green-700">
@@ -215,7 +252,7 @@ export default function SettingsPage() {
           {/* ── Profile Tab ── */}
           {activeTab === "Profile" && (
             <section>
-              <h2 className="mb-1 text-[22px] font-extrabold tracking-tight">Profile</h2>
+              <h2 className="rapt-display mb-1 text-[28px] tracking-tight">Profile</h2>
               <p className="mb-8 text-[14px] text-[var(--color-text-secondary)]">
                 This is how other students see you on RAPT.
               </p>
@@ -259,7 +296,7 @@ export default function SettingsPage() {
           {/* ── Study Preferences Tab ── */}
           {activeTab === "Study Preferences" && (
             <section>
-              <h2 className="mb-1 text-[22px] font-extrabold tracking-tight">Study Preferences</h2>
+              <h2 className="rapt-display mb-1 text-[28px] tracking-tight">Study Preferences</h2>
               <p className="mb-8 text-[14px] text-[var(--color-text-secondary)]">
                 These are used to find your best matches.
               </p>
@@ -315,7 +352,7 @@ export default function SettingsPage() {
           {/* ── Notifications Tab ── */}
           {activeTab === "Notifications" && (
             <section>
-              <h2 className="mb-1 text-[22px] font-extrabold tracking-tight">Notifications</h2>
+              <h2 className="rapt-display mb-1 text-[28px] tracking-tight">Notifications</h2>
               <p className="mb-8 text-[14px] text-[var(--color-text-secondary)]">Choose what you get notified about.</p>
               <div className="flex flex-col divide-y divide-[var(--color-border-light)] rounded-2xl border border-[var(--color-border)] bg-white overflow-hidden">
                 {(Object.entries(notifs) as [keyof typeof notifs, boolean][]).map(([key, val]) => (
@@ -334,7 +371,7 @@ export default function SettingsPage() {
           {/* ── Account Tab ── */}
           {activeTab === "Account" && (
             <section>
-              <h2 className="mb-1 text-[22px] font-extrabold tracking-tight">Account</h2>
+              <h2 className="rapt-display mb-1 text-[28px] tracking-tight">Account</h2>
               <p className="mb-8 text-[14px] text-[var(--color-text-secondary)]">Manage your account and connected integrations.</p>
 
               <div className="flex flex-col gap-5">
@@ -378,6 +415,16 @@ export default function SettingsPage() {
                     <button
                       onClick={async () => {
                         if (!user) return;
+                        if (isDemoUser) {
+                          const current = readDemoAdminProfile();
+                          persistDemoAdminProfile({
+                            ...current,
+                            preferences: {},
+                            availability: {},
+                          });
+                          window.location.reload();
+                          return;
+                        }
                         const supabase = createClient();
                         await supabase.from("users").update({
                           preferences: {},
@@ -393,6 +440,11 @@ export default function SettingsPage() {
                       onClick={async () => {
                         if (!user) return;
                         if (!confirm("Delete your account? This cannot be undone.")) return;
+                        if (isDemoUser) {
+                          clearDemoAdminSession();
+                          router.push("/");
+                          return;
+                        }
                         const supabase = createClient();
                         // Delete auth user — cascade wipes all public.users data
                         await supabase.auth.admin?.deleteUser(user.id);

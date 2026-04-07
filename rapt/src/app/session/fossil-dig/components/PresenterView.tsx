@@ -33,46 +33,46 @@ export default function PresenterView({ state, onDone }: Props) {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-3xl font-black tracking-tight text-[#1a1a18] mb-1">
+        <h1 className="rapt-display mb-1 text-3xl tracking-tight text-[var(--color-text-base)]">
           You&apos;re on 🦴
         </h1>
-        <p className="text-[#6b6b65] text-sm">
+        <p className="text-[var(--color-text-secondary)] text-sm">
           Teach the topic. Your partner is listening — no interruptions.
         </p>
       </div>
 
       {/* Timer */}
-      <div className="rounded-3xl border-2 border-[#e8e0d4] bg-white p-10 flex flex-col items-center gap-6">
-        <div className={`text-8xl font-black tabular-nums tracking-tight transition-colors ${isUrgent ? "text-[#c4622d]" : "text-[#1a1a18]"}`}>
+      <div className="flex flex-col items-center gap-6 rounded-3xl border-2 border-[var(--color-border)] bg-[var(--color-surface-strong)] p-10">
+        <div className={`text-8xl font-black tabular-nums tracking-tight transition-colors ${isUrgent ? "text-[var(--color-primary)]" : "text-[var(--color-text-base)]"}`}>
           {String(mins).padStart(2, "0")}:{String(secs).padStart(2, "0")}
         </div>
 
         {/* Progress bar */}
-        <div className="w-full h-2 bg-[#f0ebe4] rounded-full overflow-hidden">
+        <div className="h-2 w-full overflow-hidden rounded-full bg-white/8">
           <div
             className="h-full rounded-full transition-all duration-1000"
             style={{
               width: `${progress}%`,
-              background: isUrgent ? "#c4622d" : "#d4956a",
+              background: isUrgent ? "var(--color-primary)" : "#d4956a",
             }}
           />
         </div>
 
-        <div className="text-sm text-[#9b9b95] font-medium">
+        <div className="text-sm font-medium text-[var(--color-text-muted)]">
           {!running ? "Press start when you're ready" : isUrgent ? "Wrapping up soon..." : "Keep going, you're doing great"}
         </div>
 
         {!running ? (
           <button
             onClick={() => setRunning(true)}
-            className="rounded-2xl bg-[#c4622d] px-10 py-4 text-base font-black text-white hover:opacity-90 transition-opacity shadow-lg shadow-[#c4622d]/20"
+            className="rounded-2xl bg-[var(--color-primary)] px-10 py-4 text-base font-black text-white shadow-lg shadow-[#c4622d]/20 transition-opacity hover:opacity-90"
           >
             Start presenting 🦕
           </button>
         ) : (
           <button
             onClick={onDone}
-            className="rounded-2xl border-2 border-[#e8e0d4] bg-white px-10 py-4 text-base font-black text-[#6b6b65] hover:border-[#c4622d] hover:text-[#c4622d] transition-all"
+            className="rounded-2xl border-2 border-[var(--color-border)] bg-white/6 px-10 py-4 text-base font-black text-[var(--color-text-secondary)] transition-all hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
           >
             I&apos;m done early →
           </button>
@@ -82,11 +82,11 @@ export default function PresenterView({ state, onDone }: Props) {
       {/* Notes reference */}
       {state.presenterNotes && (
         <div>
-          <label className="text-xs font-bold uppercase tracking-widest text-[#9b9b95] mb-3 block">
+          <label className="mb-3 block text-xs font-bold uppercase tracking-widest text-[var(--color-text-muted)]">
             Your notes (reference)
           </label>
-          <div className="rounded-2xl border border-[#e8e0d4] bg-white p-6 max-h-64 overflow-y-auto">
-            <p className="text-sm text-[#6b6b65] leading-relaxed whitespace-pre-wrap">
+          <div className="max-h-64 overflow-y-auto rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-strong)] p-6">
+            <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--color-text-secondary)]">
               {state.presenterNotes}
             </p>
           </div>
@@ -94,11 +94,11 @@ export default function PresenterView({ state, onDone }: Props) {
       )}
 
       {/* Topic reminder */}
-      <div className="rounded-2xl bg-[#fdf6f2] border border-[#f0d5c4] p-5">
-        <div className="text-xs font-bold uppercase tracking-widest text-[#c4622d] mb-1">
+      <div className="rounded-2xl border border-[var(--color-primary-muted)] bg-[var(--color-primary-light)] p-5">
+        <div className="mb-1 text-xs font-bold uppercase tracking-widest text-[var(--color-primary)]">
           Topic
         </div>
-        <div className="font-black text-[#1a1a18]">{state.topic}</div>
+        <div className="font-black text-[var(--color-text-base)]">{state.topic}</div>
       </div>
     </div>
   );

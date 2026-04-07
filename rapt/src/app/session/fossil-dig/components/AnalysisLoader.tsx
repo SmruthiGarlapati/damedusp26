@@ -40,10 +40,10 @@ export default function AnalysisLoader() {
 
       {/* Rotating messages */}
       <div className="text-center">
-        <p className="font-black text-xl text-[#1a1a18] mb-2">
+        <p className="mb-2 text-xl font-black text-[var(--color-text-base)]">
           Analyzing your excavation
         </p>
-        <p className="text-sm text-[#9b9b95] transition-all">
+        <p className="text-sm text-[var(--color-text-muted)] transition-all">
           {MESSAGES[msgIndex]}
         </p>
       </div>

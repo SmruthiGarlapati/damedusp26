@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "RAPT — Study Partner Matching",
@@ -17,8 +14,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.className}>
-      <body suppressHydrationWarning className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text-base)] antialiased">
+    <html lang="en">
+      <body suppressHydrationWarning className="min-h-screen text-[var(--color-text-base)] antialiased">
         {children}
         <Script src="https://mcp.figma.com/mcp/html-to-design/capture.js" strategy="beforeInteractive" />
       </body>

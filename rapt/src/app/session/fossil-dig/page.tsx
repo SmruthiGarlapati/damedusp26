@@ -13,15 +13,16 @@ export default function FossilDigPage() {
   const { state } = game;
 
   return (
-    <div className="min-h-screen bg-[#faf8f4]">
-      <div className="border-b border-[#e8e0d4] bg-white px-8 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+    <div className="rapt-app-shell min-h-screen px-4 py-4 md:px-6 md:py-6">
+      <div className="mx-auto overflow-hidden rounded-[32px] border border-[var(--color-border)] bg-[rgba(13,28,13,0.9)] shadow-[var(--shadow-lg)] backdrop-blur-sm">
+      <div className="flex items-center justify-between border-b border-white/10 bg-[#173417] px-8 py-4">
+        <div className="flex items-center gap-3 text-[var(--color-bone)]">
           <span className="text-2xl">🦕</span>
-          <span className="font-black text-xl tracking-tight text-[#1a1a18]">
+          <span className="rapt-display text-xl tracking-tight text-white">
             Fossil Dig
           </span>
           {state.topic && (
-            <span className="text-sm text-[#9b9b95] font-medium">
+            <span className="text-sm font-medium text-[#c8e898]/70">
               · {state.topic}
             </span>
           )}
@@ -35,9 +36,9 @@ export default function FossilDigPage() {
                   : ["REDIG","COMPLETE"].includes(state.phase) ||
                     ["SETUP","PRESENTING","RECALLING","ANALYZING","REVEALING"].indexOf(state.phase) > i
                   ? "bg-[#c4622d] opacity-40"
-                  : "bg-[#e8e0d4]"
+                      : "bg-white/18"
               }`}/>
-              {i < 4 && <div className="h-px w-4 bg-[#e8e0d4]"/>}
+              {i < 4 && <div className="h-px w-4 bg-white/18"/>}
             </div>
           ))}
         </div>
@@ -115,6 +116,7 @@ export default function FossilDigPage() {
             }}
           />
         )}
+      </div>
       </div>
     </div>
   );

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { clearDemoAdminSession, isDemoAdminUser, isSupabaseAuthConfigured } from "@/lib/demoAdmin";
 import { createClient } from "@/lib/supabase/client";
 import { useCurrentUser } from "@/lib/useCurrentUser";
 
@@ -23,6 +24,7 @@ export default function Navbar({ showSearch = false }: NavbarProps) {
   const [search, setSearch] = useState("");
   const menuRef = useRef<HTMLDivElement>(null);
   const { user, loading } = useCurrentUser();
+  const isDemoUser = isDemoAdminUser(user);
 
   const initials = user?.full_name
     ? user.full_name
@@ -48,8 +50,13 @@ export default function Navbar({ showSearch = false }: NavbarProps) {
   }, []);
 
   async function handleSignOut() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
+    clearDemoAdminSession();
+
+    if (isSupabaseAuthConfigured() && !isDemoUser) {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+    }
+
     setMenuOpen(false);
     router.push("/");
   }

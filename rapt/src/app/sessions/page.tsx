@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import { isDemoAdminUser } from "@/lib/demoAdmin";
 import { useCurrentUser } from "@/lib/useCurrentUser";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -88,7 +89,7 @@ function useCountdown(target: Date) {
 
 function CountdownBadge({ scheduledAt }: { scheduledAt: Date }) {
   const ms = useCountdown(scheduledAt);
-  if (ms <= 0) return <span className="text-[11px] font-bold text-green-600">Live now</span>;
+  if (ms <= 0) return <span className="text-[11px] font-bold text-[#72e38f]">Live now</span>;
   const totalSecs = Math.floor(ms / 1000);
   const h = Math.floor(totalSecs / 3600);
   const m = Math.floor((totalSecs % 3600) / 60);
@@ -100,7 +101,7 @@ function CountdownBadge({ scheduledAt }: { scheduledAt: Date }) {
       ? `${m}m ${String(s).padStart(2, "0")}s`
       : `${s}s`;
   return (
-    <span className="text-[11px] font-bold tabular-nums text-[var(--color-text-muted)]">
+    <span className="text-[11px] font-bold tabular-nums text-[#c8e898]/88">
       Starts in {str}
     </span>
   );
@@ -110,12 +111,12 @@ function CountdownBadge({ scheduledAt }: { scheduledAt: Date }) {
    Status styles
 ───────────────────────────────────────────── */
 const STATUS_STYLE: Record<SessionStatus, string> = {
-  pending: "bg-amber-50 text-amber-700 border-amber-200",
-  accepted: "bg-[var(--color-tag-green)] text-[var(--color-primary)] border-green-200",
-  declined: "bg-red-50 text-red-600 border-red-200",
-  live: "bg-green-100 text-green-700 border-green-300",
+  pending: "border-amber-300/25 bg-[rgba(151,102,34,0.2)] text-amber-200",
+  accepted: "border-[#9dd46a]/22 bg-[rgba(114,184,74,0.16)] text-[#def4be]",
+  declined: "border-red-300/25 bg-[rgba(143,45,38,0.22)] text-red-200",
+  live: "border-emerald-300/25 bg-[rgba(40,134,84,0.24)] text-[#b9f8d4]",
   completed:
-    "bg-[var(--color-surface)] text-[var(--color-text-muted)] border-[var(--color-border)]",
+    "border-white/10 bg-white/5 text-[var(--color-text-muted)]",
 };
 const STATUS_LABEL: Record<SessionStatus, string> = {
   pending: "Pending",
@@ -148,16 +149,16 @@ function SessionCard({
 
   return (
     <div
-      className={`rounded-2xl border bg-white shadow-[var(--shadow-sm)] overflow-hidden transition-all hover:shadow-[var(--shadow-md)] ${
+      className={`overflow-hidden rounded-[28px] border bg-[linear-gradient(180deg,rgba(18,37,18,0.96),rgba(10,20,10,0.94))] shadow-[var(--shadow-md)] transition-all hover:-translate-y-1 hover:shadow-[0_24px_48px_rgba(0,0,0,0.34)] ${
         isReady && session.status === "accepted"
-          ? "border-green-300 ring-1 ring-green-200"
-          : "border-[var(--color-border)]"
+          ? "border-emerald-300/28 ring-1 ring-emerald-300/18"
+          : "border-white/10"
       }`}
     >
       {/* Top strip for live/ready sessions */}
       {isReady && session.status === "accepted" && (
-        <div className="flex items-center gap-2 bg-green-600 px-5 py-2 text-white">
-          <span className="h-2 w-2 animate-pulse rounded-full bg-white" />
+        <div className="flex items-center gap-2 border-b border-emerald-300/18 bg-[linear-gradient(90deg,rgba(15,171,71,0.92),rgba(23,127,63,0.92))] px-5 py-2.5 text-white">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-white shadow-[0_0_0_4px_rgba(255,255,255,0.14)]" />
           <span className="text-[12px] font-bold">
             {isPast ? "Session is live — join now!" : "Starting soon — get ready!"}
           </span>
@@ -167,13 +168,13 @@ function SessionCard({
       <div className="p-5">
         <div className="mb-4 flex items-start gap-4">
           {/* Avatar */}
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] text-sm font-bold text-white">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] text-sm font-bold text-white shadow-[var(--shadow-primary)]">
             {session.partnerInitials}
           </div>
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h3 className="text-[15px] font-bold truncate">{session.partnerName}</h3>
+              <h3 className="truncate text-[17px] font-bold text-[var(--color-text-base)]">{session.partnerName}</h3>
               <span
                 className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${STATUS_STYLE[session.status]}`}
               >
@@ -201,17 +202,17 @@ function SessionCard({
         </div>
 
         {session.notes && (
-          <div className="mb-4 flex items-start gap-2 rounded-lg bg-[var(--color-surface)] px-3 py-2.5">
+          <div className="mb-4 flex items-start gap-2 rounded-xl border border-white/8 bg-white/5 px-3 py-2.5">
             <svg
               width="12"
               height="12"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#6b6b65"
+              stroke="currentColor"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="mt-0.5 shrink-0"
+              className="mt-0.5 shrink-0 text-[#c8e898]/66"
             >
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
             </svg>
@@ -239,7 +240,7 @@ function SessionCard({
               </button>
               <button
                 onClick={onDecline}
-                className="flex-1 rounded-xl border border-red-200 bg-red-50 py-2.5 text-[13px] font-semibold text-red-600 transition-all hover:bg-red-100"
+                className="flex-1 rounded-xl border border-red-300/25 bg-[rgba(143,45,38,0.22)] py-2.5 text-[13px] font-semibold text-red-200 transition-all hover:bg-[rgba(143,45,38,0.3)]"
               >
                 Decline
               </button>
@@ -249,15 +250,15 @@ function SessionCard({
           {/* Waiting for partner */}
           {session.status === "pending" && session.requestedByMe && (
             <>
-              <div className="flex flex-1 items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-500" />
-                <span className="text-[12px] font-semibold text-amber-700">
+              <div className="flex flex-1 items-center gap-2 rounded-xl border border-amber-300/25 bg-[rgba(151,102,34,0.22)] px-3 py-2.5">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-300" />
+                <span className="text-[12px] font-semibold text-amber-200">
                   Waiting for {session.partnerName.split(" ")[0]} to accept
                 </span>
               </div>
               <button
                 onClick={onCancel}
-                className="rounded-xl border border-[var(--color-border)] px-3 py-2.5 text-[12px] font-semibold text-[var(--color-text-muted)] hover:border-red-300 hover:text-red-500 transition-colors"
+                className="rounded-xl border border-white/12 bg-white/4 px-3 py-2.5 text-[12px] font-semibold text-[var(--color-text-muted)] transition-colors hover:border-red-300/28 hover:text-red-200"
               >
                 Cancel
               </button>
@@ -272,15 +273,15 @@ function SessionCard({
                 disabled={!isReady}
                 className={`flex-1 rounded-xl py-2.5 text-[13px] font-bold transition-all ${
                   isReady
-                    ? "bg-green-600 text-white shadow-[0_4px_12px_rgba(22,163,74,0.3)] hover:bg-green-700"
-                    : "cursor-not-allowed bg-[var(--color-surface)] text-[var(--color-text-muted)]"
+                    ? "bg-[linear-gradient(90deg,rgba(15,171,71,0.94),rgba(23,127,63,0.94))] text-white shadow-[0_10px_26px_rgba(23,127,63,0.28)] hover:brightness-105"
+                    : "cursor-not-allowed border border-white/10 bg-white/6 text-[var(--color-text-muted)]"
                 }`}
               >
                 {session.started ? "Resume Session" : isPast ? "Join Session" : "Start Session"}
               </button>
               <button
                 onClick={onCancel}
-                className="rounded-xl border border-[var(--color-border)] px-3 py-2.5 text-[12px] font-semibold text-[var(--color-text-muted)] hover:border-red-300 hover:text-red-500 transition-colors"
+                className="rounded-xl border border-white/12 bg-white/4 px-3 py-2.5 text-[12px] font-semibold text-[var(--color-text-muted)] transition-colors hover:border-red-300/28 hover:text-red-200"
               >
                 Cancel
               </button>
@@ -291,7 +292,7 @@ function SessionCard({
           {session.status === "declined" && (
             <button
               onClick={onCancel}
-              className="flex-1 rounded-xl border border-[var(--color-border)] py-2.5 text-[12px] font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-surface)]"
+              className="flex-1 rounded-xl border border-white/12 bg-white/4 py-2.5 text-[12px] font-semibold text-[var(--color-text-muted)] transition-colors hover:border-white/18 hover:bg-white/8"
             >
               Remove
             </button>
@@ -317,6 +318,7 @@ function Detail({ icon, label }: { icon: React.ReactNode; label: React.ReactNode
 export default function SessionsPage() {
   const router = useRouter();
   const { user, loading: userLoading } = useCurrentUser();
+  const isDemoUser = isDemoAdminUser(user);
 
   const [sessions, setSessions] = useState<StudySession[]>([]);
   const [dbLoading, setDbLoading] = useState(false);
@@ -428,7 +430,7 @@ export default function SessionsPage() {
   useEffect(() => {
     if (userLoading) return;
 
-    if (!user) {
+    if (!user || isDemoUser) {
       // Demo mode: use in-memory store
       setSessions(getSessions() as unknown as StudySession[]);
       const unsub = subscribe(() =>
@@ -454,55 +456,55 @@ export default function SessionsPage() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, userLoading, fetchSessions]);
+  }, [user, userLoading, fetchSessions, isDemoUser]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || isDemoUser) return;
     const id = setInterval(() => syncLiveStatus(user.id), 30_000);
     return () => clearInterval(id);
-  }, [user, syncLiveStatus]);
+  }, [user, syncLiveStatus, isDemoUser]);
 
   /* ── Actions ── */
   const accept = useCallback(
     async (id: string) => {
-      if (!user) return;
+      if (!user || isDemoUser) return;
       const supabase = createClient();
       await supabase.from("matches").update({ status: "accepted" }).eq("id", id);
       await fetchSessions(user.id);
     },
-    [user, fetchSessions]
+    [user, fetchSessions, isDemoUser]
   );
 
   const decline = useCallback(
     async (id: string) => {
-      if (!user) return;
+      if (!user || isDemoUser) return;
       const supabase = createClient();
       await supabase.from("matches").update({ status: "declined" }).eq("id", id);
       await fetchSessions(user.id);
     },
-    [user, fetchSessions]
+    [user, fetchSessions, isDemoUser]
   );
 
   const cancel = useCallback(
     async (id: string) => {
-      if (!user) return;
+      if (!user || isDemoUser) return;
       const supabase = createClient();
       await supabase.from("matches").delete().eq("id", id);
       await fetchSessions(user.id);
     },
-    [user, fetchSessions]
+    [user, fetchSessions, isDemoUser]
   );
 
   const start = useCallback(
     async (session: StudySession) => {
-      if (!user) return;
+      if (!user || isDemoUser) return;
       const supabase = createClient();
       await supabase.from("matches").update({ started: true }).eq("id", session.id);
       router.push(
         `/session?partner=${encodeURIComponent(session.partnerName)}&course=${encodeURIComponent(session.course)}&location=${encodeURIComponent(session.location)}&duration=${session.duration}&matchId=${session.id}`
       );
     },
-    [user, router]
+    [user, router, isDemoUser]
   );
 
   /* ── Demo mode actions (no user) ── */
@@ -563,10 +565,10 @@ export default function SessionsPage() {
   const isLoading = userLoading || dbLoading;
 
   return (
-    <div className="flex min-h-screen flex-col bg-[var(--color-bg)]">
+    <div className="rapt-app-shell flex min-h-screen flex-col bg-[var(--color-bg)]">
       <Navbar />
 
-      <main className="flex-1 px-12 py-10">
+      <main className="rapt-app-main flex-1 px-8 py-8 md:px-12 md:py-10">
         {/* Back button */}
         <button
           onClick={() => router.push("/matches")}
@@ -588,13 +590,17 @@ export default function SessionsPage() {
         </button>
 
         {/* Header */}
-        <div className="mb-8 flex items-start justify-between">
+        <div className="rapt-hero-card mb-8 flex flex-col gap-5 px-7 py-7 md:flex-row md:items-end md:justify-between md:px-8">
           <div>
-            <h1 className="text-[38px] font-extrabold tracking-[-1.5px] leading-tight">
+            <span className="rapt-eyebrow">
+              <span className="h-2 w-2 rounded-full bg-[var(--color-leaf)]" />
+              Session control center
+            </span>
+            <h1 className="rapt-display mt-5 text-[38px] leading-[0.95] text-[var(--color-text-base)] md:text-[44px]">
               My Sessions
             </h1>
-            <p className="mt-1.5 text-[15px] text-[var(--color-text-secondary)]">
-              Manage your study requests, upcoming sessions, and join when it&apos;s time.
+            <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-[var(--color-text-secondary)]">
+              Manage requests, keep an eye on what&apos;s starting soon, and jump into active sessions without losing the homepage mood.
             </p>
           </div>
           <button
@@ -629,30 +635,31 @@ export default function SessionsPage() {
           <>
             {/* Alert banners */}
             {readyCount > 0 && (
-              <div className="mb-6 flex items-center gap-3 rounded-xl border border-green-300 bg-green-50 px-5 py-4">
-                <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-green-500" />
-                <p className="text-[14px] font-semibold text-green-800">
+              <div className="mb-6 flex items-center gap-3 rounded-[22px] border border-emerald-300/22 bg-[linear-gradient(180deg,rgba(18,72,43,0.34),rgba(11,39,24,0.3))] px-5 py-4 backdrop-blur-sm">
+                <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-[#72e38f] shadow-[0_0_0_6px_rgba(114,227,143,0.12)]" />
+                <p className="text-[14px] font-semibold text-[#d2f8df]">
                   {readyCount === 1 ? "1 session is" : `${readyCount} sessions are`} starting
                   soon — you can join now.
                 </p>
               </div>
             )}
             {pendingCount > 0 && (
-              <div className="mb-6 flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4">
+              <div className="mb-6 flex items-center gap-3 rounded-[22px] border border-amber-300/25 bg-[linear-gradient(180deg,rgba(151,102,34,0.18),rgba(75,49,11,0.2))] px-5 py-4 backdrop-blur-sm">
                 <svg
                   width="16"
                   height="16"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#92400e"
+                  stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
+                  className="text-amber-200"
                 >
                   <circle cx="12" cy="12" r="10" />
                   <line x1="12" y1="8" x2="12" y2="12" />
                   <line x1="12" y1="16" x2="12.01" y2="16" />
                 </svg>
-                <p className="text-[14px] font-semibold text-amber-800">
+                <p className="text-[14px] font-semibold text-amber-100">
                   {pendingCount} session request{pendingCount > 1 ? "s" : ""} need
                   {pendingCount === 1 ? "s" : ""} your attention.
                 </p>
@@ -660,7 +667,7 @@ export default function SessionsPage() {
             )}
 
             {/* Tabs */}
-            <div className="mb-6 flex gap-1 rounded-xl border border-[var(--color-border)] bg-white p-1 shadow-[var(--shadow-sm)] w-fit">
+            <div className="mb-6 flex w-fit gap-1 rounded-xl border border-[var(--color-border)] bg-[rgba(13,28,13,0.8)] p-1 shadow-[var(--shadow-sm)] backdrop-blur-sm">
               {(["upcoming", "pending", "past"] as const).map((t) => {
                 const count =
                   t === "upcoming"
@@ -675,7 +682,7 @@ export default function SessionsPage() {
                     className={`flex items-center gap-2 rounded-lg px-5 py-2 text-[13px] font-semibold capitalize transition-all ${
                       tab === t
                         ? "bg-[var(--color-primary)] text-white shadow-[var(--shadow-primary)]"
-                        : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface)]"
+                        : "text-[var(--color-text-secondary)] hover:bg-white/7"
                     }`}
                   >
                     {t}
@@ -684,7 +691,7 @@ export default function SessionsPage() {
                         className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
                           tab === t
                             ? "bg-white/20 text-white"
-                            : "bg-[var(--color-surface)] text-[var(--color-text-muted)]"
+                            : "bg-white/6 text-[var(--color-text-muted)]"
                         }`}
                       >
                         {count}
@@ -697,7 +704,7 @@ export default function SessionsPage() {
 
             {/* Cards */}
             {tabData.length === 0 ? (
-              <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--color-border)] bg-white py-20 text-center">
+              <div className="rapt-glass-card flex flex-col items-center justify-center border-dashed py-20 text-center">
                 <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)]">
                   <svg
                     width="28"
@@ -733,15 +740,15 @@ export default function SessionsPage() {
                 )}
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-5 xl:grid-cols-3">
+              <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
                 {tabData.map((s) => (
                   <SessionCard
                     key={s.id}
                     session={s}
-                    onAccept={() => (user ? accept(s.id) : acceptDemo(s.id))}
-                    onDecline={() => (user ? decline(s.id) : declineDemo(s.id))}
-                    onStart={() => (user ? start(s) : startDemo(s))}
-                    onCancel={() => (user ? cancel(s.id) : cancelDemo(s.id))}
+                    onAccept={() => (user && !isDemoUser ? accept(s.id) : acceptDemo(s.id))}
+                    onDecline={() => (user && !isDemoUser ? decline(s.id) : declineDemo(s.id))}
+                    onStart={() => (user && !isDemoUser ? start(s) : startDemo(s))}
+                    onCancel={() => (user && !isDemoUser ? cancel(s.id) : cancelDemo(s.id))}
                   />
                 ))}
               </div>

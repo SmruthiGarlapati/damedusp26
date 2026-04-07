@@ -41,36 +41,36 @@ export default function ReDigPanel({ state, setReDigRecall, onSubmit }: Props) {
 
   return (
     <div className="flex flex-col gap-6 mt-6">
-      <div className="rounded-2xl border-2 border-[#c4622d] bg-[#fdf6f2] p-6">
-        <div className="text-xs font-bold uppercase tracking-widest text-[#c4622d] mb-2">
+      <div className="rounded-2xl border-2 border-[var(--color-primary)] bg-[var(--color-primary-light)] p-6">
+        <div className="mb-2 text-xs font-bold uppercase tracking-widest text-[var(--color-primary)]">
           Re-dig — missed concepts
         </div>
         <div className="flex flex-wrap gap-2 mb-3">
           {missedConcepts.map((c) => (
-            <span key={c} className="rounded-full bg-white border border-[#f0d5c4] px-3 py-1 text-xs font-bold text-[#c4622d]">
+            <span key={c} className="rounded-full border border-[var(--color-primary-muted)] bg-[rgba(255,255,255,0.08)] px-3 py-1 text-xs font-bold text-[var(--color-primary)]">
               {c}
             </span>
           ))}
         </div>
-        <p className="text-sm text-[#6b6b65] leading-relaxed">
+        <p className="text-sm leading-relaxed text-[var(--color-text-secondary)]">
           {reDigPrompt}
         </p>
       </div>
 
       {!started ? (
-        <div className="rounded-3xl border-2 border-[#e8e0d4] bg-white p-10 flex flex-col items-center gap-6 text-center">
+        <div className="flex flex-col items-center gap-6 rounded-3xl border-2 border-[var(--color-border)] bg-[var(--color-surface-strong)] p-10 text-center">
           <span className="text-6xl">🦴</span>
           <div>
-            <p className="font-black text-xl text-[#1a1a18] mb-2">
+            <p className="mb-2 text-xl font-black text-[var(--color-text-base)]">
               Second chance to excavate
             </p>
-            <p className="text-sm text-[#6b6b65] max-w-sm leading-relaxed">
+            <p className="max-w-sm text-sm leading-relaxed text-[var(--color-text-secondary)]">
               The presenter will re-explain the missed concepts. Then you get 90 seconds to recall them.
             </p>
           </div>
           <button
             onClick={() => setStarted(true)}
-            className="rounded-2xl bg-[#c4622d] px-10 py-4 text-base font-black text-white hover:opacity-90 transition-opacity shadow-lg shadow-[#c4622d]/20"
+            className="rounded-2xl bg-[var(--color-primary)] px-10 py-4 text-base font-black text-white shadow-lg shadow-[#c4622d]/20 transition-opacity hover:opacity-90"
           >
             Start re-dig 🦕
           </button>
@@ -78,20 +78,20 @@ export default function ReDigPanel({ state, setReDigRecall, onSubmit }: Props) {
       ) : (
         <div className="flex flex-col gap-4">
           {/* Timer */}
-          <div className="rounded-2xl border-2 border-[#e8e0d4] bg-white px-6 py-4 flex items-center gap-4">
-            <div className={`text-3xl font-black tabular-nums tracking-tight transition-colors ${isUrgent ? "text-[#c4622d]" : "text-[#1a1a18]"}`}>
+          <div className="flex items-center gap-4 rounded-2xl border-2 border-[var(--color-border)] bg-[var(--color-surface-strong)] px-6 py-4">
+            <div className={`text-3xl font-black tabular-nums tracking-tight transition-colors ${isUrgent ? "text-[var(--color-primary)]" : "text-[var(--color-text-base)]"}`}>
               {String(mins).padStart(2, "0")}:{String(secs).padStart(2, "0")}
             </div>
-            <div className="flex-1 h-2 bg-[#f0ebe4] rounded-full overflow-hidden">
+            <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/8">
               <div
                 className="h-full rounded-full transition-all duration-1000"
                 style={{
                   width: `${progress}%`,
-                  background: isUrgent ? "#c4622d" : "#d4956a",
+                  background: isUrgent ? "var(--color-primary)" : "#d4956a",
                 }}
               />
             </div>
-            <div className="text-sm text-[#9b9b95] font-medium tabular-nums">
+            <div className="text-sm font-medium tabular-nums text-[var(--color-text-muted)]">
               {wordCount} words
             </div>
           </div>
@@ -102,7 +102,7 @@ export default function ReDigPanel({ state, setReDigRecall, onSubmit }: Props) {
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="Now recall the missed concepts — in your own words..."
-            className="w-full rounded-2xl border-2 border-[#e8e0d4] bg-white px-6 py-5 text-sm text-[#1a1a18] outline-none focus:border-[#c4622d] transition-colors placeholder:text-[#9b9b95] min-h-[200px] resize-none leading-relaxed"
+            className="min-h-[200px] w-full resize-none rounded-2xl border-2 border-[var(--color-border)] bg-[var(--color-surface-strong)] px-6 py-5 text-sm leading-relaxed text-[var(--color-text-base)] outline-none transition-colors placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary)]"
           />
 
           <button
@@ -110,8 +110,8 @@ export default function ReDigPanel({ state, setReDigRecall, onSubmit }: Props) {
             disabled={wordCount < 3}
             className={`w-full rounded-2xl py-4 text-base font-black tracking-tight transition-all ${
               wordCount >= 3
-                ? "bg-[#c4622d] text-white hover:opacity-90 hover:-translate-y-0.5 shadow-lg shadow-[#c4622d]/20"
-                : "bg-[#e8e0d4] text-[#9b9b95] cursor-not-allowed"
+                ? "bg-[var(--color-primary)] text-white shadow-lg shadow-[#c4622d]/20 hover:-translate-y-0.5 hover:opacity-90"
+                : "cursor-not-allowed bg-white/8 text-[var(--color-text-muted)]"
             }`}
           >
             Submit re-dig →

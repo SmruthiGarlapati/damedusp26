@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef } from "react";
 
 export type CellState = "empty" | "selected";
 
@@ -89,21 +89,21 @@ export default function AvailabilityGrid({
     <div>
       {/* Scrollable grid */}
       <div
-        className="mb-4 overflow-y-auto rounded-xl border border-[var(--color-border)]"
+        className="mb-4 overflow-y-auto rounded-[20px] border border-white/10 bg-[rgba(7,16,7,0.78)] shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]"
         style={{ maxHeight }}
         onMouseLeave={stopPaint}
         onMouseUp={stopPaint}
       >
         {/* Sticky day-header row */}
         <div
-          className="sticky top-0 z-10 grid bg-[var(--color-surface)] border-b border-[var(--color-border)]"
+          className="sticky top-0 z-10 grid border-b border-white/10 bg-[rgba(255,255,255,0.05)] backdrop-blur-sm"
           style={{ gridTemplateColumns: "56px repeat(7, 1fr)" }}
         >
           <div />
           {DAYS.map((d) => (
             <div
               key={d}
-              className="py-2 text-center text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]"
+              className="py-2 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-[#c8e898]/72"
             >
               {d}
             </div>
@@ -112,7 +112,7 @@ export default function AvailabilityGrid({
 
         {/* Data rows — one per 15-minute slot */}
         <div
-          className="grid select-none bg-white"
+          className="grid select-none bg-[linear-gradient(180deg,rgba(10,22,10,0.92),rgba(8,16,8,0.96))]"
           style={{ gridTemplateColumns: "56px repeat(7, 1fr)" }}
         >
           {Array.from({ length: TOTAL_ROWS }, (_, row) => {
@@ -123,9 +123,9 @@ export default function AvailabilityGrid({
                 <div
                   className={`flex items-center justify-end pr-2 text-[9px] text-[var(--color-text-muted)] ${
                     isHour
-                      ? "font-semibold text-[var(--color-text-secondary)]"
-                      : "opacity-60"
-                  } ${isHour && row !== 0 ? "border-t border-[var(--color-border-light)]" : ""}`}
+                      ? "font-semibold text-[#f5f0e8]/82"
+                      : "opacity-55"
+                  } ${isHour && row !== 0 ? "border-t border-white/8" : ""}`}
                   style={{ height: 18 }}
                 >
                   {TIME_LABELS[row]}
@@ -156,7 +156,7 @@ export default function AvailabilityGrid({
                       key={`c-${row}-${col}`}
                       className={`cursor-pointer px-1 ${
                         isHour && row !== 0
-                          ? "border-t border-[var(--color-border-light)]"
+                          ? "border-t border-white/8"
                           : ""
                       }`}
                       style={{ height: 18 }}
@@ -167,8 +167,8 @@ export default function AvailabilityGrid({
                       <div
                         className={`h-full w-full transition-all duration-100 ${
                           isSelected
-                            ? `bg-[var(--color-primary)] opacity-90 hover:opacity-100 ${radius}`
-                            : "hover:bg-[var(--color-primary-light)] rounded-md"
+                            ? `bg-[linear-gradient(180deg,rgba(232,90,10,0.96),rgba(210,79,7,0.92))] shadow-[0_0_0_1px_rgba(255,255,255,0.08)] hover:brightness-105 ${radius}`
+                            : "rounded-md bg-transparent hover:bg-white/7"
                         }`}
                       />
                     </div>
@@ -184,13 +184,12 @@ export default function AvailabilityGrid({
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-1.5 text-[11px] text-[var(--color-text-secondary)]">
           <div
-            className="h-3 w-3 rounded-[3px] border border-[var(--color-border)]"
-            style={{ background: "#f0f0ed" }}
+            className="h-3 w-3 rounded-[3px] border border-white/12 bg-white/8"
           />
-          Available
+          Open
         </div>
         <div className="flex items-center gap-1.5 text-[11px] text-[var(--color-text-secondary)]">
-          <div className="h-3 w-3 rounded-[3px] bg-[var(--color-primary)]" />
+          <div className="h-3 w-3 rounded-[3px] bg-[var(--color-primary)] shadow-[0_0_0_1px_rgba(255,255,255,0.08)]" />
           Selected
         </div>
         <p className="ml-auto text-[11px] font-medium text-[var(--color-primary)]">

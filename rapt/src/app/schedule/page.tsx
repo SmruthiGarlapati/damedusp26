@@ -9,6 +9,7 @@ import AvailabilityGrid, {
   makeEmptyGrid,
   DEFAULT_INITIAL_GRID,
 } from "@/components/AvailabilityGrid";
+import { isDemoAdminUser } from "@/lib/demoAdmin";
 import { createClient } from "@/lib/supabase/client";
 import { useCurrentUser } from "@/lib/useCurrentUser";
 
@@ -89,6 +90,13 @@ const AMENITIES = [
 
 const DURATION_OPTIONS = ["30 min", "1 hr", "1.5 hr", "2 hr", "3+ hr"];
 const GROUP_SIZES = ["1-on-1", "Small (2-3)", "Any"];
+const SURFACE_CARD_CLS =
+  "rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(18,38,18,0.96),rgba(10,22,10,0.92))] shadow-[var(--shadow-md)] backdrop-blur-sm";
+const LABEL_CLS = "text-[11px] font-semibold uppercase tracking-[0.18em] text-[#c8e898]/70";
+const FIELD_CLS =
+  "rounded-xl border border-white/12 bg-[rgba(255,255,255,0.06)] px-4 text-sm text-[var(--color-text-base)] outline-none transition-all [color-scheme:dark] placeholder:text-[#c8e898]/40 focus:border-[var(--color-primary)] focus:bg-[rgba(255,255,255,0.08)] focus:ring-2 focus:ring-[var(--color-primary)]/15";
+const INPUT_CLS = `h-[47px] ${FIELD_CLS}`;
+const SELECT_CLS = `h-11 cursor-pointer ${FIELD_CLS}`;
 
 /* ─────────────────────────────────────────────
    Step Indicator
@@ -105,12 +113,12 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
           <div key={step} className="flex items-center">
             <div className="flex flex-col items-center gap-1.5">
               <div
-                className={`flex h-8 w-8 items-center justify-center rounded-full text-[13px] font-bold transition-all ${
+                className={`flex h-10 w-10 items-center justify-center rounded-full text-[13px] font-bold transition-all ${
                   done
-                    ? "bg-[var(--color-primary)] text-white"
+                    ? "bg-[var(--color-primary)] text-white shadow-[var(--shadow-primary)]"
                     : active
-                    ? "border-2 border-[var(--color-primary)] bg-[var(--color-primary-light)] text-[var(--color-primary)]"
-                    : "border-2 border-[var(--color-border)] bg-white text-[var(--color-text-muted)]"
+                    ? "border border-[var(--color-primary)] bg-[rgba(232,90,10,0.16)] text-[var(--color-fossil)] shadow-[var(--shadow-primary)]"
+                    : "border border-white/12 bg-white/6 text-[#f5f0e8]/74"
                 }`}
               >
                 {done ? (
@@ -122,8 +130,8 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
                 )}
               </div>
               <span
-                className={`text-[10px] font-semibold uppercase tracking-wide ${
-                  active ? "text-[var(--color-primary)]" : "text-[var(--color-text-muted)]"
+                className={`text-[10px] font-semibold uppercase tracking-[0.18em] ${
+                  done || active ? "text-[#f5f0e8]" : "text-[#c8e898]/58"
                 }`}
               >
                 {labels[i]}
@@ -132,7 +140,7 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
             {i < total - 1 && (
               <div
                 className={`mx-3 mb-5 h-px w-16 transition-colors ${
-                  done ? "bg-[var(--color-primary)]" : "bg-[var(--color-border)]"
+                  done ? "bg-[var(--color-primary)]" : "bg-white/12"
                 }`}
               />
             )}
@@ -152,6 +160,7 @@ function SchedulePageInner() {
   const [step, setStep] = useState(1);
 
   const { user, loading: userLoading } = useCurrentUser();
+  const isDemoUser = isDemoAdminUser(user);
   const [dbLoading, setDbLoading] = useState(false);
 
   // Honor ?step=N deep-links (from matching page Edit buttons)
@@ -164,9 +173,6 @@ function SchedulePageInner() {
   const [courses, setCourses] = useState<Course[]>(INITIAL_COURSES);
   const [courseNum, setCourseNum] = useState("");
   const [profName, setProfName] = useState("");
-  const [myUTConnected, setMyUTConnected] = useState(true);
-  const [gcalConnected, setGcalConnected] = useState(false);
-  const [canvasConnected, setCanvasConnected] = useState(false);
 
   // Step 2 state
 
@@ -191,6 +197,21 @@ function SchedulePageInner() {
   // Load existing data from DB when user loads
   useEffect(() => {
     if (!user) return;
+
+    const prefs = user.preferences as Record<string, unknown>;
+    if (prefs) {
+      if (Array.isArray(prefs.techniques)) setStudyMethods(prefs.techniques as string[]);
+      if (typeof prefs.group_size === "string") setGroupSize(prefs.group_size);
+      if (typeof prefs.environment_type === "string") setEnvironment(prefs.environment_type);
+      if (typeof prefs.preferred_study_spot === "string") setStudySpot(prefs.preferred_study_spot);
+    }
+
+    const avail = user.availability as Record<string, unknown>;
+    if (avail && Array.isArray(avail.grid)) {
+      setGrid(avail.grid as CellState[][]);
+    }
+
+    if (isDemoUser) return;
 
     const supabase = createClient();
 
@@ -218,20 +239,6 @@ function SchedulePageInner() {
           setCourses(loadedCourses);
         }
 
-        // Pre-fill preferences
-        const prefs = user.preferences as Record<string, unknown>;
-        if (prefs) {
-          if (Array.isArray(prefs.techniques)) setStudyMethods(prefs.techniques as string[]);
-          if (typeof prefs.group_size === "string") setGroupSize(prefs.group_size);
-          if (typeof prefs.environment_type === "string") setEnvironment(prefs.environment_type);
-          if (typeof prefs.preferred_study_spot === "string") setStudySpot(prefs.preferred_study_spot);
-        }
-
-        // Pre-fill availability grid
-        const avail = user.availability as Record<string, unknown>;
-        if (avail && Array.isArray(avail.grid)) {
-          setGrid(avail.grid as CellState[][]);
-        }
       } catch (err) {
         console.error("Failed to load data from DB:", err);
       } finally {
@@ -240,7 +247,7 @@ function SchedulePageInner() {
     }
 
     void loadFromDb();
-  }, [user]);
+  }, [user, isDemoUser]);
 
   function addCourse() {
     if (!courseNum.trim()) return;
@@ -295,7 +302,7 @@ function SchedulePageInner() {
 
   // Step transition handlers
   function handleStep1Continue() {
-    if (user) {
+    if (user && !isDemoUser) {
       const supabase = createClient();
       const userId = user.id;
       const courseSnapshot = courses;
@@ -318,7 +325,7 @@ function SchedulePageInner() {
   }
 
   function handleStep2Continue() {
-    if (user) {
+    if (user && !isDemoUser) {
       const supabase = createClient();
       const userId = user.id;
       const existingPrefs = (user.preferences as Record<string, unknown>) ?? {};
@@ -344,7 +351,7 @@ function SchedulePageInner() {
   }
 
   function handleStep3Continue() {
-    if (user) {
+    if (user && !isDemoUser) {
       const supabase = createClient();
       const userId = user.id;
       const existingPrefs = (user.preferences as Record<string, unknown>) ?? {};
@@ -368,7 +375,7 @@ function SchedulePageInner() {
   }
 
   function handleStep4Finish() {
-    if (user) {
+    if (user && !isDemoUser) {
       const supabase = createClient();
       const userId = user.id;
       const gridSnapshot = grid;
@@ -389,21 +396,25 @@ function SchedulePageInner() {
   const continueDisabled = userLoading || dbLoading;
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="rapt-app-shell flex min-h-screen flex-col">
       <Navbar />
 
-      <main className="flex-1 px-12 py-10">
+      <main className="rapt-app-main flex-1 px-8 py-8 md:px-12 md:py-10">
         {/* Header */}
-        <div className="mb-8 flex items-start justify-between">
+        <div className="rapt-hero-card mb-8 flex flex-col gap-5 px-7 py-7 md:flex-row md:items-start md:justify-between md:px-8">
           <div>
-            <h1 className="text-[38px] font-extrabold leading-[1.1] tracking-[-1.5px]">
-              {step === 1 && "Sync your academic life."}
+            <span className="rapt-eyebrow">
+              <span className="h-2 w-2 rounded-full bg-[var(--color-primary)]" />
+              Study setup
+            </span>
+            <h1 className="rapt-display mt-5 text-[38px] leading-[1.02] text-[var(--color-text-base)] md:text-[44px]">
+              {step === 1 && "Set up your courses."}
               {step === 2 && "How do you study best?"}
               {step === 3 && "Plan your sessions."}
               {step === 4 && "Block your availability."}
             </h1>
-            <p className="mt-2 text-[15px] text-[var(--color-text-secondary)]">
-              {step === 1 && "Connect your schedule and tell us which courses you're taking."}
+            <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-[var(--color-text-secondary)]">
+              {step === 1 && "Tell us which courses you're taking."}
               {step === 2 && "We'll use this to find study partners that match your style."}
               {step === 3 && "Set your preferred spots, session type, and duration."}
               {step === 4 && "Drag to mark times you're free. 9 AM – 9 PM, Mon – Sun."}
@@ -411,7 +422,7 @@ function SchedulePageInner() {
           </div>
           <button
             onClick={() => router.push("/matching")}
-            className="mt-2 flex shrink-0 items-center gap-2 rounded-xl border border-[var(--color-border)] bg-white px-4 py-2.5 text-[13px] font-semibold text-[var(--color-text-secondary)] shadow-[var(--shadow-sm)] transition-all hover:border-[var(--color-primary-muted)] hover:text-[var(--color-primary)]"
+            className="mt-2 flex shrink-0 items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[rgba(255,255,255,0.06)] px-4 py-2.5 text-[13px] font-semibold text-[var(--color-text-secondary)] shadow-[var(--shadow-sm)] transition-all hover:border-[var(--color-primary-muted)] hover:text-[var(--color-primary)]"
           >
             Go to Matching
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -422,42 +433,17 @@ function SchedulePageInner() {
 
         <StepIndicator current={step} total={4} />
 
-        {/* ── Step 1: Courses & Integrations ── */}
+        {/* ── Step 1: Courses ── */}
         {step === 1 && (
-          <div className="flex gap-10">
+          <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_430px] xl:items-start">
             {/* Left */}
             <div className="flex-1 min-w-0">
-              {/* Integration buttons */}
-              <div className="grid grid-cols-3 gap-4 mb-8">
-                <IntegrationButton
-                  label="Google Calendar"
-                  sublabel={gcalConnected ? "Connected" : "Connect calendar"}
-                  active={gcalConnected}
-                  icon={<CalendarIcon />}
-                  onClick={() => setGcalConnected((v) => !v)}
-                />
-                <IntegrationButton
-                  label="myUT Portal"
-                  sublabel={myUTConnected ? "Schedule imported" : "Connect myUT"}
-                  active={myUTConnected}
-                  icon={<MyUTIcon />}
-                  onClick={() => setMyUTConnected((v) => !v)}
-                />
-                <IntegrationButton
-                  label="Canvas LMS"
-                  sublabel={canvasConnected ? "Assignments synced" : "Connect Canvas"}
-                  active={canvasConnected}
-                  icon={<CanvasIcon />}
-                  onClick={() => setCanvasConnected((v) => !v)}
-                />
-              </div>
-
               {/* Active Courses card */}
-              <div className="mb-6 overflow-hidden rounded-xl border border-[var(--color-border)] bg-white shadow-[var(--shadow-sm)]">
-                <div className="flex items-center gap-2.5 border-b border-[var(--color-border-light)] px-6 py-5">
+              <div className={`${SURFACE_CARD_CLS} mb-6 overflow-hidden`}>
+                <div className="flex items-center gap-2.5 border-b border-white/8 px-6 py-5">
                   <BookIcon />
-                  <h3 className="text-[15px] font-semibold">Active Courses</h3>
-                  <span className="ml-auto rounded-full bg-[var(--color-surface)] px-2.5 py-0.5 text-[11px] font-semibold text-[var(--color-text-muted)]">
+                  <h3 className="text-[15px] font-semibold text-[var(--color-text-base)]">Active Courses</h3>
+                  <span className="ml-auto rounded-full border border-white/10 bg-white/6 px-3 py-1 text-[11px] font-semibold text-[#c8e898]/78">
                     {courses.length} courses
                   </span>
                 </div>
@@ -465,22 +451,24 @@ function SchedulePageInner() {
                 {courses.map((c) => (
                   <div
                     key={c.id}
-                    className="border-b border-[var(--color-border-light)] px-6 py-3.5 transition-colors hover:bg-[var(--color-surface)]"
+                    className="border-b border-white/6 px-6 py-4 transition-colors hover:bg-white/4"
                   >
                     <div className="flex items-center gap-4">
                       <div
-                        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-base font-bold ${
+                        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-base font-bold shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] ${
                           c.color === "teal"
-                            ? "bg-[var(--color-teal-light)] text-[var(--color-primary)]"
-                            : "bg-[var(--color-peach-light)] text-[#8b4a1a]"
+                            ? "bg-[rgba(114,184,74,0.18)] text-[#d8f2b7]"
+                            : "bg-[rgba(196,122,58,0.2)] text-[#ffd1ad]"
                         }`}
                       >
                         {c.code}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="truncate text-[14px] font-semibold">{c.name}</div>
-                        <div className="text-[12px] text-[var(--color-text-secondary)]">
-                          {c.professor}
+                        <div className="truncate text-[15px] font-semibold text-[var(--color-text-base)]">{c.name}</div>
+                        <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[12px] text-[var(--color-text-secondary)]">
+                          <span>{c.professor}</span>
+                          <span className="h-1 w-1 rounded-full bg-white/18" />
+                          <span className="text-[#c8e898]/68">{c.schedule}</span>
                         </div>
                       </div>
 
@@ -490,8 +478,8 @@ function SchedulePageInner() {
                         title="Mark as priority"
                         className={`shrink-0 flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold transition-all ${
                           c.priority
-                            ? "bg-amber-100 text-amber-700 border border-amber-300"
-                            : "border border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-amber-300 hover:text-amber-600"
+                            ? "border border-amber-300 bg-amber-100 text-amber-700"
+                            : "border border-white/10 bg-white/4 text-[#c8e898]/58 hover:border-amber-300 hover:text-amber-200"
                         }`}
                       >
                         <svg width="10" height="10" viewBox="0 0 16 16" fill={c.priority ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.5">
@@ -506,7 +494,7 @@ function SchedulePageInner() {
                         onChange={(e) =>
                           setSkillLevel(c.id, e.target.value as Course["skillLevel"])
                         }
-                        className="shrink-0 h-8 cursor-pointer rounded-lg border border-[var(--color-border)] bg-white px-2.5 text-[12px] text-[var(--color-text-base)] outline-none focus:border-[var(--color-primary)]"
+                        className="h-9 shrink-0 min-w-[138px] rounded-xl border border-white/12 bg-[rgba(255,255,255,0.06)] px-3 text-[12px] text-[var(--color-text-base)] outline-none transition-all focus:border-[var(--color-primary)]"
                       >
                         <option>Beginner</option>
                         <option>Intermediate</option>
@@ -515,7 +503,7 @@ function SchedulePageInner() {
 
                       <button
                         onClick={() => removeCourse(c.id)}
-                        className="flex h-7 w-7 items-center justify-center rounded text-[var(--color-text-muted)] transition-colors hover:bg-red-50 hover:text-red-500"
+                        className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--color-text-muted)] transition-colors hover:bg-red-50 hover:text-red-500"
                       >
                         <TrashIcon />
                       </button>
@@ -524,9 +512,9 @@ function SchedulePageInner() {
                 ))}
 
                 {/* Add course form */}
-                <div className="grid grid-cols-2 gap-4 border-t border-[var(--color-border-light)] px-6 pt-4 pb-3">
+                <div className="grid grid-cols-2 gap-4 border-t border-white/6 px-6 pt-5 pb-3">
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
+                    <label className={LABEL_CLS}>
                       Course Number
                     </label>
                     <input
@@ -534,11 +522,11 @@ function SchedulePageInner() {
                       onChange={(e) => setCourseNum(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && addCourse()}
                       placeholder="e.g. CS 314"
-                      className="h-[47px] rounded-lg border border-[var(--color-border)] bg-white px-4 text-sm outline-none transition-all placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/10"
+                      className={INPUT_CLS}
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
+                    <label className={LABEL_CLS}>
                       Professor Name
                     </label>
                     <input
@@ -546,14 +534,14 @@ function SchedulePageInner() {
                       onChange={(e) => setProfName(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && addCourse()}
                       placeholder="e.g. Dr. Smith"
-                      className="h-[47px] rounded-lg border border-[var(--color-border)] bg-white px-4 text-sm outline-none transition-all placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/10"
+                      className={INPUT_CLS}
                     />
                   </div>
                 </div>
                 <div className="px-6 pb-5">
                   <button
                     onClick={addCourse}
-                    className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-[var(--color-border)] py-3 text-[13px] font-semibold text-[var(--color-text-secondary)] transition-all hover:border-[var(--color-primary)] hover:bg-[var(--color-primary-light)] hover:text-[var(--color-primary)]"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/14 bg-white/3 py-3.5 text-[13px] font-semibold text-[var(--color-text-secondary)] transition-all hover:border-[var(--color-primary)] hover:bg-[var(--color-primary-light)] hover:text-[var(--color-fossil)]"
                   >
                     <PlusIcon /> Add Course Manually
                   </button>
@@ -562,15 +550,15 @@ function SchedulePageInner() {
 
               {/* Priority summary callout */}
               {priorityCourses.length > 0 && (
-                <div className="mb-6 flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-5 py-3.5">
-                  <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" className="shrink-0 text-amber-500">
+                <div className="mb-6 flex items-center gap-3 rounded-[20px] border border-amber-300/40 bg-[rgba(151,102,34,0.22)] px-5 py-4 shadow-[0_14px_28px_rgba(0,0,0,0.14)]">
+                  <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" className="shrink-0 text-amber-300">
                     <polygon points="8,1 10,6 15,6 11,9.5 12.5,14.5 8,11.5 3.5,14.5 5,9.5 1,6 6,6" />
                   </svg>
                   <div>
-                    <span className="text-[13px] font-semibold text-amber-800">
+                    <span className="text-[13px] font-semibold text-amber-100">
                       Priority: {priorityCourses.map((c) => c.name.split(":")[0]).join(", ")}
                     </span>
-                    <span className="ml-2 text-[12px] text-amber-600">
+                    <span className="ml-2 text-[12px] text-amber-200/80">
                       — primary matching criteria
                     </span>
                   </div>
@@ -586,24 +574,24 @@ function SchedulePageInner() {
             </div>
 
             {/* Right — schedule visualization */}
-            <div className="w-[460px] shrink-0">
-              <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-7">
+            <div className="xl:sticky xl:top-24">
+              <div className={`${SURFACE_CARD_CLS} p-7`}>
                 <div className="mb-5">
-                  <h2 className="text-xl font-bold">Your Week</h2>
-                  <p className="text-[12px] text-[var(--color-text-secondary)]">
+                  <h2 className="text-[30px] font-bold leading-none text-[var(--color-text-base)]">Your Week</h2>
+                  <p className="mt-2 text-[12px] text-[var(--color-text-secondary)]">
                     Visualizing your imported myUT schedule
                   </p>
                 </div>
 
-                <div className="overflow-hidden rounded-lg border border-[var(--color-border)] bg-white">
+                <div className="overflow-hidden rounded-[20px] border border-white/10 bg-[rgba(8,18,8,0.72)] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
                   <div
-                    className="grid border-b border-[var(--color-border-light)] bg-[var(--color-surface)]"
+                    className="grid border-b border-white/8 bg-[rgba(255,255,255,0.04)]"
                     style={{ gridTemplateColumns: "repeat(5,1fr)" }}
                   >
                     {WEEK_DAYS.map((d) => (
                       <div
                         key={d}
-                        className="py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]"
+                        className="py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c8e898]/72"
                       >
                         {d}
                       </div>
@@ -616,16 +604,16 @@ function SchedulePageInner() {
                     {WEEK_DAYS.map((d, i) => (
                       <div
                         key={d}
-                        className={`relative ${i < 4 ? "border-r border-[var(--color-border-light)]" : ""}`}
+                        className={`relative ${i < 4 ? "border-r border-white/6" : ""}`}
                       />
                     ))}
                     {calEvents.map((ev, i) => (
                       <div
                         key={i}
-                        className={`absolute rounded-md px-2 py-2 text-[10px] font-semibold ${
+                        className={`absolute rounded-xl px-3 py-2.5 text-[10px] font-semibold shadow-[0_12px_24px_rgba(0,0,0,0.14)] ${
                           ev.color === "teal"
-                            ? "border-l-[3px] border-[var(--color-primary)] bg-[var(--color-teal-light)] text-[var(--color-primary)]"
-                            : "border-l-[3px] border-[#c47a3a] bg-[var(--color-peach-light)] text-[#8b4a1a]"
+                            ? "border-l-[3px] border-[var(--color-primary)] bg-[rgba(114,184,74,0.16)] text-[#dff5c2]"
+                            : "border-l-[3px] border-[#ffb06d] bg-[rgba(196,122,58,0.18)] text-[#ffd5b4]"
                         }`}
                         style={{
                           left: `calc(${ev.day * 20}% + 4px)`,
@@ -643,11 +631,11 @@ function SchedulePageInner() {
                   </div>
                 </div>
 
-                <div className="mt-4 flex items-center justify-between rounded-lg border border-[var(--color-border)] bg-white px-4 py-2.5">
+                <div className="mt-4 flex items-center justify-between rounded-xl border border-white/10 bg-white/6 px-4 py-3">
                   <span className="text-[12px] font-medium text-[var(--color-text-secondary)]">
                     Matching Potential
                   </span>
-                  <span className="rounded-full bg-[var(--color-primary)] px-3 py-1 text-[12px] font-semibold text-white">
+                  <span className="rounded-full bg-[var(--color-primary)] px-3.5 py-1.5 text-[12px] font-semibold text-white shadow-[var(--shadow-primary)]">
                     +42 Study Buddies
                   </span>
                 </div>
@@ -661,9 +649,9 @@ function SchedulePageInner() {
           <div className="mx-auto max-w-2xl">
             <div className="flex flex-col gap-6">
               {/* Study methods */}
-              <div className="rounded-xl border border-[var(--color-border)] bg-white p-6 shadow-[var(--shadow-sm)]">
-                <h3 className="mb-1.5 text-[15px] font-bold">Preferred study methods</h3>
-                <p className="mb-4 text-[12px] text-[var(--color-text-secondary)]">Select all that you enjoy</p>
+              <div className={`${SURFACE_CARD_CLS} p-6`}>
+                <h3 className="mb-1.5 text-[18px] font-bold text-[var(--color-text-base)]">Preferred study methods</h3>
+                <p className="mb-4 text-[13px] text-[var(--color-text-secondary)]">Select all that you enjoy</p>
                 <div className="flex flex-wrap gap-2.5">
                   {STUDY_METHODS.map((m) => (
                     <button
@@ -671,8 +659,8 @@ function SchedulePageInner() {
                       onClick={() => toggleMethod(m)}
                       className={`rounded-full border-[1.5px] px-4 py-2 text-[13px] font-semibold transition-all ${
                         studyMethods.includes(m)
-                          ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-white"
-                          : "border-[var(--color-border)] bg-white text-[var(--color-text-base)] hover:border-[var(--color-primary-muted)]"
+                          ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-white shadow-[var(--shadow-primary)]"
+                          : "border-white/10 bg-white/4 text-[var(--color-text-base)] hover:border-white/18 hover:bg-white/7"
                       }`}
                     >
                       {m}
@@ -682,11 +670,11 @@ function SchedulePageInner() {
               </div>
 
               {/* Group size + environment + intensity */}
-              <div className="rounded-xl border border-[var(--color-border)] bg-white p-6 shadow-[var(--shadow-sm)]">
-                <h3 className="mb-4 text-[15px] font-bold">Session preferences</h3>
+              <div className={`${SURFACE_CARD_CLS} p-6`}>
+                <h3 className="mb-4 text-[18px] font-bold text-[var(--color-text-base)]">Session preferences</h3>
 
                 <div className="mb-5">
-                  <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
+                  <label className={`mb-2 block ${LABEL_CLS}`}>
                     Group size
                   </label>
                   <div className="flex gap-2">
@@ -696,8 +684,8 @@ function SchedulePageInner() {
                         onClick={() => setGroupSize(s)}
                         className={`flex-1 rounded-lg border-[1.5px] py-2.5 text-sm font-semibold transition-all ${
                           groupSize === s
-                            ? "border-[var(--color-primary)] bg-[var(--color-primary-light)] text-[var(--color-primary)]"
-                            : "border-[var(--color-border)] text-[var(--color-text-base)] hover:border-[var(--color-primary-muted)]"
+                            ? "border-[var(--color-primary)] bg-[rgba(232,90,10,0.16)] text-white shadow-[var(--shadow-primary)]"
+                            : "border-white/10 bg-white/4 text-[var(--color-text-base)] hover:border-white/18 hover:bg-white/7"
                         }`}
                       >
                         {s}
@@ -708,13 +696,13 @@ function SchedulePageInner() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
+                    <label className={LABEL_CLS}>
                       Preferred environment
                     </label>
                     <select
                       value={environment}
                       onChange={(e) => setEnvironment(e.target.value)}
-                      className="h-12 cursor-pointer rounded-lg border border-[var(--color-border)] bg-white px-4 text-sm text-[var(--color-text-base)] outline-none focus:border-[var(--color-primary)]"
+                      className={SELECT_CLS}
                     >
                       <option>Silent (Library Level 5)</option>
                       <option>Quiet (Library Level 3)</option>
@@ -723,13 +711,13 @@ function SchedulePageInner() {
                     </select>
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
+                    <label className={LABEL_CLS}>
                       Session intensity
                     </label>
                     <select
                       value={intensity}
                       onChange={(e) => setIntensity(e.target.value)}
-                      className="h-12 cursor-pointer rounded-lg border border-[var(--color-border)] bg-white px-4 text-sm text-[var(--color-text-base)] outline-none focus:border-[var(--color-primary)]"
+                      className={SELECT_CLS}
                     >
                       <option>Deep Work (2+ Hours)</option>
                       <option>Medium (1-2 Hours)</option>
@@ -757,8 +745,8 @@ function SchedulePageInner() {
           <div className="mx-auto max-w-2xl">
             <div className="flex flex-col gap-6">
               {/* Study spot */}
-              <div className="rounded-xl border border-[var(--color-border)] bg-white p-6 shadow-[var(--shadow-sm)]">
-                <h3 className="mb-4 text-[15px] font-bold">Preferred study spot</h3>
+              <div className={`${SURFACE_CARD_CLS} p-6`}>
+                <h3 className="mb-4 text-[18px] font-bold text-[var(--color-text-base)]">Preferred study spot</h3>
                 <div className="grid grid-cols-3 gap-3">
                   {STUDY_SPOTS.map((s) => (
                     <button
@@ -766,15 +754,15 @@ function SchedulePageInner() {
                       onClick={() => setStudySpot(s.label)}
                       className={`flex flex-col items-center gap-2 rounded-xl border-[1.5px] px-3 py-4 transition-all ${
                         studySpot === s.label
-                          ? "border-[var(--color-primary)] bg-[var(--color-primary-light)]"
-                          : "border-[var(--color-border)] hover:border-[var(--color-primary-muted)]"
+                          ? "border-[var(--color-primary)] bg-[rgba(232,90,10,0.14)] shadow-[var(--shadow-primary)]"
+                          : "border-white/10 bg-white/4 hover:border-white/18 hover:bg-white/7"
                       }`}
                     >
                       <span className="text-2xl">{s.icon}</span>
                       <span
                         className={`text-[12px] font-semibold text-center leading-tight ${
                           studySpot === s.label
-                            ? "text-[var(--color-primary)]"
+                            ? "text-white"
                             : "text-[var(--color-text-base)]"
                         }`}
                       >
@@ -786,9 +774,9 @@ function SchedulePageInner() {
               </div>
 
               {/* Location amenities */}
-              <div className="rounded-xl border border-[var(--color-border)] bg-white p-6 shadow-[var(--shadow-sm)]">
-                <h3 className="mb-1.5 text-[15px] font-bold">Available amenities</h3>
-                <p className="mb-4 text-[12px] text-[var(--color-text-secondary)]">
+              <div className={`${SURFACE_CARD_CLS} p-6`}>
+                <h3 className="mb-1.5 text-[18px] font-bold text-[var(--color-text-base)]">Available amenities</h3>
+                <p className="mb-4 text-[13px] text-[var(--color-text-secondary)]">
                   What equipment is available at your spot? We&apos;ll use this to plan your session.
                 </p>
                 <div className="flex flex-wrap gap-2.5">
@@ -798,8 +786,8 @@ function SchedulePageInner() {
                       onClick={() => toggleAmenity(a)}
                       className={`flex items-center gap-2 rounded-lg border-[1.5px] px-4 py-2 text-[13px] font-semibold transition-all ${
                         amenities.includes(a)
-                          ? "border-[var(--color-primary)] bg-[var(--color-primary-light)] text-[var(--color-primary)]"
-                          : "border-[var(--color-border)] text-[var(--color-text-base)] hover:border-[var(--color-primary-muted)]"
+                          ? "border-[var(--color-primary)] bg-[rgba(232,90,10,0.16)] text-white shadow-[var(--shadow-primary)]"
+                          : "border-white/10 bg-white/4 text-[var(--color-text-base)] hover:border-white/18 hover:bg-white/7"
                       }`}
                     >
                       {amenities.includes(a) && (
@@ -814,8 +802,8 @@ function SchedulePageInner() {
               </div>
 
               {/* Session type */}
-              <div className="rounded-xl border border-[var(--color-border)] bg-white p-6 shadow-[var(--shadow-sm)]">
-                <h3 className="mb-4 text-[15px] font-bold">Session type</h3>
+              <div className={`${SURFACE_CARD_CLS} p-6`}>
+                <h3 className="mb-4 text-[18px] font-bold text-[var(--color-text-base)]">Session type</h3>
                 <div className="mb-5 flex gap-3">
                   {(["recurring", "one-time"] as const).map((t) => (
                     <button
@@ -823,12 +811,12 @@ function SchedulePageInner() {
                       onClick={() => setSessionType(t)}
                       className={`flex-1 rounded-lg border-[1.5px] py-3 text-sm font-semibold transition-all ${
                         sessionType === t
-                          ? "border-[var(--color-primary)] bg-[var(--color-primary-light)] text-[var(--color-primary)]"
-                          : "border-[var(--color-border)] text-[var(--color-text-base)] hover:border-[var(--color-primary-muted)]"
+                          ? "border-[var(--color-primary)] bg-[rgba(232,90,10,0.16)] text-white shadow-[var(--shadow-primary)]"
+                          : "border-white/10 bg-white/4 text-[var(--color-text-base)] hover:border-white/18 hover:bg-white/7"
                       }`}
                     >
                       {t === "recurring" ? "Recurring" : "One-time"}
-                      <div className={`mt-0.5 text-[11px] font-normal ${sessionType === t ? "text-[var(--color-primary)]/70" : "text-[var(--color-text-muted)]"}`}>
+                      <div className={`mt-0.5 text-[11px] font-normal ${sessionType === t ? "text-white/72" : "text-[var(--color-text-muted)]"}`}>
                         {t === "recurring" ? "e.g. weekly lab prep" : "e.g. upcoming exam"}
                       </div>
                     </button>
@@ -838,13 +826,13 @@ function SchedulePageInner() {
                 {sessionType === "recurring" ? (
                   <div className="grid grid-cols-2 gap-4">
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
+                      <label className={LABEL_CLS}>
                         Day of week
                       </label>
                       <select
                         value={recurringDay}
                         onChange={(e) => setRecurringDay(e.target.value)}
-                        className="h-11 cursor-pointer rounded-lg border border-[var(--color-border)] bg-white px-4 text-sm outline-none focus:border-[var(--color-primary)]"
+                        className={SELECT_CLS}
                       >
                         {["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"].map((d) => (
                           <option key={d}>{d}</option>
@@ -852,39 +840,39 @@ function SchedulePageInner() {
                       </select>
                     </div>
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
+                      <label className={LABEL_CLS}>
                         Time
                       </label>
                       <input
                         type="time"
                         value={recurringTime}
                         onChange={(e) => setRecurringTime(e.target.value)}
-                        className="h-11 rounded-lg border border-[var(--color-border)] bg-white px-4 text-sm outline-none focus:border-[var(--color-primary)]"
+                        className={INPUT_CLS}
                       />
                     </div>
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 gap-4">
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
+                      <label className={LABEL_CLS}>
                         Session date
                       </label>
                       <input
                         type="date"
                         value={oneTimeDate}
                         onChange={(e) => setOneTimeDate(e.target.value)}
-                        className="h-11 rounded-lg border border-[var(--color-border)] bg-white px-4 text-sm outline-none focus:border-[var(--color-primary)]"
+                        className={INPUT_CLS}
                       />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
+                      <label className={LABEL_CLS}>
                         Deadline (exam / due date)
                       </label>
                       <input
                         type="date"
                         value={oneTimeDeadline}
                         onChange={(e) => setOneTimeDeadline(e.target.value)}
-                        className="h-11 rounded-lg border border-[var(--color-border)] bg-white px-4 text-sm outline-none focus:border-[var(--color-primary)]"
+                        className={INPUT_CLS}
                       />
                     </div>
                   </div>
@@ -892,8 +880,8 @@ function SchedulePageInner() {
               </div>
 
               {/* Duration */}
-              <div className="rounded-xl border border-[var(--color-border)] bg-white p-6 shadow-[var(--shadow-sm)]">
-                <h3 className="mb-4 text-[15px] font-bold">Preferred session duration</h3>
+              <div className={`${SURFACE_CARD_CLS} p-6`}>
+                <h3 className="mb-4 text-[18px] font-bold text-[var(--color-text-base)]">Preferred session duration</h3>
                 <div className="flex gap-2">
                   {DURATION_OPTIONS.map((d) => (
                     <button
@@ -901,8 +889,8 @@ function SchedulePageInner() {
                       onClick={() => setDuration(d)}
                       className={`flex-1 rounded-lg border-[1.5px] py-2.5 text-[13px] font-semibold transition-all ${
                         duration === d
-                          ? "border-[var(--color-primary)] bg-[var(--color-primary-light)] text-[var(--color-primary)]"
-                          : "border-[var(--color-border)] text-[var(--color-text-base)] hover:border-[var(--color-primary-muted)]"
+                          ? "border-[var(--color-primary)] bg-[rgba(232,90,10,0.16)] text-white shadow-[var(--shadow-primary)]"
+                          : "border-white/10 bg-white/4 text-[var(--color-text-base)] hover:border-white/18 hover:bg-white/7"
                       }`}
                     >
                       {d}
@@ -927,17 +915,17 @@ function SchedulePageInner() {
         {/* ── Step 4: Availability ── */}
         {step === 4 && (
           <div className="mx-auto max-w-4xl">
-            <div className="rounded-xl border border-[var(--color-border)] bg-white p-6 shadow-[var(--shadow-md)]">
+            <div className={`${SURFACE_CARD_CLS} p-6`}>
               <div className="mb-5 flex items-start justify-between">
                 <div>
-                  <h2 className="text-lg font-bold">Weekly Availability</h2>
+                  <h2 className="text-lg font-bold text-[var(--color-text-base)]">Weekly Availability</h2>
                   <p className="text-[12px] text-[var(--color-text-secondary)]">
                     Click or drag to mark times you&apos;re free · 9 AM – 9 PM
                   </p>
                 </div>
                 <button
                   onClick={() => setGrid(makeEmptyGrid())}
-                  className="rounded-md px-2.5 py-1 text-[11px] font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-surface)] hover:text-[var(--color-text-base)] transition-colors"
+                  className="rounded-full border border-white/12 bg-white/4 px-3 py-1.5 text-[11px] font-semibold text-[var(--color-text-secondary)] transition-colors hover:border-white/18 hover:bg-white/7 hover:text-[var(--color-text-base)]"
                 >
                   Clear
                 </button>
@@ -962,87 +950,11 @@ function SchedulePageInner() {
 }
 
 /* ─────────────────────────────────────────────
-   Sub-components
-───────────────────────────────────────────── */
-function IntegrationButton({
-  label,
-  sublabel,
-  active,
-  icon,
-  onClick,
-}: {
-  label: string;
-  sublabel: string;
-  active: boolean;
-  icon: React.ReactNode;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-4 text-left transition-all ${
-        active
-          ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-white shadow-[var(--shadow-primary)]"
-          : "border-[var(--color-border)] bg-white shadow-[var(--shadow-sm)] hover:border-[var(--color-primary-muted)] hover:shadow-[var(--shadow-md)]"
-      }`}
-    >
-      <div
-        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
-          active ? "bg-white/20" : "bg-[var(--color-surface)]"
-        }`}
-      >
-        {icon}
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="text-[13px] font-semibold">{label}</div>
-        <div className={`truncate text-[11px] ${active ? "text-white/70" : "text-[var(--color-text-muted)]"}`}>
-          {sublabel}
-        </div>
-      </div>
-      <div
-        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${
-          active ? "border-white bg-white/25" : "border-[var(--color-border)]"
-        }`}
-      >
-        {active && (
-          <svg width="10" height="8" viewBox="0 0 12 10" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
-            <polyline points="1,5 4.5,8.5 11,1.5" />
-          </svg>
-        )}
-      </div>
-    </button>
-  );
-}
-
-/* ─────────────────────────────────────────────
    Icons
 ───────────────────────────────────────────── */
-function CalendarIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4285f4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
-    </svg>
-  );
-}
-function MyUTIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" />
-    </svg>
-  );
-}
-function CanvasIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e66000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <path d="M8 12a4 4 0 0 1 8 0" />
-      <line x1="12" y1="8" x2="12" y2="8.01" strokeWidth="3" />
-    </svg>
-  );
-}
 function BookIcon() {
   return (
-    <svg width="20" height="16" viewBox="0 0 24 18" fill="none" stroke="#6b6b65" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="20" height="16" viewBox="0 0 24 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#c8e898]/66">
       <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
     </svg>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { isSupabaseAuthConfigured, readDemoAdminProfile, hasDemoAdminSession } from "@/lib/demoAdmin";
 import { createClient } from "@/lib/supabase/client";
 
 export interface CurrentUser {
@@ -14,10 +15,26 @@ export interface CurrentUser {
 }
 
 export function useCurrentUser() {
-  const [user, setUser] = useState<CurrentUser | null>(null);
-  const [loading, setLoading] = useState(true);
+  const hasDemoSession = hasDemoAdminSession();
+  const supabaseConfigured = isSupabaseAuthConfigured();
+  const [user, setUser] = useState<CurrentUser | null>(() =>
+    hasDemoSession ? readDemoAdminProfile() : null
+  );
+  const [loading, setLoading] = useState(() => !hasDemoSession && supabaseConfigured);
 
   useEffect(() => {
+    if (hasDemoSession) {
+      // Handles SSR/hydration mismatch: server rendered user=null but client has cookie
+      setUser(readDemoAdminProfile());
+      setLoading(false);
+      return;
+    }
+
+    if (!supabaseConfigured) {
+      setLoading(false);
+      return;
+    }
+
     const supabase = createClient();
 
     async function load() {
@@ -49,6 +66,19 @@ export function useCurrentUser() {
           availability: (profileRes.data.availability as Record<string, unknown>) ?? {},
           sessionsCompleted: countRes.count ?? 0,
         });
+      } else {
+        setUser({
+          id: authUser.id,
+          full_name:
+            (authUser.user_metadata?.full_name as string | undefined) ??
+            authUser.email?.split("@")[0] ??
+            "RAPT User",
+          email: authUser.email ?? "",
+          overall_rating: 0,
+          preferences: {},
+          availability: {},
+          sessionsCompleted: countRes.count ?? 0,
+        });
       }
 
       setLoading(false);
@@ -61,7 +91,7 @@ export function useCurrentUser() {
     } = supabase.auth.onAuthStateChange(() => load());
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [hasDemoSession, supabaseConfigured]);
 
   return { user, loading };
 }

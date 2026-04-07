@@ -49,16 +49,16 @@ export default function SkeletonReveal({ state, onStartReDig, onSkipReDig, onRes
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-3xl font-black tracking-tight text-[#1a1a18] mb-1">
+        <h1 className="rapt-display mb-1 text-3xl tracking-tight text-[var(--color-text-base)]">
           Excavation complete 🦕
         </h1>
-        <p className="text-[#6b6b65] text-sm">
+        <p className="text-[var(--color-text-secondary)] text-sm">
           Here&apos;s how much knowledge was successfully transferred.
         </p>
       </div>
 
       {/* Score card */}
-      <div className="rounded-3xl border-2 border-[#e8e0d4] bg-white p-8 flex flex-col items-center gap-6">
+      <div className="flex flex-col items-center gap-6 rounded-3xl border-2 border-[var(--color-border)] bg-[var(--color-surface-strong)] p-8">
 
         {/* Skeleton SVG */}
         <div className="relative w-[320px] h-[200px]">
@@ -89,12 +89,12 @@ export default function SkeletonReveal({ state, onStartReDig, onSkipReDig, onRes
           </div>
           <div className="flex items-center justify-center gap-2 mt-2">
             <span className="text-xl">{badge.emoji}</span>
-            <span className="font-black text-lg text-[#1a1a18]">{badge.label}</span>
+            <span className="text-lg font-black text-[var(--color-text-base)]">{badge.label}</span>
           </div>
         </div>
 
         {/* Progress bar */}
-        <div className="w-full h-3 bg-[#f0ebe4] rounded-full overflow-hidden">
+        <div className="h-3 w-full overflow-hidden rounded-full bg-white/8">
           <div
             className="h-full rounded-full transition-all duration-1000"
             style={{ width: `${score}%`, background: badge.color }}
@@ -107,8 +107,8 @@ export default function SkeletonReveal({ state, onStartReDig, onSkipReDig, onRes
         <div className="flex flex-col gap-4">
 
           {/* Concepts */}
-          <div className="rounded-2xl border border-[#e8e0d4] bg-white p-6">
-            <div className="text-xs font-bold uppercase tracking-widest text-[#9b9b95] mb-4">
+          <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-strong)] p-6">
+            <div className="mb-4 text-xs font-bold uppercase tracking-widest text-[var(--color-text-muted)]">
               Concepts excavated
             </div>
             <div className="flex flex-wrap gap-2 mb-4">
@@ -118,7 +118,7 @@ export default function SkeletonReveal({ state, onStartReDig, onSkipReDig, onRes
                 </span>
               ))}
               {analysis.missedConcepts.map((c) => (
-                <span key={c} className="rounded-full bg-[#fdf0eb] border border-[#f0d5c4] px-3 py-1 text-xs font-bold text-[#c4622d]">
+                <span key={c} className="rounded-full border border-[var(--color-primary-muted)] bg-[var(--color-primary-light)] px-3 py-1 text-xs font-bold text-[var(--color-primary)]">
                   ✗ {c}
                 </span>
               ))}
@@ -126,11 +126,11 @@ export default function SkeletonReveal({ state, onStartReDig, onSkipReDig, onRes
 
             {/* Gap explanation */}
             {analysis.gapExplanation && (
-              <div className="rounded-xl bg-[#fdf6f2] border border-[#f0d5c4] p-4">
-                <div className="text-xs font-bold uppercase tracking-widest text-[#c4622d] mb-2">
+              <div className="rounded-xl border border-[var(--color-primary-muted)] bg-[var(--color-primary-light)] p-4">
+                <div className="mb-2 text-xs font-bold uppercase tracking-widest text-[var(--color-primary)]">
                   What was missed
                 </div>
-                <p className="text-sm text-[#6b6b65] leading-relaxed">
+                <p className="text-sm leading-relaxed text-[var(--color-text-secondary)]">
                   {analysis.gapExplanation}
                 </p>
               </div>
@@ -139,23 +139,23 @@ export default function SkeletonReveal({ state, onStartReDig, onSkipReDig, onRes
 
           {/* Re-dig CTA */}
           {state.phase === "REVEALING" && analysis.missedConcepts.length > 0 && (
-            <div className="rounded-2xl border-2 border-[#c4622d] bg-[#fdf6f2] p-6">
-              <div className="text-xs font-bold uppercase tracking-widest text-[#c4622d] mb-2">
+            <div className="rounded-2xl border-2 border-[var(--color-primary)] bg-[var(--color-primary-light)] p-6">
+              <div className="mb-2 text-xs font-bold uppercase tracking-widest text-[var(--color-primary)]">
                 Re-dig available
               </div>
-              <p className="text-sm text-[#6b6b65] leading-relaxed mb-4">
+              <p className="mb-4 text-sm leading-relaxed text-[var(--color-text-secondary)]">
                 {analysis.reDigPrompt}
               </p>
               <div className="flex gap-3">
                 <button
                   onClick={onStartReDig}
-                  className="flex-1 rounded-xl bg-[#c4622d] py-3 text-sm font-black text-white hover:opacity-90 transition-opacity"
+                  className="flex-1 rounded-xl bg-[var(--color-primary)] py-3 text-sm font-black text-white transition-opacity hover:opacity-90"
                 >
                   Do the re-dig 🦴
                 </button>
                 <button
                   onClick={onSkipReDig}
-                  className="rounded-xl border border-[#e8e0d4] px-5 py-3 text-sm font-bold text-[#9b9b95] hover:border-[#c4622d] hover:text-[#c4622d] transition-all"
+                  className="rounded-xl border border-[var(--color-border)] px-5 py-3 text-sm font-bold text-[var(--color-text-muted)] transition-all hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
                 >
                   Skip
                 </button>
@@ -165,12 +165,12 @@ export default function SkeletonReveal({ state, onStartReDig, onSkipReDig, onRes
 
           {/* Complete state */}
           {state.phase === "COMPLETE" && (
-            <div className="rounded-2xl bg-[#fdf6f2] border border-[#f0d5c4] p-6 text-center">
+            <div className="rounded-2xl border border-[var(--color-primary-muted)] bg-[var(--color-primary-light)] p-6 text-center">
               <div className="text-4xl mb-3">🎉</div>
-              <p className="font-black text-lg text-[#1a1a18] mb-1">
+              <p className="mb-1 text-lg font-black text-[var(--color-text-base)]">
                 Dig complete!
               </p>
-              <p className="text-sm text-[#6b6b65]">
+              <p className="text-sm text-[var(--color-text-secondary)]">
                 Great session. Both of you just learned more effectively than studying alone.
               </p>
             </div>
@@ -180,7 +180,7 @@ export default function SkeletonReveal({ state, onStartReDig, onSkipReDig, onRes
           <div className="flex gap-3">
             <button
               onClick={onReset}
-              className="flex-1 rounded-xl border-2 border-[#e8e0d4] py-3 text-sm font-black text-[#6b6b65] hover:border-[#c4622d] hover:text-[#c4622d] transition-all"
+              className="flex-1 rounded-xl border-2 border-[var(--color-border)] py-3 text-sm font-black text-[var(--color-text-secondary)] transition-all hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
             >
               ← New dig
             </button>

@@ -398,30 +398,31 @@ function SessionPageInner() {
      RENDER
   ════════════════════════════════════════ */
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="rapt-app-shell rapt-session-workspace flex min-h-screen flex-col">
       <Navbar />
 
-      {/* Live banner */}
-      <div className="flex items-center gap-3 border-b border-green-200 bg-green-600 px-8 py-2.5 text-white">
-        <span className="h-2 w-2 animate-pulse rounded-full bg-white" />
-        <span className="text-[13px] font-bold">Live Session · {course} with {partnerName}</span>
-        <span className="ml-auto text-[12px] font-medium text-white/70">{duration} min · {location}</span>
-        <button onClick={() => router.push("/sessions")} className="ml-4 flex items-center gap-1.5 rounded-lg border border-white/30 px-3 py-1 text-[12px] font-semibold hover:bg-white/20">
-          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="13" y1="8" x2="3" y2="8"/><polyline points="7,4 3,8 7,12"/></svg>
-          Back
-        </button>
-        <button onClick={handleEndSession} className="flex items-center gap-1.5 rounded-lg bg-red-500 px-3 py-1 text-[12px] font-bold text-white hover:bg-red-600">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>
-          End Session
-        </button>
-      </div>
+      <div className="mx-4 mb-4 overflow-hidden rounded-[28px] border border-[var(--color-border)] bg-[rgba(13,28,13,0.88)] shadow-[var(--shadow-lg)] backdrop-blur-sm md:mx-6">
+        {/* Live banner */}
+        <div className="flex flex-wrap items-center gap-3 border-b border-white/10 bg-[#173417] px-6 py-3 text-[var(--color-bone)] md:px-8">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-[#72b84a]" />
+          <span className="text-[13px] font-bold">Live Session · {course} with {partnerName}</span>
+          <span className="ml-auto text-[12px] font-medium text-[#c8e898]/70">{duration} min · {location}</span>
+          <button onClick={() => router.push("/sessions")} className="ml-4 flex items-center gap-1.5 rounded-lg border border-[#c8e898]/20 px-3 py-1 text-[12px] font-semibold text-[#f5f0e8] transition-colors hover:bg-white/10">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="13" y1="8" x2="3" y2="8"/><polyline points="7,4 3,8 7,12"/></svg>
+            Back
+          </button>
+          <button onClick={handleEndSession} className="flex items-center gap-1.5 rounded-lg bg-[var(--color-primary)] px-3 py-1 text-[12px] font-bold text-white transition-colors hover:bg-[var(--color-primary-hover)]">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>
+            End Session
+          </button>
+        </div>
 
-      <div className="grid flex-1 overflow-hidden" style={{ gridTemplateColumns: "220px 1fr 268px" }}>
+        <div className="grid flex-1 overflow-hidden xl:min-h-[calc(100vh-11rem)] xl:grid-cols-[220px_minmax(0,1fr)_268px]">
 
         {/* ── Left sidebar ── */}
-        <aside className="flex flex-col border-r border-[var(--color-border)] p-5 overflow-y-auto">
+        <aside className="order-2 flex flex-col border-t border-[var(--color-border)] bg-[rgba(255,255,255,0.04)] p-5 overflow-y-auto xl:order-1 xl:border-t-0 xl:border-r">
           <div className="mb-4">
-            <h2 className="text-[15px] font-extrabold tracking-tight">Study Session</h2>
+            <h2 className="rapt-display text-[18px] font-extrabold tracking-tight text-[var(--color-text-base)]">Study Session</h2>
             <p className="mt-0.5 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">{course}</p>
           </div>
           <nav className="mb-5 flex flex-col gap-1">
@@ -431,7 +432,7 @@ function SessionPageInner() {
               { id: "discussion", label: "AI Summary", icon: <SparkleIcon /> },
             ] as { id: Tab; label: string; icon: React.ReactNode }[]).map((item) => (
               <button key={item.id} onClick={() => setActiveTab(item.id)}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all ${activeTab === item.id ? "bg-[var(--color-primary)] font-semibold text-white" : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface)]"}`}>
+                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all ${activeTab === item.id ? "bg-[var(--color-primary)] font-semibold text-white shadow-[var(--shadow-primary)]" : "text-[var(--color-text-secondary)] hover:bg-white/7"}`}>
                 {item.icon}{item.label}
               </button>
             ))}
@@ -458,7 +459,7 @@ function SessionPageInner() {
         </aside>
 
         {/* ── Main content ── */}
-        <main className="flex flex-col overflow-y-auto p-7 gap-5">
+        <main className="order-1 flex flex-col gap-5 overflow-y-auto p-5 md:p-7 xl:order-2">
 
           {/* ══ FLASHCARDS ══ */}
           {activeTab === "flash" && (
@@ -471,17 +472,17 @@ function SessionPageInner() {
                 </div>
                 <span className="text-[12px] text-[var(--color-text-muted)]">{knownCount} known · {reviewCount} to review</span>
               </div>
-              <div className="flex min-h-[340px] flex-col items-center justify-center rounded-2xl border border-[var(--color-border)] bg-white p-10 shadow-[var(--shadow-md)]">
+              <div className="flex min-h-[340px] flex-col items-center justify-center rounded-[26px] border border-white/10 bg-white p-10 shadow-[var(--shadow-md)]">
                 <span className="mb-4 rounded-full bg-[var(--color-primary-light)] px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-[var(--color-primary)]">Card {(cardIdx % FLASHCARDS.length) + 1} of {FLASHCARDS.length}</span>
-                <p className="mb-6 max-w-lg text-center text-[18px] font-bold leading-snug">{card.q}</p>
+                <p className="mb-6 max-w-lg text-center text-[18px] font-bold leading-snug text-[var(--color-text-base)]">{card.q}</p>
                 {!revealed ? (
                   <button onClick={() => setRevealed(true)} className="flex items-center gap-2 rounded-xl bg-[var(--color-primary)] px-8 py-3 text-[14px] font-bold text-white shadow-[var(--shadow-primary)] hover:-translate-y-px hover:bg-[var(--color-primary-hover)] transition-all">
                     <EyeIcon /> Reveal Answer
                   </button>
                 ) : (
                   <div className="max-w-lg text-center">
-                    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-4">
-                      <p className="text-[14px] leading-relaxed">{card.a}</p>
+                    <div className="rounded-xl border border-white/10 bg-[rgba(255,255,255,0.05)] px-6 py-4">
+                      <p className="text-[14px] leading-relaxed text-[var(--color-text-secondary)]">{card.a}</p>
                     </div>
                     <div className="mt-5 flex justify-center gap-3">
                       <button onClick={() => markCard("review")} className="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-5 py-2.5 text-[13px] font-bold text-amber-700 hover:bg-amber-100">🤔 Still learning</button>
@@ -523,7 +524,8 @@ function SessionPageInner() {
                     lineHeight: "32px",
                     padding: "12px 20px 20px",
                     minHeight: 320,
-                    backgroundImage: "repeating-linear-gradient(transparent, transparent 31px, #e2e8f0 31px, #e2e8f0 32px)",
+                    backgroundColor: "rgba(12, 23, 12, 0.94)",
+                    backgroundImage: "repeating-linear-gradient(transparent, transparent 31px, rgba(255,255,255,0.08) 31px, rgba(255,255,255,0.08) 32px)",
                     backgroundAttachment: "local",
                     backgroundPosition: "0 11px",
                   }}
@@ -863,7 +865,7 @@ function SessionPageInner() {
                   </button>
                 </div>
                 <input ref={fileInputSummaryRef} type="file" className="hidden" onChange={handleFileUpload} />
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid gap-2 md:grid-cols-2">
                   {resources.map((r, i) => (
                     <button key={i} onClick={() => setPreviewFile(r)}
                       className="flex items-center gap-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-3 text-left transition-colors hover:border-[var(--color-primary-muted)] hover:shadow-sm cursor-pointer">
@@ -893,13 +895,13 @@ function SessionPageInner() {
                   {/* Headline */}
                   <div className="flex items-start gap-3 rounded-2xl border border-[var(--color-border)] bg-white px-5 py-4 shadow-[var(--shadow-sm)]">
                     <SparkleIcon />
-                    <p className="text-[13px] italic leading-relaxed text-[var(--color-text-secondary)]">"{displaySummary.headline}"</p>
+                    <p className="text-[13px] italic leading-relaxed text-[var(--color-text-secondary)]">&ldquo;{displaySummary.headline}&rdquo;</p>
                   </div>
 
                   {/* Core Concepts — 2-col cards */}
                   <div className="rounded-2xl border border-[var(--color-border)] bg-white p-5 shadow-[var(--shadow-sm)]">
                     <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">📌 Core Concepts</p>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid gap-3 md:grid-cols-2">
                       {displaySummary.concepts.map(({ term, def, color }) => (
                         <div key={term} className={`rounded-xl border border-[var(--color-border)] border-l-[3px] ${colorMap[color] ?? "border-l-[var(--color-primary)]"} bg-[var(--color-surface)] p-4`}>
                           <p className="mb-1.5 text-[13px] font-bold text-[var(--color-text-base)]">{term}</p>
@@ -952,7 +954,7 @@ function SessionPageInner() {
         </main>
 
         {/* ── Right sidebar ── */}
-        <aside className="border-l border-[var(--color-border)] p-5 overflow-y-auto">
+        <aside className="order-3 border-t border-[var(--color-border)] bg-[rgba(255,255,255,0.04)] p-5 overflow-y-auto xl:border-t-0 xl:border-l">
           <p className="mb-4 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">Session Logistics</p>
 
           {/* Google Maps */}
@@ -990,11 +992,12 @@ function SessionPageInner() {
             <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Amenities</p>
             <div className="flex flex-col gap-1.5">
               {[{label:"Whiteboard",icon:<WhiteboardIcon/>},{label:"Fast Wi-Fi",icon:<WifiIcon/>},{label:"Quiet Zone",icon:<QuietIcon/>},{label:"Cafe Nearby",icon:<CafeIcon/>}].map((a) => (
-                <div key={a.label} className="flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-white px-3 py-2.5 text-[12px] font-medium">{a.icon}{a.label}</div>
+                <div key={a.label} className="flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-white px-3 py-2.5 text-[12px] font-medium text-[var(--color-text-base)]">{a.icon}{a.label}</div>
               ))}
             </div>
           </div>
         </aside>
+      </div>
       </div>
 
       {/* ── File Preview Modal ── */}
@@ -1080,14 +1083,14 @@ function SparkleIcon({ color="currentColor" }: { color?: string }) { return <svg
 function EyeIcon() { return <svg width="18" height="13" viewBox="0 0 22 15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M1 7.5C1 7.5 4.5 2 11 2C17.5 2 21 7.5 21 7.5C21 7.5 17.5 13 11 13C4.5 13 1 7.5 1 7.5Z"/><circle cx="11" cy="7.5" r="2.5"/></svg>; }
 function ChevronLeftIcon() { return <svg width="8" height="12" viewBox="0 0 8 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="6,1 2,6 6,11"/></svg>; }
 function ChevronRightIcon() { return <svg width="8" height="12" viewBox="0 0 8 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="2,1 6,6 2,11"/></svg>; }
-function PdfIcon() { return <svg width="14" height="18" viewBox="0 0 16 20" fill="none" stroke="#6b6b65" strokeWidth="1.8" strokeLinecap="round"><path d="M9 1H3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7L9 1z"/><path d="M9 1v6h6"/></svg>; }
-function ImageFileIcon() { return <svg width="16" height="16" viewBox="0 0 18 18" fill="none" stroke="#6b6b65" strokeWidth="1.8" strokeLinecap="round"><rect x="1" y="1" width="16" height="16" rx="2"/><circle cx="6" cy="6" r="2"/><path d="M1 13l4-4 3 3 3-3 4 4"/></svg>; }
-function FileIcon() { return <svg width="14" height="18" viewBox="0 0 16 20" fill="none" stroke="#6b6b65" strokeWidth="1.8" strokeLinecap="round"><path d="M9 1H3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7L9 1z"/><path d="M9 1v6h6"/><line x1="4" y1="13" x2="12" y2="13"/></svg>; }
+function PdfIcon() { return <svg width="14" height="18" viewBox="0 0 16 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className="text-[#c8e898]/70"><path d="M9 1H3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7L9 1z"/><path d="M9 1v6h6"/></svg>; }
+function ImageFileIcon() { return <svg width="16" height="16" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className="text-[#c8e898]/70"><rect x="1" y="1" width="16" height="16" rx="2"/><circle cx="6" cy="6" r="2"/><path d="M1 13l4-4 3 3 3-3 4 4"/></svg>; }
+function FileIcon() { return <svg width="14" height="18" viewBox="0 0 16 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className="text-[#c8e898]/70"><path d="M9 1H3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7L9 1z"/><path d="M9 1v6h6"/><line x1="4" y1="13" x2="12" y2="13"/></svg>; }
 function PlusIcon() { return <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>; }
-function WhiteboardIcon() { return <svg width="13" height="11" viewBox="0 0 13 11" fill="none" stroke="#6b6b65" strokeWidth="1.5" strokeLinecap="round"><rect x="0" y="0" width="13" height="9" rx="1"/><line x1="0" y1="4" x2="13" y2="4"/></svg>; }
-function WifiIcon() { return <svg width="14" height="10" viewBox="0 0 16 11" fill="none" stroke="#6b6b65" strokeWidth="1.5" strokeLinecap="round"><path d="M1 4C4 1.5 7 1 8 4C9 1 12 1.5 15 4"/><path d="M3 6.5C5 5 6.5 5 8 6.5C9.5 5 11 5 13 6.5"/><circle cx="8" cy="9" r="1" fill="#6b6b65"/></svg>; }
-function QuietIcon() { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6b6b65" strokeWidth="1.8" strokeLinecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>; }
-function CafeIcon() { return <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#6b6b65" strokeWidth="1.5" strokeLinecap="round"><path d="M3 1h6l1 4H2L3 1z"/><path d="M2 5v5a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V5"/></svg>; }
+function WhiteboardIcon() { return <svg width="13" height="11" viewBox="0 0 13 11" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="text-[#c8e898]/70"><rect x="0" y="0" width="13" height="9" rx="1"/><line x1="0" y1="4" x2="13" y2="4"/></svg>; }
+function WifiIcon() { return <svg width="14" height="10" viewBox="0 0 16 11" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="text-[#c8e898]/70"><path d="M1 4C4 1.5 7 1 8 4C9 1 12 1.5 15 4"/><path d="M3 6.5C5 5 6.5 5 8 6.5C9.5 5 11 5 13 6.5"/><circle cx="8" cy="9" r="1" fill="currentColor"/></svg>; }
+function QuietIcon() { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className="text-[#c8e898]/70"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>; }
+function CafeIcon() { return <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="text-[#c8e898]/70"><path d="M3 1h6l1 4H2L3 1z"/><path d="M2 5v5a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V5"/></svg>; }
 
 export default function SessionPage() {
   return <Suspense><SessionPageInner /></Suspense>;

@@ -17,15 +17,366 @@
   --font-display: 'Fraunces', Georgia, serif;
   --font-sans:    'DM Sans', ui-sans-serif, system-ui, sans-serif;
 
-  --shadow-sm:    0 1px 3px rgba(0,0,0,0.12);
-  --shadow-md:    0 4px 16px rgba(0,0,0,0.15);
-  --shadow-lg:    0 8px 32px rgba(0,0,0,0.2);
-  --shadow-ember: 0 4px 20px rgba(232,90,10,0.35);
+  --color-bg:            #102110;
+  --color-surface:       rgba(24, 49, 24, 0.82);
+  --color-surface-strong:rgba(14, 30, 14, 0.94);
+  --color-border:        rgba(255, 255, 255, 0.12);
+  --color-border-light:  rgba(255, 255, 255, 0.08);
+  --color-primary:       var(--color-raptor);
+  --color-primary-hover: var(--color-ember);
+  --color-primary-light: rgba(232, 90, 10, 0.18);
+  --color-primary-muted: rgba(232, 90, 10, 0.34);
+  --color-text:          rgba(255, 255, 255, 0.96);
+  --color-text-base:     rgba(255, 255, 255, 0.96);
+  --color-text-secondary:rgba(245, 240, 232, 0.82);
+  --color-text-muted:    rgba(200, 232, 152, 0.66);
+  --color-tag-green:     rgba(200, 232, 152, 0.18);
+  --color-teal-light:    rgba(114, 184, 74, 0.16);
+  --color-peach-light:   rgba(232, 90, 10, 0.16);
+
+  --shadow-sm:    0 1px 3px rgba(0,0,0,0.24);
+  --shadow-md:    0 14px 32px rgba(0,0,0,0.28);
+  --shadow-lg:    0 24px 60px rgba(0,0,0,0.34);
+  --shadow-ember: 0 12px 28px rgba(232,90,10,0.28);
+  --shadow-primary: var(--shadow-ember);
 }
 
 @layer base {
   html { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
-  body { background-color: var(--color-forest); color: var(--color-bone); }
+  body {
+    background:
+      radial-gradient(circle at top left, rgba(114, 184, 74, 0.16), transparent 24%),
+      radial-gradient(circle at top right, rgba(232, 90, 10, 0.13), transparent 20%),
+      linear-gradient(180deg, #152b15 0%, #112311 45%, #0b160b 100%);
+    background-color: var(--color-bg);
+    color: var(--color-text-base);
+  }
   * { box-sizing: border-box; }
   a { text-decoration: none; color: inherit; }
+}
+
+@layer components {
+  .rapt-display {
+    font-family: var(--font-display);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+  }
+
+  .rapt-app-shell {
+    background:
+      linear-gradient(180deg, rgba(13, 28, 13, 0.88) 0%, rgba(13, 28, 13, 0.76) 16rem),
+      radial-gradient(circle at 15% 0%, rgba(114, 184, 74, 0.12), transparent 24%),
+      radial-gradient(circle at 90% 8%, rgba(232, 90, 10, 0.1), transparent 20%),
+      var(--color-bg);
+  }
+
+  .rapt-app-main {
+    position: relative;
+  }
+
+  .rapt-hero-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 28px;
+    background:
+      linear-gradient(135deg, rgba(23, 52, 23, 0.96), rgba(12, 25, 12, 0.92));
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.24);
+  }
+
+  .rapt-hero-card::after {
+    content: "";
+    position: absolute;
+    right: -5rem;
+    bottom: -5rem;
+    width: 16rem;
+    height: 16rem;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(232, 90, 10, 0.22), transparent 68%);
+    pointer-events: none;
+  }
+
+  .rapt-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.06);
+    padding: 0.5rem 0.9rem;
+    color: var(--color-lime);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .rapt-glass-card {
+    border: 1px solid var(--color-border);
+    border-radius: 24px;
+    background: linear-gradient(180deg, rgba(16, 32, 16, 0.94), rgba(12, 23, 12, 0.92));
+    box-shadow: var(--shadow-md);
+    backdrop-filter: blur(12px);
+  }
+
+  .rapt-session-workspace :where(.bg-white) {
+    background: linear-gradient(180deg, rgba(18, 37, 18, 0.96), rgba(10, 20, 10, 0.94)) !important;
+    color: var(--color-text-base) !important;
+  }
+
+  .rapt-session-workspace :where(.bg-red-50) {
+    background-color: rgba(143, 45, 38, 0.22) !important;
+  }
+
+  .rapt-session-workspace :where(.bg-red-100) {
+    background-color: rgba(143, 45, 38, 0.32) !important;
+  }
+
+  .rapt-session-workspace :where(.bg-green-50) {
+    background-color: rgba(40, 134, 84, 0.22) !important;
+  }
+
+  .rapt-session-workspace :where(.bg-green-100) {
+    background-color: rgba(40, 134, 84, 0.3) !important;
+  }
+
+  .rapt-session-workspace :where(.bg-amber-50) {
+    background-color: rgba(151, 102, 34, 0.22) !important;
+  }
+
+  .rapt-session-workspace :where(.bg-amber-100) {
+    background-color: rgba(151, 102, 34, 0.3) !important;
+  }
+
+  .rapt-session-workspace :where(.bg-blue-50) {
+    background-color: rgba(52, 116, 188, 0.22) !important;
+  }
+
+  .rapt-session-workspace :where(.bg-cyan-50) {
+    background-color: rgba(46, 134, 168, 0.22) !important;
+  }
+
+  .rapt-session-workspace :where(.bg-violet-50) {
+    background-color: rgba(91, 65, 170, 0.22) !important;
+  }
+
+  .rapt-session-workspace :where(.bg-emerald-50) {
+    background-color: rgba(40, 134, 84, 0.2) !important;
+  }
+
+  .rapt-session-workspace :where(.bg-gray-100) {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .rapt-session-workspace :where(.text-gray-800) {
+    color: var(--color-text-base) !important;
+  }
+
+  .rapt-session-workspace :where(.text-gray-500, .text-gray-400) {
+    color: var(--color-text-muted) !important;
+  }
+
+  .rapt-session-workspace :where(.text-red-500, .text-red-600, .text-red-700, .text-red-800, .text-red-900) {
+    color: #ffd2cb !important;
+  }
+
+  .rapt-session-workspace :where(.text-green-400, .text-green-500, .text-green-600, .text-green-700, .text-green-800) {
+    color: #d2f8df !important;
+  }
+
+  .rapt-session-workspace :where(.text-amber-500, .text-amber-700, .text-amber-800, .text-amber-900) {
+    color: #f7d48f !important;
+  }
+
+  .rapt-session-workspace :where(.text-violet-200, .text-violet-500, .text-violet-700, .text-violet-800) {
+    color: #dfd1ff !important;
+  }
+
+  .rapt-session-workspace :where(.text-blue-100, .text-blue-500, .text-blue-800) {
+    color: #cbe7ff !important;
+  }
+
+  .rapt-session-workspace :where(.text-cyan-800, .text-cyan-600) {
+    color: #b6efff !important;
+  }
+
+  .rapt-session-workspace :where(.text-emerald-700, .text-emerald-800) {
+    color: #b9f8d4 !important;
+  }
+
+  .rapt-session-workspace :where(.from-violet-50) {
+    --tw-gradient-from: rgba(91, 65, 170, 0.24) var(--tw-gradient-from-position) !important;
+    --tw-gradient-to: rgba(91, 65, 170, 0) var(--tw-gradient-to-position) !important;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+  }
+
+  .rapt-session-workspace :where(.to-purple-50) {
+    --tw-gradient-to: rgba(61, 33, 113, 0.22) var(--tw-gradient-to-position) !important;
+  }
+
+  .rapt-session-workspace :where(.from-green-50) {
+    --tw-gradient-from: rgba(40, 134, 84, 0.22) var(--tw-gradient-from-position) !important;
+    --tw-gradient-to: rgba(40, 134, 84, 0) var(--tw-gradient-to-position) !important;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+  }
+
+  .rapt-session-workspace :where(.to-emerald-50) {
+    --tw-gradient-to: rgba(17, 71, 45, 0.24) var(--tw-gradient-to-position) !important;
+  }
+
+  .rapt-session-workspace :where(.from-amber-50) {
+    --tw-gradient-from: rgba(151, 102, 34, 0.22) var(--tw-gradient-from-position) !important;
+    --tw-gradient-to: rgba(151, 102, 34, 0) var(--tw-gradient-to-position) !important;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+  }
+
+  .rapt-session-workspace :where(.to-orange-50) {
+    --tw-gradient-to: rgba(90, 53, 11, 0.22) var(--tw-gradient-to-position) !important;
+  }
+
+  .rapt-session-workspace :where(.from-red-50) {
+    --tw-gradient-from: rgba(143, 45, 38, 0.22) var(--tw-gradient-from-position) !important;
+    --tw-gradient-to: rgba(143, 45, 38, 0) var(--tw-gradient-to-position) !important;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+  }
+
+  .rapt-session-workspace :where(.to-rose-50) {
+    --tw-gradient-to: rgba(90, 18, 30, 0.22) var(--tw-gradient-to-position) !important;
+  }
+
+  .rapt-auth-shell {
+    position: relative;
+    overflow: hidden;
+    background:
+      linear-gradient(180deg, rgba(15, 31, 15, 0.94), rgba(21, 43, 21, 0.92)),
+      radial-gradient(circle at top left, rgba(114, 184, 74, 0.28), transparent 24%),
+      radial-gradient(circle at bottom right, rgba(232, 90, 10, 0.24), transparent 28%),
+      var(--color-forest);
+  }
+
+  .rapt-auth-shell::before,
+  .rapt-auth-shell::after {
+    content: "";
+    position: absolute;
+    border-radius: 999px;
+    pointer-events: none;
+    filter: blur(4px);
+  }
+
+  .rapt-auth-shell::before {
+    top: -7rem;
+    left: -6rem;
+    width: 18rem;
+    height: 18rem;
+    background: radial-gradient(circle, rgba(114, 184, 74, 0.16), transparent 68%);
+  }
+
+  .rapt-auth-shell::after {
+    right: -8rem;
+    bottom: -9rem;
+    width: 24rem;
+    height: 24rem;
+    background: radial-gradient(circle, rgba(232, 90, 10, 0.16), transparent 68%);
+  }
+
+  .rapt-auth-card {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 28px;
+    background: linear-gradient(180deg, rgba(16, 32, 16, 0.96), rgba(11, 23, 11, 0.94));
+    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.32);
+    color: var(--color-text-base);
+  }
+
+  .rapt-app-shell :where(.bg-white),
+  .rapt-auth-shell :where(.bg-white) {
+    background-color: var(--color-surface-strong);
+    color: var(--color-text-base);
+  }
+
+  .rapt-app-shell :where(.bg-gray-100),
+  .rapt-app-shell :where(.bg-gray-200),
+  .rapt-app-shell :where(.bg-slate-800) {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .rapt-app-shell :where(.bg-red-50) { background-color: rgba(143, 45, 38, 0.24); }
+  .rapt-app-shell :where(.bg-red-100) { background-color: rgba(143, 45, 38, 0.32); }
+  .rapt-app-shell :where(.bg-green-50) { background-color: rgba(72, 129, 76, 0.22); }
+  .rapt-app-shell :where(.bg-green-100) { background-color: rgba(72, 129, 76, 0.3); }
+  .rapt-app-shell :where(.bg-amber-50) { background-color: rgba(151, 102, 34, 0.24); }
+  .rapt-app-shell :where(.bg-amber-100) { background-color: rgba(151, 102, 34, 0.32); }
+  .rapt-app-shell :where(.bg-emerald-50) { background-color: rgba(35, 118, 97, 0.24); }
+  .rapt-app-shell :where(.bg-blue-50),
+  .rapt-app-shell :where(.bg-cyan-50) { background-color: rgba(37, 93, 140, 0.24); }
+  .rapt-app-shell :where(.bg-violet-50),
+  .rapt-app-shell :where(.bg-purple-50) { background-color: rgba(84, 61, 152, 0.24); }
+
+  .rapt-app-shell :where(.text-gray-900),
+  .rapt-app-shell :where(.text-gray-800),
+  .rapt-app-shell :where(.text-slate-800),
+  .rapt-app-shell :where(.text-red-900) {
+    color: rgba(255, 255, 255, 0.94);
+  }
+
+  .rapt-app-shell :where(.text-gray-500),
+  .rapt-app-shell :where(.text-gray-400) {
+    color: var(--color-text-muted);
+  }
+
+  .rapt-app-shell :where(.text-green-800),
+  .rapt-app-shell :where(.text-green-700) {
+    color: #d8f2b7;
+  }
+
+  .rapt-app-shell :where(.text-amber-800),
+  .rapt-app-shell :where(.text-amber-700),
+  .rapt-app-shell :where(.text-amber-600) {
+    color: #ffd792;
+  }
+
+  .rapt-app-shell :where(.text-red-700),
+  .rapt-app-shell :where(.text-red-600),
+  .rapt-app-shell :where(.text-red-500) {
+    color: #ffb4a7;
+  }
+
+  .rapt-app-shell :where(.text-emerald-800) {
+    color: #9af2d2;
+  }
+
+  .rapt-app-shell :where(.text-violet-800) {
+    color: #e2d4ff;
+  }
+
+  .rapt-app-shell :where(.text-blue-800),
+  .rapt-app-shell :where(.text-cyan-800) {
+    color: #bae8ff;
+  }
+
+  .rapt-app-shell :where(.border-red-200),
+  .rapt-app-shell :where(.border-red-300) {
+    border-color: rgba(255, 132, 113, 0.34);
+  }
+
+  .rapt-app-shell :where(.border-green-200),
+  .rapt-app-shell :where(.border-green-300) {
+    border-color: rgba(157, 227, 126, 0.32);
+  }
+
+  .rapt-app-shell :where(.border-amber-200),
+  .rapt-app-shell :where(.border-amber-300) {
+    border-color: rgba(255, 197, 102, 0.32);
+  }
+
+  .rapt-app-shell :where(.border-emerald-200) {
+    border-color: rgba(108, 229, 192, 0.28);
+  }
+
+  .rapt-app-shell :where(.border-violet-200),
+  .rapt-app-shell :where(.border-blue-500),
+  .rapt-app-shell :where(.border-cyan-500),
+  .rapt-app-shell :where(.border-violet-400),
+  .rapt-app-shell :where(.border-cyan-400) {
+    border-color: rgba(169, 141, 255, 0.34);
+  }
 }
