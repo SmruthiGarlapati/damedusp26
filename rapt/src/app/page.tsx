@@ -76,17 +76,8 @@ export default function HomePage() {
       {/* ── Hero ── */}
       <section className="rapt-app-shell relative flex flex-col items-center justify-center overflow-hidden px-6 pb-32 pt-24 text-center">
 
-        {/* Three vines: left, center, right */}
+        {/* Center vine only — left/right come from rapt-app-shell CSS */}
         <svg className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.14]" viewBox="0 0 1440 700" fill="none" preserveAspectRatio="xMidYMid slice">
-          {/* LEFT vine */}
-          <path d="M60 0 C50 90 72 170 55 270 C38 360 62 440 48 560 C40 620 30 660 22 700" stroke="#72b84a" strokeWidth="1.8" strokeLinecap="round"/>
-          <path d="M55 270 C82 258 108 250 124 240" stroke="#72b84a" strokeWidth="1.2" strokeLinecap="round"/>
-          <ellipse cx="128" cy="237" rx="9" ry="5" fill="#3d7a2a" transform="rotate(-14 128 237)"/>
-          <path d="M48 440 C22 428 8 416 10 404" stroke="#72b84a" strokeWidth="1.2" strokeLinecap="round"/>
-          <ellipse cx="9" cy="400" rx="8" ry="5" fill="#3d7a2a" transform="rotate(12 9 400)"/>
-          <path d="M62 150 C74 140 78 128 70 120" stroke="#72b84a" strokeWidth="0.9" strokeLinecap="round"/>
-
-          {/* CENTER vine — horizontal across the middle */}
           <path d="M0 350 C120 338 260 360 400 344 C540 328 660 352 720 348 C780 344 900 328 1040 344 C1180 360 1320 338 1440 350" stroke="#72b84a" strokeWidth="1.8" strokeLinecap="round"/>
           <path d="M400 344 C408 324 412 308 404 298" stroke="#72b84a" strokeWidth="1.2" strokeLinecap="round"/>
           <ellipse cx="402" cy="294" rx="9" ry="5" fill="#3d7a2a" transform="rotate(-8 402 294)"/>
@@ -96,14 +87,6 @@ export default function HomePage() {
           <ellipse cx="1042" cy="294" rx="9" ry="5" fill="#3d7a2a" transform="rotate(-8 1042 294)"/>
           <path d="M240 354 C248 342 252 330 244 322" stroke="#72b84a" strokeWidth="0.9" strokeLinecap="round"/>
           <path d="M860 342 C868 354 872 366 864 374" stroke="#72b84a" strokeWidth="0.9" strokeLinecap="round"/>
-
-          {/* RIGHT vine */}
-          <path d="M1380 0 C1390 90 1368 170 1385 270 C1402 360 1378 440 1392 560 C1400 620 1410 660 1418 700" stroke="#72b84a" strokeWidth="1.8" strokeLinecap="round"/>
-          <path d="M1385 270 C1358 258 1332 250 1316 240" stroke="#72b84a" strokeWidth="1.2" strokeLinecap="round"/>
-          <ellipse cx="1312" cy="237" rx="9" ry="5" fill="#3d7a2a" transform="rotate(-14 1312 237)"/>
-          <path d="M1392 440 C1418 428 1432 416 1430 404" stroke="#72b84a" strokeWidth="1.2" strokeLinecap="round"/>
-          <ellipse cx="1431" cy="400" rx="8" ry="5" fill="#3d7a2a" transform="rotate(-12 1431 400)"/>
-          <path d="M1378 150 C1366 140 1362 128 1370 120" stroke="#72b84a" strokeWidth="0.9" strokeLinecap="round"/>
         </svg>
 
         <div className="relative max-w-3xl">

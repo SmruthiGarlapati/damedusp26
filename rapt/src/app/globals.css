@@ -63,11 +63,47 @@
   }
 
   .rapt-app-shell {
+    position: relative;
     background:
       linear-gradient(180deg, rgba(13, 28, 13, 0.88) 0%, rgba(13, 28, 13, 0.76) 16rem),
       radial-gradient(circle at 15% 0%, rgba(114, 184, 74, 0.12), transparent 24%),
       radial-gradient(circle at 90% 8%, rgba(232, 90, 10, 0.1), transparent 20%),
       var(--color-bg);
+  }
+
+  /* left vine */
+  .rapt-app-shell::before {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 96px;
+    height: 100%;
+    background-repeat: no-repeat;
+    background-size: 96px 640px;
+    background-position: top left;
+    opacity: 0.1;
+    z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 640' fill='none'%3E%3Cpath d='M24 0 C16 70 34 140 20 230 C6 315 28 390 16 480 C8 545 22 595 14 640' stroke='%2372b84a' stroke-width='1.6' stroke-linecap='round'/%3E%3Cpath d='M20 230 C38 218 56 212 68 202' stroke='%2372b84a' stroke-width='1.1' stroke-linecap='round'/%3E%3Cellipse cx='72' cy='199' rx='10' ry='6' fill='%233d7a2a' transform='rotate(-14 72 199)'/%3E%3Cpath d='M16 390 C34 378 50 372 62 362' stroke='%2372b84a' stroke-width='1.1' stroke-linecap='round'/%3E%3Cellipse cx='65' cy='359' rx='9' ry='5' fill='%233d7a2a' transform='rotate(-10 65 359)'/%3E%3Cpath d='M22 140 C10 128 6 114 14 106' stroke='%2372b84a' stroke-width='0.9' stroke-linecap='round'/%3E%3Cpath d='M18 480 C6 468 2 454 10 446' stroke='%2372b84a' stroke-width='0.9' stroke-linecap='round'/%3E%3C/svg%3E");
+  }
+
+  /* right vine — mirrored */
+  .rapt-app-shell::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 96px;
+    height: 100%;
+    background-repeat: no-repeat;
+    background-size: 96px 640px;
+    background-position: top right;
+    opacity: 0.1;
+    z-index: 0;
+    transform: scaleX(-1);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 640' fill='none'%3E%3Cpath d='M24 0 C16 70 34 140 20 230 C6 315 28 390 16 480 C8 545 22 595 14 640' stroke='%2372b84a' stroke-width='1.6' stroke-linecap='round'/%3E%3Cpath d='M20 230 C38 218 56 212 68 202' stroke='%2372b84a' stroke-width='1.1' stroke-linecap='round'/%3E%3Cellipse cx='72' cy='199' rx='10' ry='6' fill='%233d7a2a' transform='rotate(-14 72 199)'/%3E%3Cpath d='M16 390 C34 378 50 372 62 362' stroke='%2372b84a' stroke-width='1.1' stroke-linecap='round'/%3E%3Cellipse cx='65' cy='359' rx='9' ry='5' fill='%233d7a2a' transform='rotate(-10 65 359)'/%3E%3Cpath d='M22 140 C10 128 6 114 14 106' stroke='%2372b84a' stroke-width='0.9' stroke-linecap='round'/%3E%3Cpath d='M18 480 C6 468 2 454 10 446' stroke='%2372b84a' stroke-width='0.9' stroke-linecap='round'/%3E%3C/svg%3E");
   }
 
   .rapt-app-main {

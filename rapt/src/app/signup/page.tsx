@@ -30,6 +30,22 @@ export default function SignupPage() {
 
   return (
     <div className="rapt-auth-shell flex min-h-screen items-center px-4 py-10">
+      <svg className="pointer-events-none absolute left-0 top-0 w-24 opacity-[0.09]" viewBox="0 0 96 640" fill="none" preserveAspectRatio="xMinYMin meet">
+        <path d="M24 0 C16 70 34 140 20 230 C6 315 28 390 16 480 C8 545 22 595 14 640" stroke="#72b84a" strokeWidth="1.6" strokeLinecap="round"/>
+        <path d="M20 230 C38 218 56 212 68 202" stroke="#72b84a" strokeWidth="1.1" strokeLinecap="round"/>
+        <ellipse cx="72" cy="199" rx="10" ry="6" fill="#3d7a2a" transform="rotate(-14 72 199)"/>
+        <path d="M16 390 C34 378 50 372 62 362" stroke="#72b84a" strokeWidth="1.1" strokeLinecap="round"/>
+        <ellipse cx="65" cy="359" rx="9" ry="5" fill="#3d7a2a" transform="rotate(-10 65 359)"/>
+        <path d="M22 140 C10 128 6 114 14 106" stroke="#72b84a" strokeWidth="0.9" strokeLinecap="round"/>
+      </svg>
+      <svg className="pointer-events-none absolute right-0 top-0 w-24 opacity-[0.09]" viewBox="0 0 96 640" fill="none" preserveAspectRatio="xMinYMin meet" style={{transform:"scaleX(-1)"}}>
+        <path d="M24 0 C16 70 34 140 20 230 C6 315 28 390 16 480 C8 545 22 595 14 640" stroke="#72b84a" strokeWidth="1.6" strokeLinecap="round"/>
+        <path d="M20 230 C38 218 56 212 68 202" stroke="#72b84a" strokeWidth="1.1" strokeLinecap="round"/>
+        <ellipse cx="72" cy="199" rx="10" ry="6" fill="#3d7a2a" transform="rotate(-14 72 199)"/>
+        <path d="M16 390 C34 378 50 372 62 362" stroke="#72b84a" strokeWidth="1.1" strokeLinecap="round"/>
+        <ellipse cx="65" cy="359" rx="9" ry="5" fill="#3d7a2a" transform="rotate(-10 65 359)"/>
+        <path d="M22 140 C10 128 6 114 14 106" stroke="#72b84a" strokeWidth="0.9" strokeLinecap="round"/>
+      </svg>
       <div className="mx-auto grid w-full max-w-6xl gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
         <div className="hidden lg:block">
           <Link
