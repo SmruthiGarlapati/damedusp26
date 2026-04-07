@@ -22,12 +22,9 @@ export default function Navbar({ showSearch = false }: NavbarProps) {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [mounted, setMounted] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const { user, loading } = useCurrentUser();
   const isDemoUser = isDemoAdminUser(user);
-
-  useEffect(() => setMounted(true), []);
 
   const initials = user?.full_name
     ? user.full_name
@@ -130,7 +127,7 @@ export default function Navbar({ showSearch = false }: NavbarProps) {
             onClick={() => setMenuOpen((v) => !v)}
             className="flex h-9 w-9 items-center justify-center rounded-full bg-[#e85a0a] text-[12px] font-bold text-white transition-all hover:scale-105 hover:bg-[#ff7c38]"
           >
-            {!mounted || loading ? "…" : initials}
+            {loading ? "…" : initials}
           </button>
 
           {menuOpen && (
