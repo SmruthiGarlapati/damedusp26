@@ -62,6 +62,13 @@ export default function HomePage() {
               {label}
             </a>
           ))}
+                    {/* Added the direct link to the game right here! */}
+          <Link 
+            href="/session/error-correction"
+            className="rounded-lg px-3 py-1.5 text-[13px] font-semibold text-white/50 transition-all hover:bg-white/5 hover:text-white/80"
+          >
+            Proofreader Game
+          </Link>
         </div>
         <div className="ml-auto flex items-center gap-3">
           <Link href="/login" className="rounded-lg px-3 py-1.5 text-[13px] font-semibold text-white/50 transition-all hover:bg-white/5 hover:text-white/80">
