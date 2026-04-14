@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import { isDemoAdminUser } from "@/lib/demoAdmin";
 import { addSession } from "@/lib/sessionsStore";
@@ -506,8 +506,10 @@ function ProfileModal({ partner, onClose, onRequest }: {
 /* ─────────────────────────────────────────────
    Page
 ───────────────────────────────────────────── */
-export default function MatchesPage() {
+function MatchesPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const peerQuery = (searchParams.get("q") ?? "").trim().toLowerCase();
   const { user, loading: userLoading } = useCurrentUser();
   const isDemoUser = isDemoAdminUser(user);
 
@@ -621,9 +623,12 @@ export default function MatchesPage() {
   const courseFilters = ["All", ...allSharedCourses];
 
   /* ── Filter + sort ─────────────────────────────────────────────── */
-  const filtered = displayPartners.filter((p) =>
-    courseFilter === "All" || p.sharedCourses.includes(courseFilter)
-  );
+  const filtered = displayPartners.filter((p) => {
+    const courseOk = courseFilter === "All" || p.sharedCourses.includes(courseFilter);
+    if (!peerQuery) return courseOk;
+    const hay = `${p.name} ${p.major} ${p.bio} ${p.allCourses.join(" ")}`.toLowerCase();
+    return courseOk && hay.includes(peerQuery);
+  });
 
   /* ── Send request ──────────────────────────────────────────────── */
   async function handleSendRequest(date: string, time: string, duration: number, notes: string) {
@@ -685,7 +690,7 @@ export default function MatchesPage() {
           onRequest={() => setRequestTarget(profileTarget)}
         />
       )}
-      <Navbar showSearch />
+      <Navbar />
 
       <main className="rapt-app-main flex-1 px-8 py-8 md:px-12 md:py-10">
         <div className="rapt-hero-card mb-8 px-7 py-7 md:px-8">
@@ -777,5 +782,22 @@ export default function MatchesPage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function MatchesPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="rapt-app-shell flex min-h-screen flex-col bg-[var(--color-bg)]">
+          <Navbar />
+          <main className="rapt-app-main flex flex-1 items-center justify-center px-8 py-12 text-[15px] text-white/45">
+            Loading matches…
+          </main>
+        </div>
+      }
+    >
+      <MatchesPageContent />
+    </Suspense>
   );
 }
