@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { GameState } from "../useGameState";
+import { ArrowRightIcon } from "../../components/gameChrome";
 
 interface Props {
   state: GameState;
@@ -12,18 +13,21 @@ export default function PresenterView({ state, onDone }: Props) {
   const totalSeconds = state.presentationMinutes * 60;
   const [secondsLeft, setSecondsLeft] = useState(totalSeconds);
   const [running, setRunning] = useState(false);
+  const finishPresentation = useCallback(() => {
+    onDone();
+  }, [onDone]);
 
   useEffect(() => {
     if (!running) return;
-    if (secondsLeft <= 0) { onDone(); return; }
+    if (secondsLeft <= 0) { finishPresentation(); return; }
     const interval = setInterval(() => {
       setSecondsLeft((s) => {
-        if (s <= 1) { clearInterval(interval); onDone(); return 0; }
+        if (s <= 1) { clearInterval(interval); finishPresentation(); return 0; }
         return s - 1;
       });
     }, 1000);
     return () => clearInterval(interval);
-  }, [running, secondsLeft]);
+  }, [finishPresentation, running, secondsLeft]);
 
   const mins = Math.floor(secondsLeft / 60);
   const secs = secondsLeft % 60;
@@ -32,9 +36,12 @@ export default function PresenterView({ state, onDone }: Props) {
 
   return (
     <div className="flex flex-col gap-8">
-      <div>
+      <div className="space-y-2">
+        <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-[var(--color-text-muted)]">
+          Presenter mode
+        </span>
         <h1 className="rapt-display mb-1 text-3xl tracking-tight text-[var(--color-text-base)]">
-          You&apos;re on 🦴
+          You&apos;re leading the dig
         </h1>
         <p className="text-[var(--color-text-secondary)] text-sm">
           Teach the topic. Your partner is listening — no interruptions.
@@ -65,16 +72,18 @@ export default function PresenterView({ state, onDone }: Props) {
         {!running ? (
           <button
             onClick={() => setRunning(true)}
-            className="rounded-2xl bg-[var(--color-primary)] px-10 py-4 text-base font-black text-white shadow-lg shadow-[#c4622d]/20 transition-opacity hover:opacity-90"
+            className="inline-flex items-center gap-2 rounded-2xl bg-[var(--color-primary)] px-10 py-4 text-base font-black text-white shadow-lg shadow-[#c4622d]/20 transition-opacity hover:opacity-90"
           >
-            Start presenting 🦕
+            Start presenting
+            <ArrowRightIcon className="h-5 w-5" />
           </button>
         ) : (
           <button
-            onClick={onDone}
-            className="rounded-2xl border-2 border-[var(--color-border)] bg-white/6 px-10 py-4 text-base font-black text-[var(--color-text-secondary)] transition-all hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
+            onClick={finishPresentation}
+            className="inline-flex items-center gap-2 rounded-2xl border-2 border-[var(--color-border)] bg-white/6 px-10 py-4 text-base font-black text-[var(--color-text-secondary)] transition-all hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
           >
-            I&apos;m done early →
+            I&apos;m done early
+            <ArrowRightIcon className="h-5 w-5" />
           </button>
         )}
       </div>

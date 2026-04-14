@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
+import { parseModelJson } from "@/lib/ai/parseModelJson";
 
 export async function POST(req: NextRequest) {
   const { topic, notes } = await req.json();
   const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
   const prompt = `You are an expert tutor. Create a summary of the following notes on "${topic}".
+
+Source notes:
+${notes?.trim() ? notes.trim() : "No notes provided. Infer a realistic study passage from the topic only."}
   
 1. Write a cohesive 6-8 sentence summary of the core concepts.
 2. Carefully inject exactly 3 to 5 errors into the summary. 
@@ -33,9 +37,10 @@ Output ONLY a JSON object with this exact shape:
       response_format: { type: "json_object" }
     });
 
-    const data = JSON.parse(completion.choices[0]?.message?.content ?? "{}");
+    const data = parseModelJson(completion.choices[0]?.message?.content ?? "{}");
     return NextResponse.json(data);
   } catch (err) {
+    console.error("Error correction generate error:", err);
     return NextResponse.json({ error: "Failed to generate game" }, { status: 500 });
   }
 }

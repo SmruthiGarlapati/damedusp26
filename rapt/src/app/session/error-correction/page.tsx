@@ -4,6 +4,7 @@ import { useErrorGameState } from "./useErrorGameState";
 import GameView from "./components/GameView";
 import SetupPanel from "./components/ErrorGameSetupPanel";
 import ResultsView from "./components/ResultsView";
+import { ProofreaderIcon, StudyGameShell } from "../components/gameChrome";
 
 export default function ErrorCorrectionPage() {
   const game = useErrorGameState();
@@ -61,63 +62,58 @@ export default function ErrorCorrectionPage() {
   }
 
   return (
-    <div className="rapt-app-shell min-h-screen px-4 py-4 md:px-6 md:py-6">
-      <div className="mx-auto max-w-5xl overflow-hidden rounded-[32px] border border-[var(--color-border)] bg-[rgba(13,28,13,0.9)] shadow-[var(--shadow-lg)] backdrop-blur-sm">
-        
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-white/10 bg-[#173417] px-8 py-4">
-          <div className="flex items-center gap-3 text-[var(--color-bone)]">
-            <span className="text-2xl">📝</span>
-            <span className="rapt-display text-xl tracking-tight text-white">Proofreader</span>
-            {state.topic && (
-              <span className="text-sm font-medium text-[#c8e898]/70">
-                · {state.topic}
-              </span>
-            )}
+    <StudyGameShell
+      title="Proofreader"
+      description="Turn study notes into a focused editing challenge, flag anything suspicious, and get AI feedback on every catch."
+      topic={state.topic}
+      Icon={ProofreaderIcon}
+      contentClassName="mx-auto max-w-6xl"
+    >
+      {state.phase === "SETUP" && (
+        <SetupPanel
+          state={state}
+          setTopic={game.setTopic}
+          setNotes={game.setNotes}
+          onStart={handleGenerate}
+        />
+      )}
+
+      {state.phase === "GENERATING" && (
+        <div className="flex flex-col items-center justify-center gap-6 py-28 text-center text-white">
+          <div className="flex h-20 w-20 items-center justify-center rounded-[28px] border border-[var(--color-primary-muted)] bg-[var(--color-primary-light)] text-[var(--color-primary)] shadow-[var(--shadow-primary)]">
+            <ProofreaderIcon className="h-10 w-10 animate-pulse" />
+          </div>
+          <div className="space-y-2">
+            <p className="rapt-display text-3xl tracking-tight text-white">Building your proofreader round</p>
+            <p className="text-sm text-[var(--color-text-muted)]">We&apos;re rewriting the passage with realistic mistakes to investigate.</p>
           </div>
         </div>
+      )}
 
-        <div className="px-6 py-10">
-          
-          {/* Replaced the placeholder with the actual SetupPanel! */}
-          {state.phase === "SETUP" && (
-            <SetupPanel 
-              state={state}
-              setTopic={game.setTopic}
-              setNotes={game.setNotes}
-              onStart={handleGenerate}
-            />
-          )}
+      {state.phase === "PLAYING" && (
+        <GameView
+          state={state}
+          onAddComment={game.addComment}
+          onRemoveComment={game.removeComment}
+          onSubmit={handleGrade}
+        />
+      )}
 
-          {state.phase === "GENERATING" && (
-            <div className="flex flex-col items-center justify-center py-32 gap-6 text-white">
-              <span className="text-6xl animate-bounce">🧠</span>
-              <p className="text-xl font-bold">AI is reading your notes...</p>
-              <p className="text-sm text-[var(--color-text-muted)]">Planting realistic errors for you to find.</p>
-            </div>
-          )}
-          
-          {state.phase === "PLAYING" && (
-            <GameView 
-              state={state} 
-              onAddComment={game.addComment} 
-              onRemoveComment={game.removeComment} 
-              onSubmit={handleGrade} 
-            />
-          )}
-
-          {state.phase === "ANALYZING" && (
-            <div className="flex flex-col items-center justify-center py-32 gap-6 text-white">
-              <div className="h-12 w-12 animate-spin rounded-full border-4 border-[var(--color-primary)] border-t-transparent" />
-              <p className="text-xl font-bold">Grading your investigation...</p>
-            </div>
-          )}
-
-          {state.phase === "RESULTS" && (
-             <ResultsView state={state} onRetry={game.resetGame} />
-          )}
+      {state.phase === "ANALYZING" && (
+        <div className="flex flex-col items-center justify-center gap-6 py-28 text-center text-white">
+          <div className="flex h-20 w-20 items-center justify-center rounded-[28px] border border-[var(--color-primary-muted)] bg-[var(--color-primary-light)] text-[var(--color-primary)] shadow-[var(--shadow-primary)]">
+            <div className="h-10 w-10 animate-spin rounded-full border-[3px] border-current border-t-transparent" />
+          </div>
+          <div className="space-y-2">
+            <p className="rapt-display text-3xl tracking-tight text-white">Reviewing your flags</p>
+            <p className="text-sm text-[var(--color-text-muted)]">Grading each note and generating clean explanations for the misses.</p>
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+
+      {state.phase === "RESULTS" && (
+        <ResultsView state={state} onRetry={game.resetGame} />
+      )}
+    </StudyGameShell>
   );
 }

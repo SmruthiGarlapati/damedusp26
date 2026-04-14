@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { parseModelJson } from "@/lib/ai/parseModelJson";
 
 export async function POST(req: NextRequest) {
   const { presenterNotes, scribeRecall, topic, presentationMinutes } = await req.json();
@@ -61,8 +62,7 @@ Return ONLY this JSON with no extra text:
       }, { status: 500 });
     }
 
-    const clean = text.replace(/```json|```/g, "").trim();
-    const result = JSON.parse(clean);
+    const result = parseModelJson(text);
     return NextResponse.json(result);
   } catch (e) {
     console.error("ERROR:", e);

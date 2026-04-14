@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { GameState } from "../useGameState";
+import { ArrowRightIcon, ListenerIcon } from "../../components/gameChrome";
 
 interface Props {
   state: GameState;
@@ -16,22 +17,22 @@ export default function ScribeView({ state, setScribeRecall, onSubmit }: Props) 
   const [text, setText] = useState("");
   const [started, setStarted] = useState(false);
 
-  function handleSubmit() {
+  const handleSubmit = useCallback(() => {
     setScribeRecall(text);
     onSubmit();
-  }
+  }, [onSubmit, setScribeRecall, text]);
 
   useEffect(() => {
     if (!started) return;
     if (secondsLeft <= 0) { handleSubmit(); return; }
     const interval = setInterval(() => {
       setSecondsLeft((s) => {
-        if (s <= 1) { clearInterval(interval); return 0; }
+        if (s <= 1) { clearInterval(interval); handleSubmit(); return 0; }
         return s - 1;
       });
     }, 1000);
     return () => clearInterval(interval);
-  }, [started, secondsLeft]);
+  }, [handleSubmit, secondsLeft, started]);
 
   const mins = Math.floor(secondsLeft / 60);
   const secs = secondsLeft % 60;
@@ -41,9 +42,12 @@ export default function ScribeView({ state, setScribeRecall, onSubmit }: Props) 
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
+      <div className="space-y-2">
+        <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-[var(--color-text-muted)]">
+          Recall mode
+        </span>
         <h1 className="rapt-display mb-1 text-3xl tracking-tight text-[var(--color-text-base)]">
-          Brain dump time 🧠
+          Capture everything you remember
         </h1>
         <p className="text-[var(--color-text-secondary)] text-sm">
           Write down everything you remember. No notes, no hints — pure recall.
@@ -61,7 +65,9 @@ export default function ScribeView({ state, setScribeRecall, onSubmit }: Props) 
       {!started ? (
         /* Pre-recall screen */
         <div className="flex flex-col items-center gap-6 rounded-3xl border-2 border-[var(--color-border)] bg-[var(--color-surface-strong)] p-10 text-center">
-          <span className="text-6xl">👂</span>
+          <span className="flex h-16 w-16 items-center justify-center rounded-[24px] border border-white/10 bg-white/5 text-[var(--color-text-base)]">
+            <ListenerIcon className="h-8 w-8" />
+          </span>
           <div>
             <p className="mb-2 text-xl font-black text-[var(--color-text-base)]">
               Ready to recall?
@@ -72,9 +78,10 @@ export default function ScribeView({ state, setScribeRecall, onSubmit }: Props) 
           </div>
           <button
             onClick={() => setStarted(true)}
-            className="rounded-2xl bg-[var(--color-primary)] px-10 py-4 text-base font-black text-white shadow-lg shadow-[#c4622d]/20 transition-opacity hover:opacity-90"
+            className="inline-flex items-center gap-2 rounded-2xl bg-[var(--color-primary)] px-10 py-4 text-base font-black text-white shadow-lg shadow-[#c4622d]/20 transition-opacity hover:opacity-90"
           >
-            Start recall 🦕
+            Start recall
+            <ArrowRightIcon className="h-5 w-5" />
           </button>
         </div>
       ) : (
@@ -112,13 +119,14 @@ export default function ScribeView({ state, setScribeRecall, onSubmit }: Props) 
           <button
             onClick={handleSubmit}
             disabled={wordCount < 5}
-            className={`w-full rounded-2xl py-4 text-base font-black tracking-tight transition-all ${
+            className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-base font-black tracking-tight transition-all ${
               wordCount >= 5
                 ? "bg-[var(--color-primary)] text-white shadow-lg shadow-[#c4622d]/20 hover:-translate-y-0.5 hover:opacity-90"
                 : "cursor-not-allowed bg-white/8 text-[var(--color-text-muted)]"
             }`}
           >
-            Submit recall →
+            Submit recall
+            <ArrowRightIcon className="h-5 w-5" />
           </button>
           <p className="text-center text-xs text-[var(--color-text-muted)]">
             {wordCount < 5 ? `Write at least 5 words to submit` : "Submit when you're done or wait for the timer"}

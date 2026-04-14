@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { GameState } from "../useGameState";
+import { ArrowLeftIcon, ArrowRightIcon, FossilDigIcon, SparkIcon, StoneIcon, TrophyIcon } from "../../components/gameChrome";
 
 interface Props {
   state: GameState;
@@ -11,10 +12,10 @@ interface Props {
 }
 
 const BADGES = [
-  { min: 90, label: "Perfect Specimen", emoji: "🏆", color: "#c4622d" },
-  { min: 70, label: "Clean Excavation", emoji: "🦴", color: "#6b9b6b" },
-  { min: 50, label: "Partial Fossil", emoji: "⛏️", color: "#9b8b6b" },
-  { min: 0,  label: "Still Digging",   emoji: "🪨", color: "#9b9b95" },
+  { min: 90, label: "Perfect Specimen", Icon: TrophyIcon, color: "#c4622d" },
+  { min: 70, label: "Clean Excavation", Icon: FossilDigIcon, color: "#6b9b6b" },
+  { min: 50, label: "Partial Fossil", Icon: SparkIcon, color: "#9b8b6b" },
+  { min: 0,  label: "Still Digging", Icon: StoneIcon, color: "#9b9b95" },
 ];
 
 export default function SkeletonReveal({ state, onStartReDig, onSkipReDig, onReset }: Props) {
@@ -48,9 +49,12 @@ export default function SkeletonReveal({ state, onStartReDig, onSkipReDig, onRes
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
+      <div className="space-y-2">
+        <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-[var(--color-text-muted)]">
+          Results
+        </span>
         <h1 className="rapt-display mb-1 text-3xl tracking-tight text-[var(--color-text-base)]">
-          Excavation complete 🦕
+          Excavation complete
         </h1>
         <p className="text-[var(--color-text-secondary)] text-sm">
           Here&apos;s how much knowledge was successfully transferred.
@@ -88,7 +92,9 @@ export default function SkeletonReveal({ state, onStartReDig, onSkipReDig, onRes
             {score}%
           </div>
           <div className="flex items-center justify-center gap-2 mt-2">
-            <span className="text-xl">{badge.emoji}</span>
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/8" style={{ color: badge.color }}>
+              <badge.Icon className="h-5 w-5" />
+            </span>
             <span className="text-lg font-black text-[var(--color-text-base)]">{badge.label}</span>
           </div>
         </div>
@@ -149,9 +155,10 @@ export default function SkeletonReveal({ state, onStartReDig, onSkipReDig, onRes
               <div className="flex gap-3">
                 <button
                   onClick={onStartReDig}
-                  className="flex-1 rounded-xl bg-[var(--color-primary)] py-3 text-sm font-black text-white transition-opacity hover:opacity-90"
+                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] py-3 text-sm font-black text-white transition-opacity hover:opacity-90"
                 >
-                  Do the re-dig 🦴
+                  Do the re-dig
+                  <ArrowRightIcon className="h-4 w-4" />
                 </button>
                 <button
                   onClick={onSkipReDig}
@@ -166,7 +173,9 @@ export default function SkeletonReveal({ state, onStartReDig, onSkipReDig, onRes
           {/* Complete state */}
           {state.phase === "COMPLETE" && (
             <div className="rounded-2xl border border-[var(--color-primary-muted)] bg-[var(--color-primary-light)] p-6 text-center">
-              <div className="text-4xl mb-3">🎉</div>
+              <div className="mb-3 inline-flex h-16 w-16 items-center justify-center rounded-[24px] border border-[var(--color-primary-muted)] bg-white/70 text-[var(--color-primary)]">
+                <TrophyIcon className="h-8 w-8" />
+              </div>
               <p className="mb-1 text-lg font-black text-[var(--color-text-base)]">
                 Dig complete!
               </p>
@@ -180,9 +189,10 @@ export default function SkeletonReveal({ state, onStartReDig, onSkipReDig, onRes
           <div className="flex gap-3">
             <button
               onClick={onReset}
-              className="flex-1 rounded-xl border-2 border-[var(--color-border)] py-3 text-sm font-black text-[var(--color-text-secondary)] transition-all hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-[var(--color-border)] py-3 text-sm font-black text-[var(--color-text-secondary)] transition-all hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
             >
-              ← New dig
+              <ArrowLeftIcon className="h-4 w-4" />
+              New dig
             </button>
           </div>
         </div>

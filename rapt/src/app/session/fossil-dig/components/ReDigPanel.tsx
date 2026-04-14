@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { GameState } from "../useGameState";
+import { ArrowRightIcon, FossilDigIcon } from "../../components/gameChrome";
 
 interface Props {
   state: GameState;
@@ -22,22 +23,22 @@ export default function ReDigPanel({ state, setReDigRecall, onSubmit }: Props) {
   const isUrgent = secondsLeft <= 30;
   const progress = ((90 - secondsLeft) / 90) * 100;
 
+  const handleSubmit = useCallback(() => {
+    setReDigRecall(text);
+    onSubmit();
+  }, [onSubmit, setReDigRecall, text]);
+
   useEffect(() => {
     if (!started) return;
     if (secondsLeft <= 0) { handleSubmit(); return; }
     const interval = setInterval(() => {
       setSecondsLeft((s) => {
-        if (s <= 1) { clearInterval(interval); return 0; }
+        if (s <= 1) { clearInterval(interval); handleSubmit(); return 0; }
         return s - 1;
       });
     }, 1000);
     return () => clearInterval(interval);
-  }, [started, secondsLeft]);
-
-  function handleSubmit() {
-    setReDigRecall(text);
-    onSubmit();
-  }
+  }, [handleSubmit, secondsLeft, started]);
 
   return (
     <div className="flex flex-col gap-6 mt-6">
@@ -59,7 +60,9 @@ export default function ReDigPanel({ state, setReDigRecall, onSubmit }: Props) {
 
       {!started ? (
         <div className="flex flex-col items-center gap-6 rounded-3xl border-2 border-[var(--color-border)] bg-[var(--color-surface-strong)] p-10 text-center">
-          <span className="text-6xl">🦴</span>
+          <span className="flex h-16 w-16 items-center justify-center rounded-[24px] border border-white/10 bg-white/5 text-[var(--color-text-base)]">
+            <FossilDigIcon className="h-8 w-8" />
+          </span>
           <div>
             <p className="mb-2 text-xl font-black text-[var(--color-text-base)]">
               Second chance to excavate
@@ -70,9 +73,10 @@ export default function ReDigPanel({ state, setReDigRecall, onSubmit }: Props) {
           </div>
           <button
             onClick={() => setStarted(true)}
-            className="rounded-2xl bg-[var(--color-primary)] px-10 py-4 text-base font-black text-white shadow-lg shadow-[#c4622d]/20 transition-opacity hover:opacity-90"
+            className="inline-flex items-center gap-2 rounded-2xl bg-[var(--color-primary)] px-10 py-4 text-base font-black text-white shadow-lg shadow-[#c4622d]/20 transition-opacity hover:opacity-90"
           >
-            Start re-dig 🦕
+            Start re-dig
+            <ArrowRightIcon className="h-5 w-5" />
           </button>
         </div>
       ) : (
@@ -108,13 +112,14 @@ export default function ReDigPanel({ state, setReDigRecall, onSubmit }: Props) {
           <button
             onClick={handleSubmit}
             disabled={wordCount < 3}
-            className={`w-full rounded-2xl py-4 text-base font-black tracking-tight transition-all ${
+            className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-base font-black tracking-tight transition-all ${
               wordCount >= 3
                 ? "bg-[var(--color-primary)] text-white shadow-lg shadow-[#c4622d]/20 hover:-translate-y-0.5 hover:opacity-90"
                 : "cursor-not-allowed bg-white/8 text-[var(--color-text-muted)]"
             }`}
           >
-            Submit re-dig →
+            Submit re-dig
+            <ArrowRightIcon className="h-5 w-5" />
           </button>
         </div>
       )}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { FossilDigIcon } from "../../components/gameChrome";
 
 const MESSAGES = [
   "Extracting fossils from your notes...",
@@ -22,8 +23,9 @@ export default function AnalysisLoader() {
 
   return (
     <div className="flex flex-col items-center justify-center py-32 gap-8">
-      {/* Animated dino */}
-      <div className="text-7xl animate-bounce">🦕</div>
+      <div className="flex h-20 w-20 items-center justify-center rounded-[28px] border border-[var(--color-primary-muted)] bg-[var(--color-primary-light)] text-[var(--color-primary)] shadow-[var(--shadow-primary)]">
+        <FossilDigIcon className="h-10 w-10 animate-pulse" />
+      </div>
 
       {/* Spinning bones */}
       <div className="flex items-center gap-3">

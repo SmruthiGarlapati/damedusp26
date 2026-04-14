@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
+import { parseModelJson } from "@/lib/ai/parseModelJson";
 
 export async function POST(req: NextRequest) {
   const { sentences, userComments, totalErrors } = await req.json();
@@ -39,9 +40,10 @@ Output ONLY a JSON object with this exact shape:
       response_format: { type: "json_object" }
     });
 
-    const data = JSON.parse(completion.choices[0]?.message?.content ?? "{}");
+    const data = parseModelJson(completion.choices[0]?.message?.content ?? "{}");
     return NextResponse.json(data);
   } catch (err) {
+    console.error("Error correction analyze error:", err);
     return NextResponse.json({ error: "Failed to grade game" }, { status: 500 });
   }
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { ErrorGameState } from "../useErrorGameState";
+import { CheckCircleIcon, RefreshIcon, SparkIcon, StoneIcon, TrophyIcon } from "../../components/gameChrome";
 
 interface Props {
   state: ErrorGameState;
@@ -13,13 +14,16 @@ export default function ResultsView({ state, onRetry }: Props) {
 
   const { results, sentences, userComments, totalErrors } = state;
   const pct = Math.round((results.score / totalErrors) * 100);
+  const ScoreIcon = pct === 100 ? TrophyIcon : pct >= 70 ? SparkIcon : ProofreaderResultIcon;
 
   return (
     <div className="flex flex-col gap-8">
       
       {/* 1. Score Banner */}
       <div className="flex flex-col items-center justify-center rounded-3xl border-2 border-[var(--color-border)] bg-[var(--color-surface-strong)] p-10 text-center">
-        <div className="mb-4 text-6xl">{pct === 100 ? "🏆" : pct >= 70 ? "🎉" : "📚"}</div>
+        <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-[28px] border border-[var(--color-primary-muted)] bg-[var(--color-primary-light)] text-[var(--color-primary)] shadow-[var(--shadow-primary)]">
+          <ScoreIcon className="h-10 w-10" />
+        </div>
         <h2 className="rapt-display mb-2 text-4xl text-[var(--color-text-base)]">
           Score: {results.score} / {totalErrors}
         </h2>
@@ -83,6 +87,7 @@ export default function ResultsView({ state, onRetry }: Props) {
         {results.feedback.map((fb) => {
           const sentence = sentences.find((s) => s.id === fb.sentenceId);
           const comment = userComments[fb.sentenceId];
+          const FeedbackIcon = fb.isCorrect ? CheckCircleIcon : StoneIcon;
           if (!sentence) return null;
 
           return (
@@ -95,7 +100,9 @@ export default function ResultsView({ state, onRetry }: Props) {
               }`}
             >
               <div className="mb-3 flex items-center gap-2">
-                <span className="text-xl">{fb.isCorrect ? "✅" : "❌"}</span>
+                <span className={`flex h-9 w-9 items-center justify-center rounded-full ${fb.isCorrect ? "bg-green-500/15 text-green-300" : "bg-red-500/15 text-red-300"}`}>
+                  <FeedbackIcon className="h-4.5 w-4.5" />
+                </span>
                 <span className="text-sm font-bold uppercase tracking-wider text-[var(--color-text-base)]">
                   {fb.isCorrect ? "Good catch" : "Missed or Incorrect"}
                 </span>
@@ -104,12 +111,12 @@ export default function ResultsView({ state, onRetry }: Props) {
               <div className="mb-4 grid gap-3 text-sm md:grid-cols-2">
                 <div className="rounded-xl bg-black/20 p-3">
                   <span className="mb-1 block text-xs font-bold text-[var(--color-text-muted)]">Original</span>
-                  <p className="text-[var(--color-text-secondary)]">"{sentence.text}"</p>
+                  <p className="text-[var(--color-text-secondary)]"><q>{sentence.text}</q></p>
                 </div>
                 {sentence.isError && (
                   <div className="rounded-xl bg-black/20 p-3">
                     <span className="mb-1 block text-xs font-bold text-[var(--color-text-muted)]">Correction</span>
-                    <p className="text-[var(--color-text-secondary)]">"{sentence.correctText}"</p>
+                    <p className="text-[var(--color-text-secondary)]"><q>{sentence.correctText}</q></p>
                   </div>
                 )}
               </div>
@@ -133,12 +140,24 @@ export default function ResultsView({ state, onRetry }: Props) {
       <div className="flex justify-center pt-4">
         <button
           onClick={onRetry}
-          className="rounded-2xl bg-[var(--color-primary)] px-10 py-4 text-base font-black text-white shadow-lg transition-transform hover:-translate-y-0.5"
+          className="inline-flex items-center gap-2 rounded-2xl bg-[var(--color-primary)] px-10 py-4 text-base font-black text-white shadow-lg transition-transform hover:-translate-y-0.5"
         >
-          Play Again ↺
+          <RefreshIcon className="h-5 w-5" />
+          Play again
         </button>
       </div>
 
     </div>
+  );
+}
+
+function ProofreaderResultIcon({ className = "h-5 w-5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+      <path d="M14 3v5h5" />
+      <path d="M9 12h6" />
+      <path d="M9 16h6" />
+    </svg>
   );
 }

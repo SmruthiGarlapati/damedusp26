@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ErrorGameState } from "../useErrorGameState";
+import { ArrowRightIcon, ProofreaderIcon } from "../../components/gameChrome";
 
 interface Props {
   state: ErrorGameState;
@@ -13,10 +14,11 @@ interface Props {
 export default function GameView({ state, onAddComment, onRemoveComment, onSubmit }: Props) {
   const [activeSentenceId, setActiveSentenceId] = useState<string | null>(null);
   const [draftComment, setDraftComment] = useState("");
+  type Sentence = ErrorGameState["sentences"][number];
 
   const foundCount = Object.keys(state.userComments).length;
 
-  function handleSaveComment(sentence: any) {
+  function handleSaveComment(sentence: Sentence) {
     if (!draftComment.trim()) return;
     onAddComment(sentence.id, sentence.text, draftComment);
     setActiveSentenceId(null);
@@ -30,9 +32,13 @@ export default function GameView({ state, onAddComment, onRemoveComment, onSubmi
       {/* Notice the pb-24 here! This gives extra scrolling room at the bottom */}
       <div className="flex-1 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-strong)] p-8 pb-24 shadow-sm">
         <div className="mb-6 border-b border-[var(--color-border)] pb-4 flex justify-between items-center">
-          <div>
-            <h2 className="text-xl font-black text-[var(--color-text-base)]">Spot the Errors 🔍</h2>
-            <p className="text-sm text-[var(--color-text-secondary)]">Click a sentence if you think it contains an error.</p>
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)]">
+              <ProofreaderIcon className="h-3.5 w-3.5" />
+              Investigation workspace
+            </div>
+            <h2 className="text-xl font-black text-[var(--color-text-base)]">Inspect the passage</h2>
+            <p className="text-sm text-[var(--color-text-secondary)]">Click any sentence that feels off, then log why it needs a correction.</p>
           </div>
           <div className="rounded-full bg-[var(--color-primary-light)] px-4 py-1.5 text-sm font-bold text-[var(--color-primary)] border border-[var(--color-primary-muted)]">
             Errors flagged: {foundCount} / {state.totalErrors}
@@ -108,7 +114,9 @@ export default function GameView({ state, onAddComment, onRemoveComment, onSubmi
               {Object.values(state.userComments).map((comment) => (
                 <div key={comment.sentenceId} className="relative rounded-xl border border-red-200 bg-red-50 p-3 shadow-sm">
                   <button onClick={() => onRemoveComment(comment.sentenceId)} className="absolute top-2 right-2 text-red-400 hover:text-red-700 transition-colors">✕</button>
-                  <p className="text-xs font-semibold text-red-900 italic mb-2">"{comment.originalText}"</p>
+                  <p className="mb-2 text-xs font-semibold italic text-red-900">
+                    <q>{comment.originalText}</q>
+                  </p>
                   <p className="text-sm text-red-800"><strong>Reason:</strong> {comment.comment}</p>
                 </div>
               ))}
@@ -118,9 +126,10 @@ export default function GameView({ state, onAddComment, onRemoveComment, onSubmi
 
         <button
           onClick={onSubmit}
-          className="w-full rounded-xl bg-[var(--color-primary)] py-4 text-[15px] font-black text-white shadow-lg transition-transform hover:-translate-y-0.5"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] py-4 text-[15px] font-black text-white shadow-lg transition-transform hover:-translate-y-0.5"
         >
-          Submit for Grading →
+          Submit for grading
+          <ArrowRightIcon className="h-4 w-4" />
         </button>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
+import { parseModelJson } from "@/lib/ai/parseModelJson";
 
 export async function POST(req: NextRequest) {
   const { course, notes, partnerName } = await req.json();
@@ -58,11 +59,11 @@ Rules:
       messages: [{ role: "user", content: prompt }],
       temperature: 0.6,
       max_tokens: 1800,
+      response_format: { type: "json_object" },
     });
 
     const text = completion.choices[0]?.message?.content ?? "";
-    const clean = text.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/```\s*$/i, "").trim();
-    const data = JSON.parse(clean);
+    const data = parseModelJson(text);
     return NextResponse.json(data);
   } catch (err) {
     console.error("Groq games error:", err);
