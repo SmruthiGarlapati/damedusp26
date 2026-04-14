@@ -1,5 +1,7 @@
 "use client";
 import Link from "next/link";
+import HomeNavbar from "@/components/HomeNavbar";
+import { RaptLogoSm } from "@/components/RaptLogo";
 
 const FEATURES = [
   {
@@ -46,38 +48,15 @@ const STATS = [
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text-base)]">
+    <div className="min-h-screen bg-[var(--color-bg)] font-sans text-[var(--color-text-base)]">
 
-      {/* ── Navbar ── */}
-      <nav className="sticky top-0 z-50 flex h-16 items-center gap-4 border-b border-[var(--color-border)] bg-[#0f1f0f]/95 px-6 backdrop-blur-sm">
-        <span className="rapt-display shrink-0 text-[22px] text-white">RAPT</span>
-        <div className="h-5 w-px shrink-0 bg-white/15" />
-        <div className="flex flex-1 items-center gap-1">
-          {["Features", "How it works"].map((label) => (
-            <a
-              key={label}
-              href={`#${label.toLowerCase().replace(/ /g, "-")}`}
-              className="rounded-lg px-3 py-1.5 text-[13px] font-semibold text-white/50 transition-all hover:bg-white/5 hover:text-white/80"
-            >
-              {label}
-            </a>
-          ))}
-        </div>
-        <div className="ml-auto flex items-center gap-3">
-          <Link href="/login" className="rounded-lg px-3 py-1.5 text-[13px] font-semibold text-white/50 transition-all hover:bg-white/5 hover:text-white/80">
-            Log in
-          </Link>
-          <Link href="/signup" className="rounded-xl bg-[var(--color-primary)] px-5 py-2 text-[13px] font-bold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-primary-hover)] hover:-translate-y-px">
-            Get started
-          </Link>
-        </div>
-      </nav>
+      <HomeNavbar />
 
       {/* ── Hero ── */}
-      <section className="rapt-app-shell relative flex flex-col items-center justify-center overflow-hidden px-6 pb-32 pt-24 text-center">
+      <section className="rapt-app-shell relative flex flex-col items-center justify-center overflow-hidden px-5 pb-28 pt-20 text-center sm:px-8 sm:pb-32 sm:pt-28">
 
         {/* Center vine only — left/right come from rapt-app-shell CSS */}
-        <svg className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.14]" viewBox="0 0 1440 700" fill="none" preserveAspectRatio="xMidYMid slice">
+        <svg className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.08]" viewBox="0 0 1440 700" fill="none" preserveAspectRatio="xMidYMid slice">
           <path d="M0 350 C120 338 260 360 400 344 C540 328 660 352 720 348 C780 344 900 328 1040 344 C1180 360 1320 338 1440 350" stroke="#72b84a" strokeWidth="1.8" strokeLinecap="round"/>
           <path d="M400 344 C408 324 412 308 404 298" stroke="#72b84a" strokeWidth="1.2" strokeLinecap="round"/>
           <ellipse cx="402" cy="294" rx="9" ry="5" fill="#3d7a2a" transform="rotate(-8 402 294)"/>
@@ -89,45 +68,58 @@ export default function HomePage() {
           <path d="M860 342 C868 354 872 366 864 374" stroke="#72b84a" strokeWidth="0.9" strokeLinecap="round"/>
         </svg>
 
-        <div className="relative max-w-3xl">
-
-          <h1 className="rapt-display mb-6 text-[clamp(42px,7vw,76px)] leading-[0.96] text-white">
-            Find your perfect
-            <br />
-            <span className="italic text-[var(--color-primary)]">study partner.</span>
+        <div className="relative mx-auto max-w-4xl px-2">
+          <h1 className="rapt-hero-headline mx-auto mb-8 max-w-[min(100%,28rem)] text-balance sm:mb-10 sm:max-w-5xl">
+            <span className="block text-[clamp(2.75rem,8vw,4.5rem)] font-extrabold leading-[0.92] tracking-[-0.04em] text-white">
+              Find your
+            </span>
+            <span className="rapt-hero-line-accent -mt-1 block text-[clamp(3.25rem,11vw,6.75rem)] uppercase leading-[0.85] text-[var(--color-hero-orange)] sm:-mt-2 md:-mt-3">
+              study pack
+            </span>
           </h1>
 
-          <p className="mx-auto mb-10 max-w-xl text-[17px] leading-relaxed text-[var(--color-text-secondary)]">
+          <p className="mx-auto mb-11 max-w-[34rem] text-pretty text-[15px] font-normal leading-[1.7] text-white/90 sm:mb-12 sm:text-[17px] sm:leading-[1.75]">
             RAPT matches you with classmates based on your schedule, courses, and study habits. Stop studying alone.
           </p>
 
-          <div className="flex items-center justify-center gap-4 flex-wrap">
-            <Link href="/signup" className="inline-flex items-center gap-2 rounded-2xl bg-[var(--color-primary)] px-8 py-4 text-[15px] font-bold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-primary-hover)] hover:-translate-y-1">
+          <div className="flex items-center justify-center gap-4 flex-wrap sm:gap-5">
+            <Link
+              href="/signup"
+              className="inline-flex items-center gap-2.5 rounded-full bg-[var(--color-primary)] px-10 py-4 text-[17px] font-semibold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-primary-hover)] hover:-translate-y-0.5 sm:px-11 sm:py-[1.125rem] sm:text-[18px]"
+            >
               Get started free
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                <line x1="3" y1="8" x2="13" y2="8"/><polyline points="9,4 13,8 9,12"/>
+              <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="shrink-0">
+                <line x1="3" y1="8" x2="13" y2="8" />
+                <polyline points="9,4 13,8 9,12" />
               </svg>
             </Link>
-            <Link href="/login" className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] px-8 py-4 text-[15px] font-semibold text-white backdrop-blur-sm transition-all hover:bg-[var(--color-surface-strong)]">
+            <Link
+              href="/login"
+              className="rounded-full border border-white/15 bg-white/[0.06] px-10 py-4 text-[17px] font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/[0.1] sm:px-11 sm:py-[1.125rem] sm:text-[18px]"
+            >
               Log in
             </Link>
           </div>
         </div>
 
         {/* Stats row inside hero */}
-        <div className="mt-16 flex items-center justify-center gap-10 flex-wrap">
+        <div className="mt-14 flex items-center justify-center gap-12 flex-wrap sm:mt-16 sm:gap-16">
           {STATS.map((s) => (
             <div key={s.label} className="text-center">
-              <div className="rapt-display text-[32px] text-[var(--color-primary)]">{s.value}</div>
-              <div className="text-[12px] font-semibold text-[var(--color-text-muted)]">{s.label}</div>
+              <div className="rapt-display text-[clamp(2.25rem,5vw,3rem)] leading-none text-[var(--color-primary)]">
+                {s.value}
+              </div>
+              <div className="mt-2 text-[14px] font-semibold text-[var(--color-text-muted)] sm:mt-2.5 sm:text-[15px]">
+                {s.label}
+              </div>
             </div>
           ))}
         </div>
       </section>
 
       {/* ── Features ── */}
-      <section id="features" className="px-8 py-24">
-        <div className="mx-auto max-w-5xl">
+      <section id="features" className="px-5 py-20 sm:px-8 sm:py-24">
+        <div className="mx-auto max-w-6xl">
           <div className="mb-12 text-center">
             <span className="rapt-eyebrow mb-4 inline-flex">
               <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-primary)]" />
@@ -158,8 +150,8 @@ export default function HomePage() {
       </section>
 
       {/* ── How it works ── */}
-      <section id="how-it-works" className="px-8 py-24">
-        <div className="mx-auto max-w-4xl">
+      <section id="how-it-works" className="px-5 py-20 sm:px-8 sm:py-24">
+        <div className="mx-auto max-w-6xl">
           <div className="rapt-hero-card px-8 py-10">
             <span className="rapt-eyebrow mb-4 inline-flex">
               <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-leaf)]" />
@@ -186,7 +178,7 @@ export default function HomePage() {
       </section>
 
       {/* ── CTA ── */}
-      <section className="px-8 pb-24">
+      <section className="px-5 pb-20 sm:px-8 sm:pb-24">
         <div className="mx-auto max-w-2xl">
           <div className="rapt-glass-card flex flex-col items-center px-10 py-14 text-center">
             <span className="rapt-eyebrow mb-4 inline-flex">
@@ -194,8 +186,8 @@ export default function HomePage() {
               Join your classmates
             </span>
             <h2 className="rapt-display mt-4 text-[clamp(28px,4vw,42px)] leading-tight text-[var(--color-text-base)]">
-              Ready to find your<br/>
-              <span className="italic text-[var(--color-primary)]">study match?</span>
+              Ready to find your<br />
+              <span className="text-[var(--color-primary)]">study match?</span>
             </h2>
             <p className="mt-4 mb-10 max-w-sm text-[15px] leading-relaxed text-[var(--color-text-secondary)]">
               Join thousands of students already using RAPT to make the most of their study time.
@@ -211,11 +203,13 @@ export default function HomePage() {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="border-t border-[var(--color-border)] bg-[#0f1f0f] px-8 py-6">
-        <div className="flex items-center justify-between text-[12px] text-[var(--color-text-muted)] flex-wrap gap-4">
-          <span className="rapt-display text-[16px] text-white">RAPT</span>
+      <footer className="border-t border-[var(--color-border)] bg-[#0a160a] px-5 py-8 sm:px-8">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 text-center text-[12px] text-[var(--color-text-muted)] sm:flex-row sm:items-center sm:justify-between sm:text-left">
+          <Link href="/" className="inline-flex justify-center" aria-label="RAPT home">
+            <RaptLogoSm />
+          </Link>
           <span>© 2026 RAPT. All rights reserved.</span>
-          <div className="flex gap-4">
+          <div className="flex flex-wrap justify-center gap-6 sm:justify-end">
             {["Privacy", "Terms", "Contact"].map((l) => (
               <span key={l} className="cursor-pointer transition-colors hover:text-[var(--color-text-secondary)]">{l}</span>
             ))}

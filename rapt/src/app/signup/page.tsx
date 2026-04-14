@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { RaptLogoAuthHero } from "@/components/RaptLogo";
 import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
@@ -46,15 +47,16 @@ export default function SignupPage() {
         <ellipse cx="65" cy="359" rx="9" ry="5" fill="#3d7a2a" transform="rotate(-10 65 359)"/>
         <path d="M22 140 C10 128 6 114 14 106" stroke="#72b84a" strokeWidth="0.9" strokeLinecap="round"/>
       </svg>
-      <div className="mx-auto grid w-full max-w-6xl gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+      <div className="mx-auto grid w-full max-w-6xl gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start lg:gap-12 lg:pt-4">
         <div className="hidden lg:block">
           <Link
             href="/"
-            className="rapt-display text-[30px] font-black tracking-tight text-white transition-colors hover:text-[#c8e898]"
+            className="inline-flex shrink-0 items-center opacity-95 transition-opacity hover:opacity-100 lg:fixed lg:left-[max(1.5rem,env(safe-area-inset-left))] lg:top-[max(2rem,env(safe-area-inset-top))] lg:z-30"
+            aria-label="RAPT home"
           >
-            RAPT
+            <RaptLogoAuthHero priority />
           </Link>
-          <div className="mt-8 max-w-xl">
+          <div className="mt-8 max-w-xl lg:mt-0 lg:pt-[9.5rem]">
             <span className="rapt-eyebrow border-white/10 bg-white/8 text-[#c8e898]">
               <span className="h-2 w-2 rounded-full bg-[#ff7c38]" />
               New account setup
@@ -82,8 +84,8 @@ export default function SignupPage() {
 
         <div className="w-full max-w-md lg:justify-self-end">
           <div className="mb-6 text-center lg:hidden">
-            <Link href="/" className="rapt-display text-[32px] font-black tracking-tight text-white">
-              RAPT
+            <Link href="/" className="inline-flex justify-center" aria-label="RAPT home">
+              <RaptLogoAuthHero className="max-h-[5.25rem] sm:max-h-none" />
             </Link>
             <p className="mt-2 text-[14px] text-[#c8e898]/80">Create your account to get started</p>
           </div>

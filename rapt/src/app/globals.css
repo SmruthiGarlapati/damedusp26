@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,900;1,9..144,700;1,9..144,900&family=DM+Sans:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -13,9 +12,12 @@
   --color-ember:    #ff7c38;
   --color-fossil:   #fae0c8;
   --color-mud:      #2a2010;
+  /* Hero headline orange (screenshot-matched) */
+  --color-hero-orange: #e86111;
 
-  --font-display: 'Fraunces', Georgia, serif;
-  --font-sans:    'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  /* App-wide: Baloo Bhaijaan 2 — avoid generic `sans-serif` (often Arial on Windows) */
+  --font-sans:    var(--font-baloo), system-ui, -apple-system, "Segoe UI", "Helvetica Neue";
+  --font-display: var(--font-baloo), system-ui, -apple-system, "Segoe UI", "Helvetica Neue";
 
   --color-bg:            #102110;
   --color-surface:       rgba(24, 49, 24, 0.82);
@@ -58,8 +60,23 @@
 @layer components {
   .rapt-display {
     font-family: var(--font-display);
-    font-weight: 900;
-    letter-spacing: -0.04em;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  /* Home hero — Baloo Bhaijaan 2 (max 800 on Google Fonts) */
+  .rapt-hero-headline {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    line-height: 0.9;
+  }
+
+  .rapt-hero-line-accent {
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 0.78;
   }
 
   .rapt-app-shell {
