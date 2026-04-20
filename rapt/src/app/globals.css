@@ -57,11 +57,113 @@
   a { text-decoration: none; color: inherit; }
 }
 
+@keyframes rapt-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes rapt-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -8px, 0);
+  }
+}
+
+@keyframes rapt-orb-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(12px, -14px, 0) scale(1.07);
+  }
+}
+
+@keyframes rapt-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 rgba(232, 90, 10, 0);
+  }
+  50% {
+    box-shadow: 0 0 26px rgba(232, 90, 10, 0.22);
+  }
+}
+
+@keyframes rapt-card-aura {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translate3d(-10px, -12px, 0) scale(1.08);
+    opacity: 1;
+  }
+}
+
 @layer components {
   .rapt-display {
     font-family: var(--font-display);
     font-weight: 700;
     letter-spacing: -0.02em;
+  }
+
+  .rapt-motion-enter {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0) scale(0.985);
+    animation: rapt-enter 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    will-change: transform, opacity;
+  }
+
+  .rapt-scroll-reveal {
+    opacity: 0;
+    transform: translate3d(0, 32px, 0) scale(0.985);
+    filter: blur(10px);
+    transition:
+      opacity 760ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 760ms cubic-bezier(0.22, 1, 0.36, 1),
+      filter 760ms ease;
+    will-change: opacity, transform, filter;
+  }
+
+  .rapt-scroll-reveal.is-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0);
+  }
+
+  .rapt-interactive-lift {
+    transition:
+      transform 240ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 240ms ease,
+      border-color 240ms ease,
+      background-color 240ms ease;
+    will-change: transform;
+  }
+
+  .rapt-pill-motion {
+    transition:
+      transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 220ms ease,
+      background-color 220ms ease,
+      box-shadow 220ms ease;
+  }
+
+  .rapt-float-soft {
+    animation: rapt-float 7s ease-in-out infinite;
+  }
+
+  .rapt-glow-pulse {
+    animation: rapt-glow 4.8s ease-in-out infinite;
   }
 
   /* Home hero — Baloo Bhaijaan 2 (max 800 on Google Fonts) */
@@ -88,41 +190,6 @@
       var(--color-bg);
   }
 
-  /* left vine */
-  .rapt-app-shell::before {
-    content: "";
-    pointer-events: none;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 96px;
-    height: 100%;
-    background-repeat: no-repeat;
-    background-size: 96px 640px;
-    background-position: top left;
-    opacity: 0.1;
-    z-index: 0;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 640' fill='none'%3E%3Cpath d='M24 0 C16 70 34 140 20 230 C6 315 28 390 16 480 C8 545 22 595 14 640' stroke='%2372b84a' stroke-width='1.6' stroke-linecap='round'/%3E%3Cpath d='M20 230 C38 218 56 212 68 202' stroke='%2372b84a' stroke-width='1.1' stroke-linecap='round'/%3E%3Cellipse cx='72' cy='199' rx='10' ry='6' fill='%233d7a2a' transform='rotate(-14 72 199)'/%3E%3Cpath d='M16 390 C34 378 50 372 62 362' stroke='%2372b84a' stroke-width='1.1' stroke-linecap='round'/%3E%3Cellipse cx='65' cy='359' rx='9' ry='5' fill='%233d7a2a' transform='rotate(-10 65 359)'/%3E%3Cpath d='M22 140 C10 128 6 114 14 106' stroke='%2372b84a' stroke-width='0.9' stroke-linecap='round'/%3E%3Cpath d='M18 480 C6 468 2 454 10 446' stroke='%2372b84a' stroke-width='0.9' stroke-linecap='round'/%3E%3C/svg%3E");
-  }
-
-  /* right vine — mirrored */
-  .rapt-app-shell::after {
-    content: "";
-    pointer-events: none;
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 96px;
-    height: 100%;
-    background-repeat: no-repeat;
-    background-size: 96px 640px;
-    background-position: top right;
-    opacity: 0.1;
-    z-index: 0;
-    transform: scaleX(-1);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 640' fill='none'%3E%3Cpath d='M24 0 C16 70 34 140 20 230 C6 315 28 390 16 480 C8 545 22 595 14 640' stroke='%2372b84a' stroke-width='1.6' stroke-linecap='round'/%3E%3Cpath d='M20 230 C38 218 56 212 68 202' stroke='%2372b84a' stroke-width='1.1' stroke-linecap='round'/%3E%3Cellipse cx='72' cy='199' rx='10' ry='6' fill='%233d7a2a' transform='rotate(-14 72 199)'/%3E%3Cpath d='M16 390 C34 378 50 372 62 362' stroke='%2372b84a' stroke-width='1.1' stroke-linecap='round'/%3E%3Cellipse cx='65' cy='359' rx='9' ry='5' fill='%233d7a2a' transform='rotate(-10 65 359)'/%3E%3Cpath d='M22 140 C10 128 6 114 14 106' stroke='%2372b84a' stroke-width='0.9' stroke-linecap='round'/%3E%3Cpath d='M18 480 C6 468 2 454 10 446' stroke='%2372b84a' stroke-width='0.9' stroke-linecap='round'/%3E%3C/svg%3E");
-  }
-
   .rapt-app-main {
     position: relative;
   }
@@ -135,6 +202,10 @@
     background:
       linear-gradient(135deg, rgba(23, 52, 23, 0.96), rgba(12, 25, 12, 0.92));
     box-shadow: 0 20px 48px rgba(0, 0, 0, 0.24);
+    transition:
+      transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 280ms ease,
+      border-color 280ms ease;
   }
 
   .rapt-hero-card::after {
@@ -147,6 +218,7 @@
     border-radius: 999px;
     background: radial-gradient(circle, rgba(232, 90, 10, 0.22), transparent 68%);
     pointer-events: none;
+    animation: rapt-orb-drift 9s ease-in-out infinite;
   }
 
   .rapt-eyebrow {
@@ -170,6 +242,239 @@
     background: linear-gradient(180deg, rgba(16, 32, 16, 0.94), rgba(12, 23, 12, 0.92));
     box-shadow: var(--shadow-md);
     backdrop-filter: blur(12px);
+    transition:
+      transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 280ms ease,
+      border-color 280ms ease;
+  }
+
+  .rapt-feature-card,
+  .rapt-step-card,
+  .rapt-cta-card {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .rapt-feature-card {
+    --feature-accent: #c8e898;
+    --feature-edge: rgba(200, 232, 152, 0.3);
+    --feature-glow: rgba(200, 232, 152, 0.18);
+    --feature-glow-strong: rgba(200, 232, 152, 0.24);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 28px;
+    background: linear-gradient(180deg, rgba(14, 30, 14, 0.97), rgba(8, 17, 8, 0.95));
+    box-shadow: 0 22px 54px rgba(0, 0, 0, 0.28);
+    transform-style: preserve-3d;
+    transition:
+      transform 360ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 360ms ease,
+      border-color 360ms ease;
+  }
+
+  .rapt-feature-card::before {
+    content: "";
+    position: absolute;
+    inset: 1px;
+    border-radius: 27px;
+    background:
+      radial-gradient(circle at top right, var(--feature-glow), transparent 34%),
+      linear-gradient(145deg, rgba(255, 255, 255, 0.08), transparent 46%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 76%);
+    z-index: 0;
+  }
+
+  .rapt-feature-card::after {
+    content: "";
+    position: absolute;
+    top: -42%;
+    left: -28%;
+    width: 62%;
+    height: 190%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+    opacity: 0;
+    transform: rotate(18deg) translate3d(-140%, 0, 0);
+    transition:
+      transform 900ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 300ms ease;
+    z-index: 1;
+  }
+
+  .rapt-feature-card > * {
+    position: relative;
+    z-index: 2;
+  }
+
+  .rapt-feature-card__glow {
+    position: absolute;
+    top: -3rem;
+    right: -2rem;
+    width: 12rem;
+    height: 12rem;
+    border-radius: 999px;
+    background: radial-gradient(circle, var(--feature-glow-strong), transparent 68%);
+    opacity: 0.8;
+    animation: rapt-card-aura 10s ease-in-out infinite;
+    z-index: 0;
+  }
+
+  .rapt-feature-card__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .rapt-feature-card__tag {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    padding: 0.4rem 0.75rem;
+    color: var(--feature-accent);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .rapt-feature-card__serial {
+    color: rgba(255, 255, 255, 0.24);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.24em;
+  }
+
+  .rapt-feature-card__icon {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.04));
+    box-shadow: 0 18px 34px rgba(0, 0, 0, 0.18);
+  }
+
+  .rapt-feature-card--sync {
+    --feature-accent: #c8e898;
+    --feature-edge: rgba(200, 232, 152, 0.34);
+    --feature-glow: rgba(200, 232, 152, 0.16);
+    --feature-glow-strong: rgba(200, 232, 152, 0.24);
+  }
+
+  .rapt-feature-card--match {
+    --feature-accent: #ff9b63;
+    --feature-edge: rgba(255, 124, 56, 0.34);
+    --feature-glow: rgba(255, 124, 56, 0.18);
+    --feature-glow-strong: rgba(255, 124, 56, 0.24);
+  }
+
+  .rapt-feature-card--session {
+    --feature-accent: #f5e1c6;
+    --feature-edge: rgba(245, 224, 200, 0.32);
+    --feature-glow: rgba(245, 224, 200, 0.16);
+    --feature-glow-strong: rgba(245, 224, 200, 0.22);
+  }
+
+  .rapt-step-card {
+    --step-accent: rgba(255, 124, 56, 0.7);
+    --step-glow: rgba(255, 124, 56, 0.16);
+    padding: 1.35rem 1.35rem 1.45rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.18);
+    transition:
+      transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 320ms ease,
+      border-color 320ms ease;
+  }
+
+  .rapt-step-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, var(--step-accent), transparent 60%);
+    opacity: 0.9;
+  }
+
+  .rapt-step-card::after {
+    content: "";
+    position: absolute;
+    right: -2.5rem;
+    bottom: -2.5rem;
+    width: 9rem;
+    height: 9rem;
+    border-radius: 999px;
+    background: radial-gradient(circle, var(--step-glow), transparent 72%);
+    animation: rapt-orb-drift 12s ease-in-out infinite;
+    opacity: 0.75;
+    z-index: 0;
+  }
+
+  .rapt-step-card > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .rapt-step-card__number {
+    display: block;
+    margin-bottom: 1rem;
+    color: rgba(255, 255, 255, 0.18);
+    font-size: 3.25rem;
+    line-height: 0.9;
+  }
+
+  .rapt-step-card--profile {
+    --step-accent: rgba(200, 232, 152, 0.78);
+    --step-glow: rgba(200, 232, 152, 0.16);
+  }
+
+  .rapt-step-card--availability {
+    --step-accent: rgba(255, 124, 56, 0.78);
+    --step-glow: rgba(255, 124, 56, 0.16);
+  }
+
+  .rapt-step-card--launch {
+    --step-accent: rgba(245, 224, 200, 0.72);
+    --step-glow: rgba(245, 224, 200, 0.15);
+  }
+
+  .rapt-cta-card {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 32px;
+    background: linear-gradient(160deg, rgba(13, 28, 13, 0.98), rgba(7, 15, 7, 0.96));
+    box-shadow: 0 26px 72px rgba(0, 0, 0, 0.34);
+    transition:
+      transform 360ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 360ms ease,
+      border-color 360ms ease;
+  }
+
+  .rapt-cta-card::before,
+  .rapt-cta-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .rapt-cta-card::before {
+    background:
+      radial-gradient(circle at 18% 18%, rgba(255, 124, 56, 0.18), transparent 24%),
+      radial-gradient(circle at 82% 82%, rgba(200, 232, 152, 0.16), transparent 28%);
+    animation: rapt-card-aura 12s ease-in-out infinite;
+  }
+
+  .rapt-cta-card::after {
+    inset: 1px;
+    border-radius: 31px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), transparent 30%, rgba(255, 255, 255, 0.02));
+  }
+
+  .rapt-cta-card > * {
+    position: relative;
+    z-index: 1;
   }
 
   .rapt-session-workspace :where(.bg-white) {
@@ -322,6 +627,7 @@
     width: 18rem;
     height: 18rem;
     background: radial-gradient(circle, rgba(114, 184, 74, 0.16), transparent 68%);
+    animation: rapt-orb-drift 11s ease-in-out infinite;
   }
 
   .rapt-auth-shell::after {
@@ -330,6 +636,7 @@
     width: 24rem;
     height: 24rem;
     background: radial-gradient(circle, rgba(232, 90, 10, 0.16), transparent 68%);
+    animation: rapt-orb-drift 13s ease-in-out infinite reverse;
   }
 
   .rapt-auth-card {
@@ -338,6 +645,10 @@
     background: linear-gradient(180deg, rgba(16, 32, 16, 0.96), rgba(11, 23, 11, 0.94));
     box-shadow: 0 28px 80px rgba(0, 0, 0, 0.32);
     color: var(--color-text-base);
+    transition:
+      transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 280ms ease,
+      border-color 280ms ease;
   }
 
   .rapt-app-shell :where(.bg-white),
@@ -431,5 +742,79 @@
   .rapt-app-shell :where(.border-violet-400),
   .rapt-app-shell :where(.border-cyan-400) {
     border-color: rgba(169, 141, 255, 0.34);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .rapt-interactive-lift:hover,
+  .rapt-glass-card:hover,
+  .rapt-hero-card:hover {
+    transform: translate3d(0, -6px, 0);
+    box-shadow: 0 26px 52px rgba(0, 0, 0, 0.32);
+  }
+
+  .rapt-pill-motion:hover {
+    transform: translate3d(0, -3px, 0);
+    border-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.11);
+  }
+
+  .rapt-auth-card:hover {
+    transform: translate3d(0, -4px, 0);
+    border-color: rgba(255, 255, 255, 0.18);
+    box-shadow: 0 34px 88px rgba(0, 0, 0, 0.36);
+  }
+
+  .rapt-feature-card:hover {
+    transform: translate3d(0, -10px, 0) rotateX(4deg) rotateY(-3deg);
+    border-color: var(--feature-edge);
+    box-shadow: 0 34px 82px rgba(0, 0, 0, 0.42);
+  }
+
+  .rapt-feature-card:hover::after {
+    opacity: 0.9;
+    transform: rotate(18deg) translate3d(280%, 0, 0);
+  }
+
+  .rapt-step-card:hover {
+    transform: translate3d(0, -8px, 0);
+    border-color: rgba(255, 255, 255, 0.18);
+    box-shadow: 0 30px 64px rgba(0, 0, 0, 0.26);
+  }
+
+  .rapt-cta-card:hover {
+    transform: translate3d(0, -10px, 0);
+    border-color: rgba(255, 255, 255, 0.18);
+    box-shadow: 0 40px 96px rgba(0, 0, 0, 0.42);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rapt-motion-enter,
+  .rapt-scroll-reveal,
+  .rapt-float-soft,
+  .rapt-glow-pulse,
+  .rapt-auth-shell::before,
+  .rapt-auth-shell::after,
+  .rapt-hero-card::after,
+  .rapt-feature-card__glow,
+  .rapt-step-card::after,
+  .rapt-cta-card::before {
+    animation: none !important;
+    opacity: 1;
+    transform: none !important;
+  }
+
+  .rapt-interactive-lift,
+  .rapt-pill-motion,
+  .rapt-glass-card,
+  .rapt-hero-card,
+  .rapt-feature-card,
+  .rapt-step-card,
+  .rapt-cta-card,
+  .rapt-auth-card,
+  .rapt-scroll-reveal,
+  .rapt-feature-card::after {
+    transition: none !important;
   }
 }

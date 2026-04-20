@@ -569,26 +569,6 @@ export default function SessionsPage() {
       <Navbar />
 
       <main className="rapt-app-main flex-1 px-8 py-8 md:px-12 md:py-10">
-        {/* Back button */}
-        <button
-          onClick={() => router.push("/matches")}
-          className="mb-6 flex items-center gap-1.5 text-[13px] font-semibold text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-primary)]"
-        >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 16 16"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-          >
-            <line x1="13" y1="8" x2="3" y2="8" />
-            <polyline points="7,4 3,8 7,12" />
-          </svg>
-          Back to Browse
-        </button>
-
         {/* Header */}
         <div className="rapt-hero-card mb-8 flex flex-col gap-5 px-7 py-7 md:flex-row md:items-end md:justify-between md:px-8">
           <div>

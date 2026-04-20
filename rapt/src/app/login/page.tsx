@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { RaptLogoAuthHero } from "@/components/RaptLogo";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   activateDemoAdminSession,
   clearDemoAdminSession,
@@ -14,21 +14,39 @@ import { createClient } from "@/lib/supabase/client";
 
 const DEMO_MATCH_ID = "cccccccc-cccc-cccc-cccc-cccccccccccc";
 
+function getSafeNextPath(next: string | null) {
+  if (!next || !next.startsWith("/") || next.startsWith("//")) {
+    return "/matches";
+  }
+
+  return next;
+}
+
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const nextPath = getSafeNextPath(searchParams.get("next"));
 
   async function resetDemoSession(supabase: ReturnType<typeof createClient>) {
-    // Reset Marcus demo session to start 1 minute from now
-    const oneMinuteFromNow = new Date(Date.now() + 60 * 1000).toISOString();
-    await supabase
-      .from("matches")
-      .update({ scheduled_at: oneMinuteFromNow, status: "accepted", started: false })
-      .eq("id", DEMO_MATCH_ID);
+    try {
+      // Reset Marcus demo session to start 1 minute from now
+      const oneMinuteFromNow = new Date(Date.now() + 60 * 1000).toISOString();
+      const { error: resetError } = await supabase
+        .from("matches")
+        .update({ scheduled_at: oneMinuteFromNow, status: "accepted", started: false })
+        .eq("id", DEMO_MATCH_ID);
+
+      if (resetError) {
+        console.error("Failed to reset demo session timing", resetError);
+      }
+    } catch (resetError) {
+      console.error("Unexpected demo session reset failure", resetError);
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -71,10 +89,9 @@ export default function LoginPage() {
 
     clearDemoAdminSession();
 
-    // Reset demo session timing after successful login
+    // Best-effort demo refresh should never block real login navigation.
     await resetDemoSession(supabase);
-    setLoading(false);
-    router.push("/matches");
+    window.location.assign(nextPath);
   }
 
   async function handleGoogleLogin() {
@@ -93,7 +110,7 @@ export default function LoginPage() {
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`,
         queryParams: {
           hd: "utexas.edu", // restrict to UT Austin Google accounts
           prompt: "select_account",
@@ -117,37 +134,22 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="rapt-auth-shell flex min-h-screen items-center px-4 py-10">
-      <svg className="pointer-events-none absolute left-0 top-0 w-24 opacity-[0.09]" viewBox="0 0 96 640" fill="none" preserveAspectRatio="xMinYMin meet">
-        <path d="M24 0 C16 70 34 140 20 230 C6 315 28 390 16 480 C8 545 22 595 14 640" stroke="#72b84a" strokeWidth="1.6" strokeLinecap="round"/>
-        <path d="M20 230 C38 218 56 212 68 202" stroke="#72b84a" strokeWidth="1.1" strokeLinecap="round"/>
-        <ellipse cx="72" cy="199" rx="10" ry="6" fill="#3d7a2a" transform="rotate(-14 72 199)"/>
-        <path d="M16 390 C34 378 50 372 62 362" stroke="#72b84a" strokeWidth="1.1" strokeLinecap="round"/>
-        <ellipse cx="65" cy="359" rx="9" ry="5" fill="#3d7a2a" transform="rotate(-10 65 359)"/>
-        <path d="M22 140 C10 128 6 114 14 106" stroke="#72b84a" strokeWidth="0.9" strokeLinecap="round"/>
-      </svg>
-      <svg className="pointer-events-none absolute right-0 top-0 w-24 opacity-[0.09]" viewBox="0 0 96 640" fill="none" preserveAspectRatio="xMinYMin meet" style={{transform:"scaleX(-1)"}}>
-        <path d="M24 0 C16 70 34 140 20 230 C6 315 28 390 16 480 C8 545 22 595 14 640" stroke="#72b84a" strokeWidth="1.6" strokeLinecap="round"/>
-        <path d="M20 230 C38 218 56 212 68 202" stroke="#72b84a" strokeWidth="1.1" strokeLinecap="round"/>
-        <ellipse cx="72" cy="199" rx="10" ry="6" fill="#3d7a2a" transform="rotate(-14 72 199)"/>
-        <path d="M16 390 C34 378 50 372 62 362" stroke="#72b84a" strokeWidth="1.1" strokeLinecap="round"/>
-        <ellipse cx="65" cy="359" rx="9" ry="5" fill="#3d7a2a" transform="rotate(-10 65 359)"/>
-        <path d="M22 140 C10 128 6 114 14 106" stroke="#72b84a" strokeWidth="0.9" strokeLinecap="round"/>
-      </svg>
-      <div className="mx-auto grid w-full max-w-6xl gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start lg:gap-12 lg:pt-4">
+    <div className="rapt-auth-shell flex min-h-[100svh] items-center justify-center px-4 py-6 sm:py-8 lg:py-10">
+      <div className="mx-auto grid w-full max-w-6xl gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-12">
         <div className="hidden lg:block">
           <Link
             href="/"
-            className="inline-flex shrink-0 items-center opacity-95 transition-opacity hover:opacity-100 lg:fixed lg:left-[max(1.5rem,env(safe-area-inset-left))] lg:top-[max(2rem,env(safe-area-inset-top))] lg:z-30"
+            className="rapt-motion-enter inline-flex shrink-0 items-center opacity-95 transition-opacity hover:opacity-100 lg:fixed lg:left-[max(1.5rem,env(safe-area-inset-left))] lg:top-[max(2rem,env(safe-area-inset-top))] lg:z-30"
             aria-label="RAPT home"
           >
             <RaptLogoAuthHero priority />
           </Link>
-          <div className="mt-8 max-w-xl lg:mt-0 lg:pt-[9.5rem]">
+          <div className="mt-8 max-w-xl lg:mt-0 lg:pt-0">
             <button
               type="button"
               onClick={handleBackNavigation}
-              className="rapt-eyebrow border-white/10 bg-white/8 text-[#c8e898] transition-all hover:border-white/20 hover:bg-white/12"
+              className="rapt-eyebrow rapt-interactive-lift rapt-motion-enter border-white/10 bg-white/8 text-[#c8e898] transition-all hover:border-white/20 hover:bg-white/12"
+              style={{ animationDelay: "100ms" }}
             >
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="13" y1="8" x2="3" y2="8" />
@@ -155,19 +157,20 @@ export default function LoginPage() {
               </svg>
               Back to matching
             </button>
-            <h1 className="rapt-display mt-5 text-[clamp(44px,6vw,72px)] leading-[0.94] text-white">
+            <h1 className="rapt-display rapt-motion-enter mt-5 text-[clamp(44px,6vw,72px)] leading-[0.94] text-white" style={{ animationDelay: "180ms" }}>
               Welcome back to your
               <br />
               <span className="italic text-[#ff7c38]">study orbit.</span>
             </h1>
-            <p className="mt-5 text-[16px] leading-relaxed text-[#c8e898]/78">
+            <p className="rapt-motion-enter mt-5 text-[16px] leading-relaxed text-[#c8e898]/78" style={{ animationDelay: "260ms" }}>
               Pick up where you left off. Matches, sessions, and shared study tools all carry the same RAPT jungle energy from the homepage.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              {["UT Austin ready", "Course-based matching", "Shared live sessions"].map((item) => (
+              {["UT Austin ready", "Course-based matching", "Shared live sessions"].map((item, index) => (
                 <span
                   key={item}
-                  className="rounded-full border border-white/12 bg-white/7 px-4 py-2 text-[12px] font-semibold text-white/78 backdrop-blur-sm"
+                  className="rapt-pill-motion rapt-motion-enter rounded-full border border-white/12 bg-white/7 px-4 py-2 text-[12px] font-semibold text-white/78 backdrop-blur-sm"
+                  style={{ animationDelay: `${340 + index * 110}ms` }}
                 >
                   {item}
                 </span>
@@ -176,15 +179,15 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div className="w-full max-w-md lg:justify-self-end">
-          <div className="mb-6 text-center lg:hidden">
-            <Link href="/" className="inline-flex justify-center" aria-label="RAPT home">
+        <div className="w-full max-w-md lg:justify-self-end lg:self-center">
+          <div className="mb-4 text-center lg:hidden">
+            <Link href="/" className="rapt-motion-enter inline-flex justify-center" aria-label="RAPT home">
               <RaptLogoAuthHero className="max-h-[5.25rem] sm:max-h-none" />
             </Link>
-            <p className="mt-2 text-[14px] text-[#c8e898]/80">Welcome back</p>
+            <p className="rapt-motion-enter mt-2 text-[14px] text-[#c8e898]/80" style={{ animationDelay: "100ms" }}>Welcome back</p>
           </div>
 
-          <div className="rapt-auth-card p-8">
+          <div className="rapt-auth-card rapt-motion-enter p-8" style={{ animationDelay: "160ms" }}>
             <span className="rapt-eyebrow">
               <span className="h-2 w-2 rounded-full bg-[var(--color-leaf)]" />
               Log in
@@ -195,27 +198,6 @@ export default function LoginPage() {
             <p className="mt-3 text-[14px] leading-relaxed text-[var(--color-text-secondary)]">
               Sign in to browse matches, manage sessions, and keep your study momentum going.
             </p>
-            {/* Admin Demo Login */}
-            <button
-              type="button"
-              onClick={() => {
-                activateDemoAdminSession();
-                window.location.assign("/auth/admin");
-              }}
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] py-3 text-[14px] font-bold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-primary-hover)] hover:-translate-y-px"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-              </svg>
-              Continue as Admin Demo
-            </button>
-
-            <div className="my-5 flex items-center gap-3">
-              <div className="h-px flex-1 bg-[var(--color-border)]" />
-              <span className="text-[11px] font-semibold uppercase tracking-wide text-[var(--color-text-muted)]">or sign in</span>
-              <div className="h-px flex-1 bg-[var(--color-border)]" />
-            </div>
-
             {error && (
               <div className="mb-5 rounded-lg border border-red-300 bg-[rgba(143,45,38,0.28)] px-4 py-3 text-[13px] font-medium text-[#ffd1c7]">
                 {error}
@@ -227,7 +209,7 @@ export default function LoginPage() {
               type="button"
               onClick={handleGoogleLogin}
               disabled={loading}
-              className="mb-5 mt-6 flex w-full items-center justify-center gap-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-strong)] py-3 text-[14px] font-semibold text-[var(--color-text-base)] shadow-[var(--shadow-sm)] transition-all hover:bg-[var(--color-surface)] hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-60 disabled:translate-y-0"
+              className="rapt-interactive-lift mb-5 mt-6 flex w-full items-center justify-center gap-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-strong)] py-3 text-[14px] font-semibold text-[var(--color-text-base)] shadow-[var(--shadow-sm)] transition-all hover:bg-[var(--color-surface)] hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-60 disabled:translate-y-0"
             >
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                 <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.616z" fill="#4285F4"/>
@@ -296,7 +278,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-1 w-full rounded-xl bg-[var(--color-primary)] py-3 text-sm font-bold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-primary-hover)] hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-60 disabled:translate-y-0"
+                className="rapt-glow-pulse rapt-interactive-lift mt-1 w-full rounded-xl bg-[var(--color-primary)] py-3 text-sm font-bold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-primary-hover)] hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-60 disabled:translate-y-0"
               >
                 {loading ? "Logging in…" : "Log in"}
               </button>

@@ -31,49 +31,41 @@ export default function SignupPage() {
 
   return (
     <div className="rapt-auth-shell flex min-h-screen items-center px-4 py-10">
-      <svg className="pointer-events-none absolute left-0 top-0 w-24 opacity-[0.09]" viewBox="0 0 96 640" fill="none" preserveAspectRatio="xMinYMin meet">
-        <path d="M24 0 C16 70 34 140 20 230 C6 315 28 390 16 480 C8 545 22 595 14 640" stroke="#72b84a" strokeWidth="1.6" strokeLinecap="round"/>
-        <path d="M20 230 C38 218 56 212 68 202" stroke="#72b84a" strokeWidth="1.1" strokeLinecap="round"/>
-        <ellipse cx="72" cy="199" rx="10" ry="6" fill="#3d7a2a" transform="rotate(-14 72 199)"/>
-        <path d="M16 390 C34 378 50 372 62 362" stroke="#72b84a" strokeWidth="1.1" strokeLinecap="round"/>
-        <ellipse cx="65" cy="359" rx="9" ry="5" fill="#3d7a2a" transform="rotate(-10 65 359)"/>
-        <path d="M22 140 C10 128 6 114 14 106" stroke="#72b84a" strokeWidth="0.9" strokeLinecap="round"/>
-      </svg>
-      <svg className="pointer-events-none absolute right-0 top-0 w-24 opacity-[0.09]" viewBox="0 0 96 640" fill="none" preserveAspectRatio="xMinYMin meet" style={{transform:"scaleX(-1)"}}>
-        <path d="M24 0 C16 70 34 140 20 230 C6 315 28 390 16 480 C8 545 22 595 14 640" stroke="#72b84a" strokeWidth="1.6" strokeLinecap="round"/>
-        <path d="M20 230 C38 218 56 212 68 202" stroke="#72b84a" strokeWidth="1.1" strokeLinecap="round"/>
-        <ellipse cx="72" cy="199" rx="10" ry="6" fill="#3d7a2a" transform="rotate(-14 72 199)"/>
-        <path d="M16 390 C34 378 50 372 62 362" stroke="#72b84a" strokeWidth="1.1" strokeLinecap="round"/>
-        <ellipse cx="65" cy="359" rx="9" ry="5" fill="#3d7a2a" transform="rotate(-10 65 359)"/>
-        <path d="M22 140 C10 128 6 114 14 106" stroke="#72b84a" strokeWidth="0.9" strokeLinecap="round"/>
-      </svg>
       <div className="mx-auto grid w-full max-w-6xl gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start lg:gap-12 lg:pt-4">
         <div className="hidden lg:block">
           <Link
             href="/"
-            className="inline-flex shrink-0 items-center opacity-95 transition-opacity hover:opacity-100 lg:fixed lg:left-[max(1.5rem,env(safe-area-inset-left))] lg:top-[max(2rem,env(safe-area-inset-top))] lg:z-30"
+            className="rapt-motion-enter inline-flex shrink-0 items-center opacity-95 transition-opacity hover:opacity-100 lg:fixed lg:left-[max(1.5rem,env(safe-area-inset-left))] lg:top-[max(2rem,env(safe-area-inset-top))] lg:z-30"
             aria-label="RAPT home"
           >
             <RaptLogoAuthHero priority />
           </Link>
           <div className="mt-8 max-w-xl lg:mt-0 lg:pt-[9.5rem]">
-            <span className="rapt-eyebrow border-white/10 bg-white/8 text-[#c8e898]">
-              <span className="h-2 w-2 rounded-full bg-[#ff7c38]" />
+            <Link
+              href="/"
+              className="rapt-eyebrow rapt-interactive-lift rapt-motion-enter inline-flex border-white/10 bg-white/8 text-[#c8e898] transition-all hover:border-white/20 hover:bg-white/12"
+              style={{ animationDelay: "100ms" }}
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="13" y1="8" x2="3" y2="8" />
+                <polyline points="7,4 3,8 7,12" />
+              </svg>
               New account setup
-            </span>
-            <h1 className="rapt-display mt-5 text-[clamp(44px,6vw,72px)] leading-[0.94] text-white">
+            </Link>
+            <h1 className="rapt-display rapt-motion-enter mt-5 text-[clamp(44px,6vw,72px)] leading-[0.94] text-white" style={{ animationDelay: "180ms" }}>
               Build your
               <br />
               <span className="italic text-[#ff7c38]">study crew.</span>
             </h1>
-            <p className="mt-5 text-[16px] leading-relaxed text-[#c8e898]/78">
+            <p className="rapt-motion-enter mt-5 text-[16px] leading-relaxed text-[#c8e898]/78" style={{ animationDelay: "260ms" }}>
               Set up your account, sync your classes, and bring the homepage vibe into the actual product flow from the first click.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              {["Course overlap", "Availability matching", "Session tools"].map((item) => (
+              {["Course overlap", "Availability matching", "Session tools"].map((item, index) => (
                 <span
                   key={item}
-                  className="rounded-full border border-white/12 bg-white/7 px-4 py-2 text-[12px] font-semibold text-white/78 backdrop-blur-sm"
+                  className="rapt-pill-motion rapt-motion-enter rounded-full border border-white/12 bg-white/7 px-4 py-2 text-[12px] font-semibold text-white/78 backdrop-blur-sm"
+                  style={{ animationDelay: `${340 + index * 110}ms` }}
                 >
                   {item}
                 </span>
@@ -84,13 +76,13 @@ export default function SignupPage() {
 
         <div className="w-full max-w-md lg:justify-self-end">
           <div className="mb-6 text-center lg:hidden">
-            <Link href="/" className="inline-flex justify-center" aria-label="RAPT home">
+            <Link href="/" className="rapt-motion-enter inline-flex justify-center" aria-label="RAPT home">
               <RaptLogoAuthHero className="max-h-[5.25rem] sm:max-h-none" />
             </Link>
-            <p className="mt-2 text-[14px] text-[#c8e898]/80">Create your account to get started</p>
+            <p className="rapt-motion-enter mt-2 text-[14px] text-[#c8e898]/80" style={{ animationDelay: "100ms" }}>Create your account to get started</p>
           </div>
 
-          <div className="rapt-auth-card p-8">
+          <div className="rapt-auth-card rapt-motion-enter p-8" style={{ animationDelay: "160ms" }}>
             <span className="rapt-eyebrow">
               <span className="h-2 w-2 rounded-full bg-[var(--color-primary)]" />
               Sign up
@@ -163,7 +155,7 @@ export default function SignupPage() {
 
               <button
                 type="submit"
-                className="mt-1 w-full rounded-xl bg-[var(--color-primary)] py-3 text-sm font-bold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-primary-hover)] hover:-translate-y-px"
+                className="rapt-glow-pulse rapt-interactive-lift mt-1 w-full rounded-xl bg-[var(--color-primary)] py-3 text-sm font-bold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-primary-hover)] hover:-translate-y-px"
               >
                 Create account
               </button>
@@ -178,7 +170,7 @@ export default function SignupPage() {
 
             {/* Social buttons */}
             <div className="flex flex-col gap-3">
-              <button className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-strong)] py-3 text-sm font-semibold text-[var(--color-text-base)] shadow-[var(--shadow-sm)] transition-all hover:border-[var(--color-primary-muted)] hover:bg-[var(--color-surface)]">
+              <button className="rapt-interactive-lift flex w-full items-center justify-center gap-2.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-strong)] py-3 text-sm font-semibold text-[var(--color-text-base)] shadow-[var(--shadow-sm)] transition-all hover:border-[var(--color-primary-muted)] hover:bg-[var(--color-surface)]">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                   <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />

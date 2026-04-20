@@ -9,7 +9,7 @@ const ANCHORS = [
 ] as const;
 
 const linkClass =
-  "inline-flex min-h-9 items-center rounded-lg px-3 text-[15px] font-semibold leading-none tracking-tight text-white/60 transition-colors hover:bg-white/[0.06] hover:text-white sm:min-h-9 sm:px-3.5";
+  "inline-flex min-h-9 items-center rounded-lg px-3 text-[15px] font-semibold leading-none tracking-tight text-white/66 hover:bg-white/[0.06] hover:text-white sm:min-h-9 sm:px-3.5";
 
 export default function HomeNavbar() {
   return (
@@ -22,7 +22,7 @@ export default function HomeNavbar() {
         <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-8">
           <Link
             href="/"
-            className="inline-flex shrink-0 translate-y-0.5 items-center justify-center opacity-95 transition-opacity hover:opacity-100 sm:translate-y-1"
+            className="inline-flex shrink-0 translate-y-0.5 items-center justify-center opacity-95 hover:opacity-100 sm:translate-y-1"
             aria-label="RAPT home"
           >
             <RaptLogo
@@ -42,12 +42,12 @@ export default function HomeNavbar() {
         </div>
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          <Link href="/login" className={linkClass}>
+          <Link href="/login?next=/matches" className={linkClass}>
             Log in
           </Link>
           <Link
             href="/signup"
-            className="inline-flex min-h-9 items-center justify-center rounded-lg bg-[var(--color-primary)] px-4 text-[15px] font-bold leading-none tracking-tight text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-primary-hover)] sm:min-h-9 sm:px-5"
+            className="inline-flex min-h-9 items-center justify-center rounded-lg bg-[var(--color-primary)] px-4 text-[15px] font-bold leading-none tracking-tight text-white shadow-[var(--shadow-primary)] hover:bg-[var(--color-primary-hover)] sm:min-h-9 sm:px-5"
           >
             Get started
           </Link>
