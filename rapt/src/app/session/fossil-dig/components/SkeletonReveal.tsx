@@ -12,10 +12,10 @@ interface Props {
 }
 
 const BADGES = [
-  { min: 90, label: "Perfect Specimen", Icon: TrophyIcon, color: "#c4622d" },
-  { min: 70, label: "Clean Excavation", Icon: FossilDigIcon, color: "#6b9b6b" },
-  { min: 50, label: "Partial Fossil", Icon: SparkIcon, color: "#9b8b6b" },
-  { min: 0,  label: "Still Digging", Icon: StoneIcon, color: "#9b9b95" },
+  { min: 90, label: "Perfect Specimen", Icon: TrophyIcon, color: "#FFFFFF" },
+  { min: 70, label: "Clean Excavation", Icon: FossilDigIcon, color: "#FFFFFF" },
+  { min: 50, label: "Partial Fossil", Icon: SparkIcon, color: "#D9D9D9" },
+  { min: 0,  label: "Still Digging", Icon: StoneIcon, color: "#D9D9D9" },
 ];
 
 export default function SkeletonReveal({ state, onStartReDig, onSkipReDig, onReset }: Props) {
@@ -119,7 +119,7 @@ export default function SkeletonReveal({ state, onStartReDig, onSkipReDig, onRes
             </div>
             <div className="flex flex-wrap gap-2 mb-4">
               {analysis.foundConcepts.map((c) => (
-                <span key={c} className="rounded-full bg-[#eef6ee] border border-[#c4ddc4] px-3 py-1 text-xs font-bold text-[#3a6b3a]">
+                <span key={c} className="rounded-full bg-[#FFFFFF] border border-[#D9D9D9] px-3 py-1 text-xs font-bold text-[#2b2b2b]">
                   ✓ {c}
                 </span>
               ))}
@@ -155,7 +155,7 @@ export default function SkeletonReveal({ state, onStartReDig, onSkipReDig, onRes
               <div className="flex gap-3">
                 <button
                   onClick={onStartReDig}
-                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] py-3 text-sm font-black text-white transition-opacity hover:opacity-90"
+                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--color-action-bg)] py-3 text-sm font-black text-white transition-opacity hover:opacity-90"
                 >
                   Do the re-dig
                   <ArrowRightIcon className="h-4 w-4" />

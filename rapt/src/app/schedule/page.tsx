@@ -91,12 +91,18 @@ const AMENITIES = [
 const DURATION_OPTIONS = ["30 min", "1 hr", "1.5 hr", "2 hr", "3+ hr"];
 const GROUP_SIZES = ["1-on-1", "Small (2-3)", "Any"];
 const SURFACE_CARD_CLS =
-  "rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(18,38,18,0.96),rgba(10,22,10,0.92))] shadow-[var(--shadow-md)] backdrop-blur-sm";
-const LABEL_CLS = "text-[11px] font-semibold uppercase tracking-[0.18em] text-[#c8e898]/70";
+  "rounded-[24px] border border-[var(--color-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.9),rgba(246,239,229,0.78))] shadow-[0_24px_56px_rgba(52,44,35,0.12)] backdrop-blur-sm";
+const LABEL_CLS = "text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--color-text-muted)]";
 const FIELD_CLS =
-  "rounded-xl border border-white/12 bg-[rgba(255,255,255,0.06)] px-4 text-sm text-[var(--color-text-base)] outline-none transition-all [color-scheme:dark] placeholder:text-[#c8e898]/40 focus:border-[var(--color-primary)] focus:bg-[rgba(255,255,255,0.08)] focus:ring-2 focus:ring-[var(--color-primary)]/15";
+  "rounded-xl border border-[var(--color-border)] bg-white/82 px-4 text-sm text-[var(--color-text-base)] outline-none transition-all placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary)] focus:bg-white focus:ring-2 focus:ring-[var(--color-primary-light)]";
 const INPUT_CLS = `h-[47px] ${FIELD_CLS}`;
 const SELECT_CLS = `h-11 cursor-pointer ${FIELD_CLS}`;
+const ACTIVE_SELECTION_CLS =
+  "border-[var(--color-primary)] bg-[var(--color-action-bg)] text-white shadow-[var(--shadow-primary)]";
+const INACTIVE_SELECTION_CLS =
+  "border-[var(--color-border)] bg-white/58 text-[var(--color-text-base)] hover:border-[rgba(67,100,133,0.34)] hover:bg-white/78";
+const STEP_CTA_BUTTON_CLS =
+  "min-w-[280px] rounded-[18px] border border-[rgba(67,100,133,0.18)] bg-[linear-gradient(135deg,#46698e,#5f82a7)] px-8 py-4 text-[15px] font-bold text-white shadow-[0_18px_36px_rgba(67,100,133,0.22)] hover:-translate-y-0.5 hover:border-[rgba(67,100,133,0.28)] hover:bg-[linear-gradient(135deg,#3f607f,#58799c)] disabled:opacity-100 disabled:border-[rgba(157,174,193,0.6)] disabled:bg-[linear-gradient(135deg,#b7c4d2,#a4b6c8)] disabled:text-white/88 disabled:shadow-none";
 
 /* ─────────────────────────────────────────────
    Step Indicator
@@ -112,13 +118,13 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
         return (
           <div key={step} className="flex items-center">
             <div className="flex flex-col items-center gap-1.5">
-              <div
+                <div
                 className={`flex h-10 w-10 items-center justify-center rounded-full text-[13px] font-bold transition-all ${
                   done
-                    ? "bg-[var(--color-primary)] text-white shadow-[var(--shadow-primary)]"
+                    ? "bg-[var(--color-action-bg)] text-white shadow-[var(--shadow-primary)]"
                     : active
-                    ? "border border-[var(--color-primary)] bg-[rgba(232,90,10,0.16)] text-[var(--color-fossil)] shadow-[var(--shadow-primary)]"
-                    : "border border-white/12 bg-white/6 text-[#f5f0e8]/74"
+                    ? "border border-[var(--color-primary)] bg-white text-[var(--color-primary)] shadow-[0_10px_24px_rgba(92,132,173,0.16)]"
+                    : "border border-[var(--color-border)] bg-white/78 text-[var(--color-text-secondary)]"
                 }`}
               >
                 {done ? (
@@ -131,7 +137,7 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
               </div>
               <span
                 className={`text-[10px] font-semibold uppercase tracking-[0.18em] ${
-                  done || active ? "text-[#f5f0e8]" : "text-[#c8e898]/58"
+                  done || active ? "text-[var(--color-primary)]" : "text-[var(--color-text-muted)]"
                 }`}
               >
                 {labels[i]}
@@ -140,7 +146,7 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
             {i < total - 1 && (
               <div
                 className={`mx-3 mb-5 h-px w-16 transition-colors ${
-                  done ? "bg-[var(--color-primary)]" : "bg-white/12"
+                  done ? "bg-[var(--color-action-bg)]" : "bg-[var(--color-border-light)]"
                 }`}
               />
             )}
@@ -404,7 +410,7 @@ function SchedulePageInner() {
         <div className="rapt-hero-card mb-8 flex flex-col gap-5 px-7 py-7 md:flex-row md:items-start md:justify-between md:px-8">
           <div>
             <span className="rapt-eyebrow">
-              <span className="h-2 w-2 rounded-full bg-[var(--color-primary)]" />
+              <span className="h-2 w-2 rounded-full bg-[var(--color-action-bg)]" />
               Study setup
             </span>
             <h1 className="rapt-display mt-5 text-[38px] leading-[1.02] text-[var(--color-text-base)] md:text-[44px]">
@@ -422,7 +428,7 @@ function SchedulePageInner() {
           </div>
           <button
             onClick={() => router.push("/matching")}
-            className="mt-2 flex shrink-0 items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[rgba(255,255,255,0.06)] px-4 py-2.5 text-[13px] font-semibold text-[var(--color-text-secondary)] shadow-[var(--shadow-sm)] transition-all hover:border-[var(--color-primary-muted)] hover:text-[var(--color-primary)]"
+            className="rapt-pill-motion mt-2 flex shrink-0 items-center gap-2 rounded-xl border border-[var(--color-border)] bg-white/78 px-4 py-2.5 text-[13px] font-semibold text-[var(--color-text-secondary)] shadow-[var(--shadow-sm)] transition-all hover:border-[var(--color-primary-muted)] hover:bg-white hover:text-[var(--color-primary)]"
           >
             Go to Matching
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -440,10 +446,10 @@ function SchedulePageInner() {
             <div className="flex-1 min-w-0">
               {/* Active Courses card */}
               <div className={`${SURFACE_CARD_CLS} mb-6 overflow-hidden`}>
-                <div className="flex items-center gap-2.5 border-b border-white/8 px-6 py-5">
+                <div className="flex items-center gap-2.5 border-b border-[var(--color-border-light)] px-6 py-5">
                   <BookIcon />
                   <h3 className="text-[15px] font-semibold text-[var(--color-text-base)]">Active Courses</h3>
-                  <span className="ml-auto rounded-full border border-white/10 bg-white/6 px-3 py-1 text-[11px] font-semibold text-[#c8e898]/78">
+                  <span className="ml-auto rounded-full border border-[var(--color-border)] bg-white/78 px-3 py-1 text-[11px] font-semibold text-[var(--color-text-secondary)]">
                     {courses.length} courses
                   </span>
                 </div>
@@ -451,14 +457,14 @@ function SchedulePageInner() {
                 {courses.map((c) => (
                   <div
                     key={c.id}
-                    className="border-b border-white/6 px-6 py-4 transition-colors hover:bg-white/4"
+                    className="border-b border-[var(--color-border-light)] px-6 py-4 transition-colors hover:bg-[rgba(92,132,173,0.06)]"
                   >
                     <div className="flex items-center gap-4">
                       <div
                         className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-base font-bold shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] ${
                           c.color === "teal"
-                            ? "bg-[rgba(114,184,74,0.18)] text-[#d8f2b7]"
-                            : "bg-[rgba(196,122,58,0.2)] text-[#ffd1ad]"
+                            ? "bg-[rgba(92,132,173,0.18)] text-[var(--color-primary)]"
+                            : "bg-[rgba(221,193,164,0.28)] text-[#8d5d2f]"
                         }`}
                       >
                         {c.code}
@@ -467,8 +473,8 @@ function SchedulePageInner() {
                         <div className="truncate text-[15px] font-semibold text-[var(--color-text-base)]">{c.name}</div>
                         <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[12px] text-[var(--color-text-secondary)]">
                           <span>{c.professor}</span>
-                          <span className="h-1 w-1 rounded-full bg-white/18" />
-                          <span className="text-[#c8e898]/68">{c.schedule}</span>
+                          <span className="h-1 w-1 rounded-full bg-[var(--color-border)]" />
+                          <span className="text-[var(--color-text-muted)]">{c.schedule}</span>
                         </div>
                       </div>
 
@@ -479,7 +485,7 @@ function SchedulePageInner() {
                         className={`shrink-0 flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold transition-all ${
                           c.priority
                             ? "border border-amber-300 bg-amber-100 text-amber-700"
-                            : "border border-white/10 bg-white/4 text-[#c8e898]/58 hover:border-amber-300 hover:text-amber-200"
+                            : "border border-[var(--color-border)] bg-white/78 text-[var(--color-text-muted)] hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700"
                         }`}
                       >
                         <svg width="10" height="10" viewBox="0 0 16 16" fill={c.priority ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.5">
@@ -494,7 +500,7 @@ function SchedulePageInner() {
                         onChange={(e) =>
                           setSkillLevel(c.id, e.target.value as Course["skillLevel"])
                         }
-                        className="h-9 shrink-0 min-w-[138px] rounded-xl border border-white/12 bg-[rgba(255,255,255,0.06)] px-3 text-[12px] text-[var(--color-text-base)] outline-none transition-all focus:border-[var(--color-primary)]"
+                        className="h-9 shrink-0 min-w-[138px] rounded-xl border border-[var(--color-border)] bg-white/82 px-3 text-[12px] text-[var(--color-text-base)] outline-none transition-all focus:border-[var(--color-primary)]"
                       >
                         <option>Beginner</option>
                         <option>Intermediate</option>
@@ -541,7 +547,7 @@ function SchedulePageInner() {
                 <div className="px-6 pb-5">
                   <button
                     onClick={addCourse}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/14 bg-white/3 py-3.5 text-[13px] font-semibold text-[var(--color-text-secondary)] transition-all hover:border-[var(--color-primary)] hover:bg-[var(--color-primary-light)] hover:text-[var(--color-fossil)]"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[var(--color-border)] bg-white/64 py-3.5 text-[13px] font-semibold text-[var(--color-text-secondary)] transition-all hover:border-[var(--color-primary)] hover:bg-[var(--color-primary-light)] hover:text-[var(--color-primary)]"
                   >
                     <PlusIcon /> Add Course Manually
                   </button>
@@ -550,15 +556,15 @@ function SchedulePageInner() {
 
               {/* Priority summary callout */}
               {priorityCourses.length > 0 && (
-                <div className="mb-6 flex items-center gap-3 rounded-[20px] border border-amber-300/40 bg-[rgba(151,102,34,0.22)] px-5 py-4 shadow-[0_14px_28px_rgba(0,0,0,0.14)]">
+                <div className="mb-6 flex items-center gap-3 rounded-[20px] border border-amber-300/50 bg-[rgba(247,231,191,0.62)] px-5 py-4 shadow-[0_14px_28px_rgba(52,44,35,0.08)]">
                   <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" className="shrink-0 text-amber-300">
                     <polygon points="8,1 10,6 15,6 11,9.5 12.5,14.5 8,11.5 3.5,14.5 5,9.5 1,6 6,6" />
                   </svg>
                   <div>
-                    <span className="text-[13px] font-semibold text-amber-100">
+                    <span className="text-[13px] font-semibold text-amber-700">
                       Priority: {priorityCourses.map((c) => c.name.split(":")[0]).join(", ")}
                     </span>
-                    <span className="ml-2 text-[12px] text-amber-200/80">
+                    <span className="ml-2 text-[12px] text-amber-700/75">
                       — primary matching criteria
                     </span>
                   </div>
@@ -566,7 +572,11 @@ function SchedulePageInner() {
               )}
 
               <div className="flex justify-end">
-                <Button size="lg" onClick={handleStep1Continue} disabled={continueDisabled}>
+                <Button
+                  size="lg"
+                  onClick={handleStep1Continue}
+                  className={STEP_CTA_BUTTON_CLS}
+                >
                   Continue to Preferences
                   <ArrowRightIcon />
                 </Button>
@@ -583,15 +593,15 @@ function SchedulePageInner() {
                   </p>
                 </div>
 
-                <div className="overflow-hidden rounded-[20px] border border-white/10 bg-[rgba(8,18,8,0.72)] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+                <div className="overflow-hidden rounded-[20px] border border-[var(--color-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.86),rgba(244,236,226,0.72))] shadow-[inset_0_1px_0_rgba(255,255,255,0.5)]">
                   <div
-                    className="grid border-b border-white/8 bg-[rgba(255,255,255,0.04)]"
+                    className="grid border-b border-[var(--color-border-light)] bg-white/58"
                     style={{ gridTemplateColumns: "repeat(5,1fr)" }}
                   >
                     {WEEK_DAYS.map((d) => (
                       <div
                         key={d}
-                        className="py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c8e898]/72"
+                        className="py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--color-text-muted)]"
                       >
                         {d}
                       </div>
@@ -604,16 +614,16 @@ function SchedulePageInner() {
                     {WEEK_DAYS.map((d, i) => (
                       <div
                         key={d}
-                        className={`relative ${i < 4 ? "border-r border-white/6" : ""}`}
+                        className={`relative ${i < 4 ? "border-r border-[var(--color-border-light)]" : ""}`}
                       />
                     ))}
                     {calEvents.map((ev, i) => (
                       <div
                         key={i}
-                        className={`absolute rounded-xl px-3 py-2.5 text-[10px] font-semibold shadow-[0_12px_24px_rgba(0,0,0,0.14)] ${
+                        className={`absolute rounded-xl px-3 py-2.5 text-[10px] font-semibold shadow-[0_12px_24px_rgba(52,44,35,0.1)] ${
                           ev.color === "teal"
-                            ? "border-l-[3px] border-[var(--color-primary)] bg-[rgba(114,184,74,0.16)] text-[#dff5c2]"
-                            : "border-l-[3px] border-[#ffb06d] bg-[rgba(196,122,58,0.18)] text-[#ffd5b4]"
+                            ? "border-l-[3px] border-[var(--color-primary)] bg-[rgba(92,132,173,0.18)] text-[var(--color-primary)]"
+                            : "border-l-[3px] border-[#d59b5b] bg-[rgba(221,193,164,0.34)] text-[#8d5d2f]"
                         }`}
                         style={{
                           left: `calc(${ev.day * 20}% + 4px)`,
@@ -631,11 +641,11 @@ function SchedulePageInner() {
                   </div>
                 </div>
 
-                <div className="mt-4 flex items-center justify-between rounded-xl border border-white/10 bg-white/6 px-4 py-3">
+                <div className="mt-4 flex items-center justify-between rounded-xl border border-[var(--color-border)] bg-white/78 px-4 py-3 shadow-[var(--shadow-sm)]">
                   <span className="text-[12px] font-medium text-[var(--color-text-secondary)]">
                     Matching Potential
                   </span>
-                  <span className="rounded-full bg-[var(--color-primary)] px-3.5 py-1.5 text-[12px] font-semibold text-white shadow-[var(--shadow-primary)]">
+                  <span className="rounded-full border border-[var(--color-primary-muted)] bg-[rgba(92,132,173,0.16)] px-3.5 py-1.5 text-[12px] font-semibold text-[var(--color-primary)] shadow-[0_10px_22px_rgba(92,132,173,0.12)]">
                     +42 Study Buddies
                   </span>
                 </div>
@@ -653,18 +663,18 @@ function SchedulePageInner() {
                 <h3 className="mb-1.5 text-[18px] font-bold text-[var(--color-text-base)]">Preferred study methods</h3>
                 <p className="mb-4 text-[13px] text-[var(--color-text-secondary)]">Select all that you enjoy</p>
                 <div className="flex flex-wrap gap-2.5">
-                  {STUDY_METHODS.map((m) => (
-                    <button
-                      key={m}
-                      onClick={() => toggleMethod(m)}
-                      className={`rounded-full border-[1.5px] px-4 py-2 text-[13px] font-semibold transition-all ${
-                        studyMethods.includes(m)
-                          ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-white shadow-[var(--shadow-primary)]"
-                          : "border-white/10 bg-white/4 text-[var(--color-text-base)] hover:border-white/18 hover:bg-white/7"
-                      }`}
-                    >
-                      {m}
-                    </button>
+                    {STUDY_METHODS.map((m) => (
+                      <button
+                        key={m}
+                        onClick={() => toggleMethod(m)}
+                        className={`rounded-full border-[1.5px] px-4 py-2 text-[13px] font-semibold transition-all ${
+                          studyMethods.includes(m)
+                          ? ACTIVE_SELECTION_CLS
+                          : INACTIVE_SELECTION_CLS
+                        }`}
+                      >
+                        {m}
+                      </button>
                   ))}
                 </div>
               </div>
@@ -684,8 +694,8 @@ function SchedulePageInner() {
                         onClick={() => setGroupSize(s)}
                         className={`flex-1 rounded-lg border-[1.5px] py-2.5 text-sm font-semibold transition-all ${
                           groupSize === s
-                            ? "border-[var(--color-primary)] bg-[rgba(232,90,10,0.16)] text-white shadow-[var(--shadow-primary)]"
-                            : "border-white/10 bg-white/4 text-[var(--color-text-base)] hover:border-white/18 hover:bg-white/7"
+                            ? ACTIVE_SELECTION_CLS
+                            : INACTIVE_SELECTION_CLS
                         }`}
                       >
                         {s}
@@ -731,7 +741,12 @@ function SchedulePageInner() {
                 <Button variant="outline" onClick={() => setStep(1)}>
                   <ArrowLeftIcon /> Back
                 </Button>
-                <Button size="lg" onClick={handleStep2Continue} disabled={continueDisabled}>
+                <Button
+                  size="lg"
+                  onClick={handleStep2Continue}
+                  disabled={continueDisabled}
+                  className={STEP_CTA_BUTTON_CLS}
+                >
                   Continue to Logistics
                   <ArrowRightIcon />
                 </Button>
@@ -754,8 +769,8 @@ function SchedulePageInner() {
                       onClick={() => setStudySpot(s.label)}
                       className={`flex flex-col items-center gap-2 rounded-xl border-[1.5px] px-3 py-4 transition-all ${
                         studySpot === s.label
-                          ? "border-[var(--color-primary)] bg-[rgba(232,90,10,0.14)] shadow-[var(--shadow-primary)]"
-                          : "border-white/10 bg-white/4 hover:border-white/18 hover:bg-white/7"
+                          ? ACTIVE_SELECTION_CLS
+                          : INACTIVE_SELECTION_CLS
                       }`}
                     >
                       <span className="text-2xl">{s.icon}</span>
@@ -786,8 +801,8 @@ function SchedulePageInner() {
                       onClick={() => toggleAmenity(a)}
                       className={`flex items-center gap-2 rounded-lg border-[1.5px] px-4 py-2 text-[13px] font-semibold transition-all ${
                         amenities.includes(a)
-                          ? "border-[var(--color-primary)] bg-[rgba(232,90,10,0.16)] text-white shadow-[var(--shadow-primary)]"
-                          : "border-white/10 bg-white/4 text-[var(--color-text-base)] hover:border-white/18 hover:bg-white/7"
+                          ? ACTIVE_SELECTION_CLS
+                          : INACTIVE_SELECTION_CLS
                       }`}
                     >
                       {amenities.includes(a) && (
@@ -811,8 +826,8 @@ function SchedulePageInner() {
                       onClick={() => setSessionType(t)}
                       className={`flex-1 rounded-lg border-[1.5px] py-3 text-sm font-semibold transition-all ${
                         sessionType === t
-                          ? "border-[var(--color-primary)] bg-[rgba(232,90,10,0.16)] text-white shadow-[var(--shadow-primary)]"
-                          : "border-white/10 bg-white/4 text-[var(--color-text-base)] hover:border-white/18 hover:bg-white/7"
+                          ? ACTIVE_SELECTION_CLS
+                          : INACTIVE_SELECTION_CLS
                       }`}
                     >
                       {t === "recurring" ? "Recurring" : "One-time"}
@@ -889,8 +904,8 @@ function SchedulePageInner() {
                       onClick={() => setDuration(d)}
                       className={`flex-1 rounded-lg border-[1.5px] py-2.5 text-[13px] font-semibold transition-all ${
                         duration === d
-                          ? "border-[var(--color-primary)] bg-[rgba(232,90,10,0.16)] text-white shadow-[var(--shadow-primary)]"
-                          : "border-white/10 bg-white/4 text-[var(--color-text-base)] hover:border-white/18 hover:bg-white/7"
+                          ? ACTIVE_SELECTION_CLS
+                          : INACTIVE_SELECTION_CLS
                       }`}
                     >
                       {d}
@@ -903,7 +918,12 @@ function SchedulePageInner() {
                 <Button variant="outline" onClick={() => setStep(2)}>
                   <ArrowLeftIcon /> Back
                 </Button>
-                <Button size="lg" onClick={handleStep3Continue} disabled={continueDisabled}>
+                <Button
+                  size="lg"
+                  onClick={handleStep3Continue}
+                  disabled={continueDisabled}
+                  className={STEP_CTA_BUTTON_CLS}
+                >
                   Continue to Availability
                   <ArrowRightIcon />
                 </Button>
@@ -925,7 +945,7 @@ function SchedulePageInner() {
                 </div>
                 <button
                   onClick={() => setGrid(makeEmptyGrid())}
-                  className="rounded-full border border-white/12 bg-white/4 px-3 py-1.5 text-[11px] font-semibold text-[var(--color-text-secondary)] transition-colors hover:border-white/18 hover:bg-white/7 hover:text-[var(--color-text-base)]"
+                  className="rounded-full border border-[var(--color-border)] bg-white/78 px-3 py-1.5 text-[11px] font-semibold text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-primary-muted)] hover:bg-white hover:text-[var(--color-text-base)]"
                 >
                   Clear
                 </button>
@@ -937,7 +957,7 @@ function SchedulePageInner() {
               <Button variant="outline" onClick={() => setStep(3)}>
                 <ArrowLeftIcon /> Back
               </Button>
-              <Button size="lg" onClick={handleStep4Finish}>
+              <Button size="lg" onClick={handleStep4Finish} className={STEP_CTA_BUTTON_CLS}>
                 Find my study matches
                 <ArrowRightIcon />
               </Button>
@@ -954,7 +974,7 @@ function SchedulePageInner() {
 ───────────────────────────────────────────── */
 function BookIcon() {
   return (
-    <svg width="20" height="16" viewBox="0 0 24 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#c8e898]/66">
+    <svg width="20" height="16" viewBox="0 0 24 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--color-text-muted)]">
       <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
     </svg>
   );

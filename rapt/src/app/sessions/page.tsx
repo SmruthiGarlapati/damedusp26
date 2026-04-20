@@ -3,13 +3,12 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
-import { isDemoAdminUser } from "@/lib/demoAdmin";
+import { hasDemoAdminSession, isDemoAdminUser } from "@/lib/demoAdmin";
 import { useCurrentUser } from "@/lib/useCurrentUser";
 import { createClient } from "@/lib/supabase/client";
 import {
   getSessions,
   subscribe,
-  StudySession as DemoStudySession,
 } from "@/lib/sessionsStore";
 
 /* ─────────────────────────────────────────────
@@ -89,7 +88,7 @@ function useCountdown(target: Date) {
 
 function CountdownBadge({ scheduledAt }: { scheduledAt: Date }) {
   const ms = useCountdown(scheduledAt);
-  if (ms <= 0) return <span className="text-[11px] font-bold text-[#72e38f]">Live now</span>;
+  if (ms <= 0) return <span className="text-[11px] font-bold text-emerald-700">Live now</span>;
   const totalSecs = Math.floor(ms / 1000);
   const h = Math.floor(totalSecs / 3600);
   const m = Math.floor((totalSecs % 3600) / 60);
@@ -101,7 +100,7 @@ function CountdownBadge({ scheduledAt }: { scheduledAt: Date }) {
       ? `${m}m ${String(s).padStart(2, "0")}s`
       : `${s}s`;
   return (
-    <span className="text-[11px] font-bold tabular-nums text-[#c8e898]/88">
+    <span className="text-[11px] font-bold tabular-nums text-[var(--color-text-muted)]">
       Starts in {str}
     </span>
   );
@@ -111,12 +110,11 @@ function CountdownBadge({ scheduledAt }: { scheduledAt: Date }) {
    Status styles
 ───────────────────────────────────────────── */
 const STATUS_STYLE: Record<SessionStatus, string> = {
-  pending: "border-amber-300/25 bg-[rgba(151,102,34,0.2)] text-amber-200",
-  accepted: "border-[#9dd46a]/22 bg-[rgba(114,184,74,0.16)] text-[#def4be]",
-  declined: "border-red-300/25 bg-[rgba(143,45,38,0.22)] text-red-200",
-  live: "border-emerald-300/25 bg-[rgba(40,134,84,0.24)] text-[#b9f8d4]",
-  completed:
-    "border-white/10 bg-white/5 text-[var(--color-text-muted)]",
+  pending: "border-amber-300/55 bg-[rgba(247,231,191,0.72)] text-amber-700",
+  accepted: "border-[rgba(67,100,133,0.18)] bg-[var(--color-primary-light)] text-[var(--color-primary)]",
+  declined: "border-rose-200 bg-[rgba(252,236,236,0.84)] text-rose-500",
+  live: "border-emerald-300/55 bg-[rgba(223,244,232,0.92)] text-emerald-700",
+  completed: "border-[var(--color-border)] bg-white/72 text-[var(--color-text-muted)]",
 };
 const STATUS_LABEL: Record<SessionStatus, string> = {
   pending: "Pending",
@@ -131,34 +129,36 @@ const STATUS_LABEL: Record<SessionStatus, string> = {
 ───────────────────────────────────────────── */
 function SessionCard({
   session,
+  currentTime,
   onAccept,
   onDecline,
   onStart,
   onCancel,
 }: {
   session: StudySession;
+  currentTime: number;
   onAccept: () => void;
   onDecline: () => void;
   onStart: () => void;
   onCancel: () => void;
 }) {
-  const msUntil = session.scheduledAt.getTime() - Date.now();
+  const msUntil = session.scheduledAt.getTime() - currentTime;
   const isReady = msUntil <= 15 * 60 * 1000 || session.status === "live"; // within 15 min or live
   const isPast = msUntil <= 0;
   const awaitingMyAccept = session.status === "pending" && !session.requestedByMe;
 
   return (
     <div
-      className={`overflow-hidden rounded-[28px] border bg-[linear-gradient(180deg,rgba(18,37,18,0.96),rgba(10,20,10,0.94))] shadow-[var(--shadow-md)] transition-all hover:-translate-y-1 hover:shadow-[0_24px_48px_rgba(0,0,0,0.34)] ${
+      className={`overflow-hidden rounded-[28px] border bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(246,239,229,0.88))] shadow-[0_24px_56px_rgba(52,44,35,0.12)] transition-all hover:-translate-y-1 hover:shadow-[0_28px_64px_rgba(52,44,35,0.16)] ${
         isReady && session.status === "accepted"
-          ? "border-emerald-300/28 ring-1 ring-emerald-300/18"
-          : "border-white/10"
+          ? "border-emerald-300/45 ring-1 ring-emerald-300/28"
+          : "border-[var(--color-border)]"
       }`}
     >
       {/* Top strip for live/ready sessions */}
       {isReady && session.status === "accepted" && (
-        <div className="flex items-center gap-2 border-b border-emerald-300/18 bg-[linear-gradient(90deg,rgba(15,171,71,0.92),rgba(23,127,63,0.92))] px-5 py-2.5 text-white">
-          <span className="h-2 w-2 animate-pulse rounded-full bg-white shadow-[0_0_0_4px_rgba(255,255,255,0.14)]" />
+        <div className="flex items-center gap-2 border-b border-emerald-300/35 bg-[linear-gradient(90deg,rgba(226,247,235,0.96),rgba(246,239,229,0.94))] px-5 py-2.5 text-emerald-700">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(52,168,83,0.16)]" />
           <span className="text-[12px] font-bold">
             {isPast ? "Session is live — join now!" : "Starting soon — get ready!"}
           </span>
@@ -168,7 +168,7 @@ function SessionCard({
       <div className="p-5">
         <div className="mb-4 flex items-start gap-4">
           {/* Avatar */}
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] text-sm font-bold text-white shadow-[var(--shadow-primary)]">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--color-action-bg)] text-sm font-bold text-white shadow-[var(--shadow-primary)]">
             {session.partnerInitials}
           </div>
 
@@ -202,7 +202,7 @@ function SessionCard({
         </div>
 
         {session.notes && (
-          <div className="mb-4 flex items-start gap-2 rounded-xl border border-white/8 bg-white/5 px-3 py-2.5">
+          <div className="mb-4 flex items-start gap-2 rounded-xl border border-[var(--color-border)] bg-white/72 px-3 py-2.5">
             <svg
               width="12"
               height="12"
@@ -212,7 +212,7 @@ function SessionCard({
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="mt-0.5 shrink-0 text-[#c8e898]/66"
+              className="mt-0.5 shrink-0 text-[var(--color-text-muted)]"
             >
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
             </svg>
@@ -234,13 +234,13 @@ function SessionCard({
             <>
               <button
                 onClick={onAccept}
-                className="flex-1 rounded-xl bg-[var(--color-primary)] py-2.5 text-[13px] font-bold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-primary-hover)]"
+                className="flex-1 rounded-xl bg-[var(--color-action-bg)] py-2.5 text-[13px] font-bold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-action-hover)]"
               >
                 Accept
               </button>
               <button
                 onClick={onDecline}
-                className="flex-1 rounded-xl border border-red-300/25 bg-[rgba(143,45,38,0.22)] py-2.5 text-[13px] font-semibold text-red-200 transition-all hover:bg-[rgba(143,45,38,0.3)]"
+                className="flex-1 rounded-xl border border-rose-200 bg-[rgba(252,236,236,0.84)] py-2.5 text-[13px] font-semibold text-rose-500 transition-all hover:bg-[rgba(248,220,220,0.94)]"
               >
                 Decline
               </button>
@@ -250,15 +250,15 @@ function SessionCard({
           {/* Waiting for partner */}
           {session.status === "pending" && session.requestedByMe && (
             <>
-              <div className="flex flex-1 items-center gap-2 rounded-xl border border-amber-300/25 bg-[rgba(151,102,34,0.22)] px-3 py-2.5">
+              <div className="flex flex-1 items-center gap-2 rounded-xl border border-amber-300/55 bg-[rgba(247,231,191,0.72)] px-3 py-2.5">
                 <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-300" />
-                <span className="text-[12px] font-semibold text-amber-200">
+                <span className="text-[12px] font-semibold text-amber-700">
                   Waiting for {session.partnerName.split(" ")[0]} to accept
                 </span>
               </div>
               <button
                 onClick={onCancel}
-                className="rounded-xl border border-white/12 bg-white/4 px-3 py-2.5 text-[12px] font-semibold text-[var(--color-text-muted)] transition-colors hover:border-red-300/28 hover:text-red-200"
+                className="rounded-xl border border-[var(--color-border)] bg-white/72 px-3 py-2.5 text-[12px] font-semibold text-[var(--color-text-secondary)] transition-colors hover:border-rose-200 hover:bg-[rgba(252,236,236,0.84)] hover:text-rose-500"
               >
                 Cancel
               </button>
@@ -273,15 +273,15 @@ function SessionCard({
                 disabled={!isReady}
                 className={`flex-1 rounded-xl py-2.5 text-[13px] font-bold transition-all ${
                   isReady
-                    ? "bg-[linear-gradient(90deg,rgba(15,171,71,0.94),rgba(23,127,63,0.94))] text-white shadow-[0_10px_26px_rgba(23,127,63,0.28)] hover:brightness-105"
-                    : "cursor-not-allowed border border-white/10 bg-white/6 text-[var(--color-text-muted)]"
+                    ? "bg-[linear-gradient(135deg,var(--color-action-bg),var(--color-primary-hover))] text-white shadow-[var(--shadow-primary)] hover:brightness-105"
+                    : "cursor-not-allowed border border-[var(--color-border)] bg-white/72 text-[var(--color-text-muted)]"
                 }`}
               >
                 {session.started ? "Resume Session" : isPast ? "Join Session" : "Start Session"}
               </button>
               <button
                 onClick={onCancel}
-                className="rounded-xl border border-white/12 bg-white/4 px-3 py-2.5 text-[12px] font-semibold text-[var(--color-text-muted)] transition-colors hover:border-red-300/28 hover:text-red-200"
+                className="rounded-xl border border-[var(--color-border)] bg-white/72 px-3 py-2.5 text-[12px] font-semibold text-[var(--color-text-secondary)] transition-colors hover:border-rose-200 hover:bg-[rgba(252,236,236,0.84)] hover:text-rose-500"
               >
                 Cancel
               </button>
@@ -292,7 +292,7 @@ function SessionCard({
           {session.status === "declined" && (
             <button
               onClick={onCancel}
-              className="flex-1 rounded-xl border border-white/12 bg-white/4 py-2.5 text-[12px] font-semibold text-[var(--color-text-muted)] transition-colors hover:border-white/18 hover:bg-white/8"
+              className="flex-1 rounded-xl border border-[var(--color-border)] bg-white/72 py-2.5 text-[12px] font-semibold text-[var(--color-text-secondary)] transition-colors hover:border-[rgba(67,100,133,0.34)] hover:bg-white"
             >
               Remove
             </button>
@@ -320,79 +320,89 @@ export default function SessionsPage() {
   const { user, loading: userLoading } = useCurrentUser();
   const isDemoUser = isDemoAdminUser(user);
 
-  const [sessions, setSessions] = useState<StudySession[]>([]);
-  const [dbLoading, setDbLoading] = useState(false);
+  const [sessions, setSessions] = useState<StudySession[]>(() =>
+    typeof window === "undefined"
+      ? []
+      : (getSessions() as unknown as StudySession[])
+  );
+  const [dbLoading, setDbLoading] = useState(() =>
+    typeof window === "undefined" ? false : !hasDemoAdminSession()
+  );
   const [tab, setTab] = useState<"upcoming" | "pending" | "past">("upcoming");
+  const [currentTime, setCurrentTime] = useState(() => Date.now());
 
   // Re-render every second so countdowns stay live and "ready" state triggers
-  const [, setTick] = useState(0);
   useEffect(() => {
-    const id = setInterval(() => setTick((t) => t + 1), 1000);
+    const id = setInterval(() => setCurrentTime(Date.now()), 1000);
     return () => clearInterval(id);
   }, []);
 
   /* ── Supabase fetch ── */
   const fetchSessions = useCallback(async (userId: string) => {
-    const supabase = createClient();
-    const { data: rows, error } = await supabase
-      .from("matches")
-      .select(
-        "id, status, match_type, course_number, final_study_spot, scheduled_at, duration_minutes, study_methods, notes, started, requester_id, partner_id"
-      )
-      .or(`requester_id.eq.${userId},partner_id.eq.${userId}`)
-      .order("scheduled_at", { ascending: true });
+    try {
+      const supabase = createClient();
+      const { data: rows, error } = await supabase
+        .from("matches")
+        .select(
+          "id, status, match_type, course_number, final_study_spot, scheduled_at, duration_minutes, study_methods, notes, started, requester_id, partner_id"
+        )
+        .or(`requester_id.eq.${userId},partner_id.eq.${userId}`)
+        .order("scheduled_at", { ascending: true });
 
-    if (error || !rows) return;
+      if (error || !rows) return;
 
-    // Collect unique partner IDs
-    const partnerIds = [
-      ...new Set(
-        rows.map((r) => (r.requester_id === userId ? r.partner_id : r.requester_id))
-      ),
-    ].filter(Boolean) as string[];
+      // Collect unique partner IDs
+      const partnerIds = [
+        ...new Set(
+          rows.map((r) => (r.requester_id === userId ? r.partner_id : r.requester_id))
+        ),
+      ].filter(Boolean) as string[];
 
-    // Fetch partner names
-    const nameMap: Record<string, string> = {};
-    if (partnerIds.length > 0) {
-      const { data: users } = await supabase
-        .from("users")
-        .select("id, full_name")
-        .in("id", partnerIds);
-      if (users) {
-        for (const u of users) nameMap[u.id] = u.full_name ?? "";
+      // Fetch partner names
+      const nameMap: Record<string, string> = {};
+      if (partnerIds.length > 0) {
+        const { data: users } = await supabase
+          .from("users")
+          .select("id, full_name")
+          .in("id", partnerIds);
+        if (users) {
+          for (const u of users) nameMap[u.id] = u.full_name ?? "";
+        }
       }
+
+      const converted: StudySession[] = rows.map((row) => {
+        const partnerId = row.requester_id === userId ? row.partner_id : row.requester_id;
+        const fullName: string = nameMap[partnerId] ?? "Unknown";
+        const initials = fullName
+          .split(" ")
+          .slice(0, 2)
+          .map((p: string) => p[0] ?? "")
+          .join("")
+          .toUpperCase();
+
+        const farFuture = new Date(8640000000000000);
+        const scheduledAt = row.scheduled_at ? new Date(row.scheduled_at) : farFuture;
+
+        return {
+          id: row.id,
+          partnerName: fullName,
+          partnerInitials: initials,
+          course: row.course_number ?? "",
+          location: row.final_study_spot ?? "",
+          scheduledAt,
+          duration: row.duration_minutes ?? 60,
+          status: effectiveStatus(row),
+          requestedByMe: row.requester_id === userId,
+          studyMethods: (row.study_methods as string[]) ?? [],
+          notes: row.notes ?? undefined,
+          started: row.started ?? false,
+        };
+      });
+
+      setSessions(converted);
+    } finally {
+      setDbLoading(false);
     }
-
-    const converted: StudySession[] = rows.map((row) => {
-      const partnerId = row.requester_id === userId ? row.partner_id : row.requester_id;
-      const fullName: string = nameMap[partnerId] ?? "Unknown";
-      const initials = fullName
-        .split(" ")
-        .slice(0, 2)
-        .map((p: string) => p[0] ?? "")
-        .join("")
-        .toUpperCase();
-
-      const farFuture = new Date(8640000000000000);
-      const scheduledAt = row.scheduled_at ? new Date(row.scheduled_at) : farFuture;
-
-      return {
-        id: row.id,
-        partnerName: fullName,
-        partnerInitials: initials,
-        course: row.course_number ?? "",
-        location: row.final_study_spot ?? "",
-        scheduledAt,
-        duration: row.duration_minutes ?? 60,
-        status: effectiveStatus(row),
-        requestedByMe: row.requester_id === userId,
-        studyMethods: (row.study_methods as string[]) ?? [],
-        notes: row.notes ?? undefined,
-        started: row.started ?? false,
-      };
-    });
-
-    setSessions(converted);
   }, []);
 
   /* ── Auto live-status DB sync (every 30s) ── */
@@ -432,7 +442,6 @@ export default function SessionsPage() {
 
     if (!user || isDemoUser) {
       // Demo mode: use in-memory store
-      setSessions(getSessions() as unknown as StudySession[]);
       const unsub = subscribe(() =>
         setSessions(getSessions() as unknown as StudySession[])
       );
@@ -440,8 +449,7 @@ export default function SessionsPage() {
     }
 
     // Logged in: fetch from Supabase
-    setDbLoading(true);
-    fetchSessions(user.id).finally(() => setDbLoading(false));
+    void fetchSessions(user.id);
 
     const supabase = createClient();
     const channel = supabase
@@ -542,24 +550,23 @@ export default function SessionsPage() {
   );
 
   /* ── Derived lists ── */
-  const now = Date.now();
   const upcoming = sessions.filter(
     (s) =>
       (s.status === "accepted" || s.status === "live") &&
-      s.scheduledAt.getTime() >= now - 30 * 60 * 1000
+      s.scheduledAt.getTime() >= currentTime - 30 * 60 * 1000
   );
   const pending = sessions.filter((s) => s.status === "pending");
   const past = sessions.filter(
     (s) =>
       s.status === "completed" ||
       s.status === "declined" ||
-      (s.status === "accepted" && s.scheduledAt.getTime() < now - 30 * 60 * 1000)
+      (s.status === "accepted" && s.scheduledAt.getTime() < currentTime - 30 * 60 * 1000)
   );
 
   const tabData = tab === "upcoming" ? upcoming : tab === "pending" ? pending : past;
   const pendingCount = pending.length;
   const readyCount = upcoming.filter(
-    (s) => s.scheduledAt.getTime() - now <= 15 * 60 * 1000
+    (s) => s.scheduledAt.getTime() - currentTime <= 15 * 60 * 1000
   ).length;
 
   const isLoading = userLoading || dbLoading;
@@ -585,7 +592,7 @@ export default function SessionsPage() {
           </div>
           <button
             onClick={() => router.push("/matches")}
-            className="flex items-center gap-2 rounded-xl bg-[var(--color-primary)] px-5 py-3 text-[14px] font-bold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-primary-hover)]"
+            className="rapt-pill-motion flex items-center gap-2 rounded-xl bg-[var(--color-action-bg)] px-5 py-3 text-[14px] font-bold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-action-hover)]"
           >
             <svg
               width="16"
@@ -615,16 +622,16 @@ export default function SessionsPage() {
           <>
             {/* Alert banners */}
             {readyCount > 0 && (
-              <div className="mb-6 flex items-center gap-3 rounded-[22px] border border-emerald-300/22 bg-[linear-gradient(180deg,rgba(18,72,43,0.34),rgba(11,39,24,0.3))] px-5 py-4 backdrop-blur-sm">
-                <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-[#72e38f] shadow-[0_0_0_6px_rgba(114,227,143,0.12)]" />
-                <p className="text-[14px] font-semibold text-[#d2f8df]">
+              <div className="mb-6 flex items-center gap-3 rounded-[22px] border border-emerald-300/45 bg-[linear-gradient(180deg,rgba(226,247,235,0.94),rgba(244,252,247,0.9))] px-5 py-4 backdrop-blur-sm">
+                <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-emerald-500 shadow-[0_0_0_6px_rgba(52,168,83,0.14)]" />
+                <p className="text-[14px] font-semibold text-emerald-700">
                   {readyCount === 1 ? "1 session is" : `${readyCount} sessions are`} starting
                   soon — you can join now.
                 </p>
               </div>
             )}
             {pendingCount > 0 && (
-              <div className="mb-6 flex items-center gap-3 rounded-[22px] border border-amber-300/25 bg-[linear-gradient(180deg,rgba(151,102,34,0.18),rgba(75,49,11,0.2))] px-5 py-4 backdrop-blur-sm">
+              <div className="mb-6 flex items-center gap-3 rounded-[22px] border border-amber-300/55 bg-[linear-gradient(180deg,rgba(247,231,191,0.72),rgba(255,248,232,0.92))] px-5 py-4 backdrop-blur-sm">
                 <svg
                   width="16"
                   height="16"
@@ -633,13 +640,13 @@ export default function SessionsPage() {
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
-                  className="text-amber-200"
+                  className="text-amber-500"
                 >
                   <circle cx="12" cy="12" r="10" />
                   <line x1="12" y1="8" x2="12" y2="12" />
                   <line x1="12" y1="16" x2="12.01" y2="16" />
                 </svg>
-                <p className="text-[14px] font-semibold text-amber-100">
+                <p className="text-[14px] font-semibold text-amber-700">
                   {pendingCount} session request{pendingCount > 1 ? "s" : ""} need
                   {pendingCount === 1 ? "s" : ""} your attention.
                 </p>
@@ -647,7 +654,7 @@ export default function SessionsPage() {
             )}
 
             {/* Tabs */}
-            <div className="mb-6 flex w-fit gap-1 rounded-xl border border-[var(--color-border)] bg-[rgba(13,28,13,0.8)] p-1 shadow-[var(--shadow-sm)] backdrop-blur-sm">
+            <div className="mb-6 flex w-fit gap-1 rounded-xl border border-[var(--color-border)] bg-white/80 p-1 shadow-[var(--shadow-sm)] backdrop-blur-sm">
               {(["upcoming", "pending", "past"] as const).map((t) => {
                 const count =
                   t === "upcoming"
@@ -661,8 +668,8 @@ export default function SessionsPage() {
                     onClick={() => setTab(t)}
                     className={`flex items-center gap-2 rounded-lg px-5 py-2 text-[13px] font-semibold capitalize transition-all ${
                       tab === t
-                        ? "bg-[var(--color-primary)] text-white shadow-[var(--shadow-primary)]"
-                        : "text-[var(--color-text-secondary)] hover:bg-white/7"
+                        ? "bg-[var(--color-action-bg)] text-white shadow-[var(--shadow-primary)]"
+                        : "text-[var(--color-text-secondary)] hover:bg-white"
                     }`}
                   >
                     {t}
@@ -671,7 +678,7 @@ export default function SessionsPage() {
                         className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
                           tab === t
                             ? "bg-white/20 text-white"
-                            : "bg-white/6 text-[var(--color-text-muted)]"
+                            : "bg-[var(--color-primary-light)] text-[var(--color-primary)]"
                         }`}
                       >
                         {count}
@@ -713,7 +720,7 @@ export default function SessionsPage() {
                 {tab === "upcoming" && (
                   <button
                     onClick={() => router.push("/matches")}
-                    className="mt-5 rounded-xl bg-[var(--color-primary)] px-5 py-2.5 text-[13px] font-bold text-white shadow-[var(--shadow-primary)] hover:bg-[var(--color-primary-hover)]"
+                    className="mt-5 rounded-xl bg-[var(--color-action-bg)] px-5 py-2.5 text-[13px] font-bold text-white shadow-[var(--shadow-primary)] hover:bg-[var(--color-action-hover)]"
                   >
                     Browse Partners
                   </button>
@@ -725,6 +732,7 @@ export default function SessionsPage() {
                   <SessionCard
                     key={s.id}
                     session={s}
+                    currentTime={currentTime}
                     onAccept={() => (user && !isDemoUser ? accept(s.id) : acceptDemo(s.id))}
                     onDecline={() => (user && !isDemoUser ? decline(s.id) : declineDemo(s.id))}
                     onStart={() => (user && !isDemoUser ? start(s) : startDemo(s))}

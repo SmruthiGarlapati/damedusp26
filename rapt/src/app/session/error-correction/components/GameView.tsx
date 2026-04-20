@@ -92,7 +92,7 @@ export default function GameView({ state, onAddComment, onRemoveComment, onSubmi
                     />
                     <div className="mt-2 flex justify-end gap-2">
                       <button onClick={() => setActiveSentenceId(null)} className="text-xs font-semibold text-[var(--color-text-muted)] hover:text-red-500 transition-colors">Cancel</button>
-                      <button onClick={() => handleSaveComment(sentence)} className="rounded-md bg-[var(--color-primary)] px-3 py-1 text-xs font-bold text-white shadow-sm transition-opacity hover:opacity-90">Save</button>
+                      <button onClick={() => handleSaveComment(sentence)} className="rounded-md bg-[var(--color-action-bg)] px-3 py-1 text-xs font-bold text-white shadow-sm transition-opacity hover:opacity-90">Save</button>
                     </div>
                   </div>
                 )}
@@ -126,7 +126,7 @@ export default function GameView({ state, onAddComment, onRemoveComment, onSubmi
 
         <button
           onClick={onSubmit}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] py-4 text-[15px] font-black text-white shadow-lg transition-transform hover:-translate-y-0.5"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-action-bg)] py-4 text-[15px] font-black text-white shadow-lg transition-transform hover:-translate-y-0.5"
         >
           Submit for grading
           <ArrowRightIcon className="h-4 w-4" />

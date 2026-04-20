@@ -55,20 +55,29 @@ export default function SettingsPage() {
   useEffect(() => {
     if (!user) return;
     const p = user.preferences;
+    let cancelled = false;
 
-    setName(user.full_name ?? "");
-    setMajor((p.major  as string) ?? "");
-    setYear ((p.year   as string) ?? "Junior");
-    setBio  ((p.bio    as string) ?? "");
+    queueMicrotask(() => {
+      if (cancelled) return;
 
-    setStudyMethods((p.techniques as string[]) ?? ["Pomodoro", "Flashcards"]);
-    setGroupSize   ((p.group_size           as string)   ?? "Small (2-3)");
-    setEnvironment ((p.environment_type     as string)   ?? "Silent (Library Level 5)");
-    setStudySpot   ((p.preferred_study_spot as string)   ?? "PCL (Library)");
+      setName(user.full_name ?? "");
+      setMajor((p.major as string) ?? "");
+      setYear((p.year as string) ?? "Junior");
+      setBio((p.bio as string) ?? "");
 
-    if (p.notifications) {
-      setNotifs((prev) => ({ ...prev, ...(p.notifications as typeof prev) }));
-    }
+      setStudyMethods((p.techniques as string[]) ?? ["Pomodoro", "Flashcards"]);
+      setGroupSize((p.group_size as string) ?? "Small (2-3)");
+      setEnvironment((p.environment_type as string) ?? "Silent (Library Level 5)");
+      setStudySpot((p.preferred_study_spot as string) ?? "PCL (Library)");
+
+      if (p.notifications) {
+        setNotifs((prev) => ({ ...prev, ...(p.notifications as typeof prev) }));
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
   async function handleSave() {
@@ -113,7 +122,7 @@ export default function SettingsPage() {
     setSaving(false);
 
     if (error) {
-      setSaveErr(error.message);
+      setSaveErr("We couldn't save your settings right now.");
     } else {
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
@@ -154,35 +163,35 @@ export default function SettingsPage() {
 
       <main className="rapt-app-main flex flex-1 gap-6 px-4 py-4 md:px-8 md:py-8">
         {/* Sidebar */}
-        <aside className="w-72 shrink-0 rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,#173417,#102310)] px-6 py-8 text-[var(--color-bone)] shadow-[var(--shadow-lg)]">
+        <aside className="w-72 shrink-0 rounded-[28px] border border-[var(--color-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(241,233,223,0.84))] px-6 py-8 text-[var(--color-text-base)] shadow-[var(--shadow-lg)]">
           {/* Avatar */}
           <div className="mb-6 flex flex-col items-center gap-2 text-center">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[var(--color-primary)] text-[24px] font-extrabold text-white">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[var(--color-action-bg)] text-[24px] font-extrabold text-white">
               {loading ? "…" : initials}
             </div>
             <div>
-              <p className="text-[15px] font-bold text-white">
+              <p className="text-[15px] font-bold text-[var(--color-text-base)]">
                 {loading ? "Loading…" : name || "Your Name"}
               </p>
-              <p className="text-[12px] text-[#c8e898]/60">{email}</p>
+              <p className="text-[12px] text-[var(--color-text-muted)]">{email}</p>
             </div>
-            <div className="flex items-center gap-3 text-[11px] font-semibold text-[#c8e898]/58">
+            <div className="flex items-center gap-3 text-[11px] font-semibold text-[var(--color-text-muted)]">
               <span className="flex flex-col items-center">
-                <span className="text-[16px] font-extrabold text-white">
+                <span className="text-[16px] font-extrabold text-[var(--color-text-base)]">
                   {rating > 0 ? rating.toFixed(1) : "—"}
                 </span>
                 Rating
               </span>
-              <div className="h-6 w-px bg-white/12" />
+              <div className="h-6 w-px bg-[var(--color-border-light)]" />
               <span className="flex flex-col items-center">
-                <span className="text-[16px] font-extrabold text-white">
+                <span className="text-[16px] font-extrabold text-[var(--color-text-base)]">
                   {sessionsCompleted}
                 </span>
                 Sessions
               </span>
-              <div className="h-6 w-px bg-white/12" />
+              <div className="h-6 w-px bg-[var(--color-border-light)]" />
               <span className="flex flex-col items-center">
-                <span className="text-[16px] font-extrabold text-white">
+                <span className="text-[16px] font-extrabold text-[var(--color-text-base)]">
                   {year ? year.slice(0, 2) : "—"}
                 </span>
                 Year
@@ -198,8 +207,8 @@ export default function SettingsPage() {
                 onClick={() => setActiveTab(t)}
                 className={`flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-left transition-all ${
                   activeTab === t
-                    ? "bg-[var(--color-primary)] text-white shadow-[var(--shadow-primary)]"
-                    : "text-[#f5f0e8]/72 hover:bg-white/6 hover:text-white"
+                    ? "bg-[var(--color-action-bg)] text-white shadow-[var(--shadow-primary)]"
+                    : "text-[var(--color-text-secondary)] hover:bg-[rgba(92,132,173,0.08)] hover:text-[var(--color-primary)]"
                 }`}
               >
                 <TabIcon tab={t} active={activeTab === t} />
@@ -210,7 +219,7 @@ export default function SettingsPage() {
 
           <button
             onClick={handleSignOut}
-            className="mt-8 flex w-full items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-[#ff7c38] transition-colors hover:bg-white/6"
+            className="rapt-interactive-lift mt-8 flex w-full items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-[var(--color-text-secondary)] transition-colors hover:bg-[rgba(92,132,173,0.08)] hover:text-[var(--color-primary)]"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
@@ -223,7 +232,7 @@ export default function SettingsPage() {
         <div className="rapt-glass-card flex-1 max-w-3xl px-8 py-8 md:px-10 md:py-10">
           <div className="mb-8">
             <span className="rapt-eyebrow">
-              <span className="h-2 w-2 rounded-full bg-[var(--color-primary)]" />
+              <span className="h-2 w-2 rounded-full bg-[var(--color-action-bg)]" />
               Account center
             </span>
             <h1 className="rapt-display mt-5 text-[38px] leading-[0.95] text-[var(--color-text-base)] md:text-[44px]">
@@ -313,7 +322,7 @@ export default function SettingsPage() {
                         onClick={() => toggleMethod(m)}
                         className={`rounded-full border-[1.5px] px-4 py-2 text-[13px] font-semibold transition-all ${
                           studyMethods.includes(m)
-                            ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-white"
+                            ? "border-[var(--color-primary)] bg-[var(--color-action-bg)] text-white"
                             : "border-[var(--color-border)] hover:border-[var(--color-primary-muted)]"
                         }`}
                       >
@@ -467,7 +476,7 @@ export default function SettingsPage() {
               <button
                 onClick={handleSave}
                 disabled={saving || !user}
-                className="rounded-xl bg-[var(--color-primary)] px-8 py-3 text-[14px] font-bold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rapt-pill-motion rounded-xl bg-[var(--color-action-bg)] px-8 py-3 text-[14px] font-bold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-action-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {saving ? "Saving…" : "Save changes"}
               </button>
@@ -488,7 +497,7 @@ function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
       aria-checked={on}
       onClick={onToggle}
       className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${
-        on ? "bg-[var(--color-primary)]" : "bg-[var(--color-border)]"
+        on ? "bg-[var(--color-action-bg)]" : "bg-[var(--color-border)]"
       }`}
     >
       <span

@@ -102,9 +102,9 @@ const DEMO_PARTNERS: Partner[] = [
 ];
 
 const MATCH_CARD_CLS =
-  "relative overflow-hidden rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(18,37,18,0.96),rgba(10,20,10,0.94))] shadow-[var(--shadow-md)] backdrop-blur-sm";
+  "relative overflow-hidden rounded-[28px] border border-[var(--color-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(246,239,229,0.82))] shadow-[0_24px_56px_rgba(52,44,35,0.12)] backdrop-blur-sm";
 const MATCH_FIELD_CLS =
-  "rounded-xl border border-white/12 bg-[rgba(255,255,255,0.06)] px-3 text-sm text-[var(--color-text-base)] outline-none transition-all [color-scheme:dark] placeholder:text-[#c8e898]/40 focus:border-[var(--color-primary)] focus:bg-[rgba(255,255,255,0.08)] focus:ring-2 focus:ring-[var(--color-primary)]/15";
+  "rounded-xl border border-[var(--color-border)] bg-white/82 px-3 text-sm text-[var(--color-text-base)] outline-none transition-all placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary)] focus:bg-white focus:ring-2 focus:ring-[var(--color-primary-light)]";
 
 /* ─────────────────────────────────────────────
    Matching algorithm
@@ -186,11 +186,11 @@ function RequestModal({
   const [notes,    setNotes]    = useState("");
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(4,8,4,0.72)] px-4 backdrop-blur-md">
-      <div className="w-full max-w-md overflow-hidden rounded-[28px] border border-white/12 bg-[linear-gradient(180deg,rgba(18,38,18,0.98),rgba(9,18,9,0.96))] shadow-[0_28px_90px_rgba(0,0,0,0.44)]">
-        <div className="border-b border-white/10 bg-[linear-gradient(135deg,rgba(232,90,10,0.9),rgba(191,73,8,0.92))] px-6 py-5 text-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(52,44,35,0.18)] px-4 backdrop-blur-md">
+      <div className="w-full max-w-md overflow-hidden rounded-[28px] border border-[var(--color-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.95),rgba(246,239,229,0.86))] shadow-[0_28px_90px_rgba(52,44,35,0.22)]">
+        <div className="border-b border-[var(--color-border-light)] bg-[linear-gradient(135deg,rgba(92,132,173,0.16),rgba(255,255,255,0.94))] px-6 py-5 text-[var(--color-text-base)]">
           <h2 className="text-lg font-extrabold">Request a Study Session</h2>
-          <p className="mt-0.5 text-[13px] text-white/70">
+          <p className="mt-0.5 text-[13px] text-[var(--color-text-secondary)]">
             with {target.name} · {target.sharedCourses[0] ?? target.allCourses[0] ?? ""}
           </p>
         </div>
@@ -216,8 +216,8 @@ function RequestModal({
                 <button key={d} onClick={() => setDuration(d)}
                   className={`flex-1 rounded-xl border-[1.5px] py-2 text-[13px] font-semibold transition-all ${
                     duration === d
-                      ? "border-[var(--color-primary)] bg-[rgba(232,90,10,0.16)] text-white shadow-[var(--shadow-primary)]"
-                      : "border-white/10 bg-white/4 text-[var(--color-text-secondary)] hover:border-white/18 hover:bg-white/7"
+                      ? "border-[var(--color-primary)] bg-[var(--color-action-bg)] text-white shadow-[var(--shadow-primary)]"
+                      : "border-[var(--color-border)] bg-white/78 text-[var(--color-text-secondary)] hover:border-[var(--color-primary-muted)] hover:bg-white"
                   }`}>
                   {d < 60 ? `${d}m` : `${d / 60}h`}
                 </button>
@@ -235,8 +235,8 @@ function RequestModal({
           </div>
 
           {target.location && (
-            <div className="flex items-center gap-2 rounded-xl border border-white/8 bg-white/5 px-3 py-2.5">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-[#c8e898]/66">
+            <div className="flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-white/72 px-3 py-2.5">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-[var(--color-text-muted)]">
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
               </svg>
               <span className="text-[12px] text-[var(--color-text-secondary)]">{target.location}</span>
@@ -245,11 +245,11 @@ function RequestModal({
 
           <div className="flex gap-3 pt-1">
             <button onClick={onClose}
-              className="flex-1 rounded-xl border border-white/12 bg-white/4 py-3 text-[14px] font-semibold text-[var(--color-text-secondary)] transition-colors hover:border-white/20 hover:bg-white/8">
+              className="flex-1 rounded-xl border border-[var(--color-border)] bg-white/78 py-3 text-[14px] font-semibold text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-primary-muted)] hover:bg-white">
               Cancel
             </button>
             <button onClick={() => onSend(date, time, duration, notes)}
-              className="flex-1 rounded-xl bg-[var(--color-primary)] py-3 text-[14px] font-bold text-white shadow-[var(--shadow-primary)] hover:bg-[var(--color-primary-hover)] transition-all">
+              className="flex-1 rounded-xl bg-[var(--color-action-bg)] py-3 text-[14px] font-bold text-white shadow-[var(--shadow-primary)] hover:bg-[var(--color-action-hover)] transition-all">
               Send Request
             </button>
           </div>
@@ -264,10 +264,10 @@ function RequestModal({
 ───────────────────────────────────────────── */
 function ScoreBreakdown({ bd }: { bd: MatchBreakdown }) {
   const bars: Array<{ label: string; score: number; max: number; color: string }> = [
-    { label: "Courses",    score: bd.courseScore, max: 50, color: "bg-[var(--color-primary)]" },
-    { label: "Methods",    score: bd.methodScore, max: 30, color: "bg-[#72b84a]" },
-    { label: "Group size", score: bd.groupScore,  max: 12, color: "bg-[#f0b45e]" },
-    { label: "Environment",score: bd.envScore,    max:  8, color: "bg-[#9ad8b7]" },
+    { label: "Courses",    score: bd.courseScore, max: 50, color: "bg-[var(--color-action-bg)]" },
+    { label: "Methods",    score: bd.methodScore, max: 30, color: "bg-[#6c8daf]" },
+    { label: "Group size", score: bd.groupScore,  max: 12, color: "bg-[#d3b184]" },
+    { label: "Environment",score: bd.envScore,    max:  8, color: "bg-[#9db4c8]" },
   ];
   return (
     <div className="flex flex-col gap-1.5 py-1">
@@ -277,7 +277,7 @@ function ScoreBreakdown({ bd }: { bd: MatchBreakdown }) {
             <span>{b.label}</span>
             <span>{b.score}/{b.max}</span>
           </div>
-          <div className="h-1.5 w-full rounded-full bg-white/8">
+          <div className="h-1.5 w-full rounded-full bg-[rgba(92,132,173,0.12)]">
             <div
               className={`h-full rounded-full ${b.color}`}
               style={{ width: `${(b.score / b.max) * 100}%` }}
@@ -306,18 +306,18 @@ function MatchCard({
   const [showBreakdown, setShowBreakdown] = useState(false);
 
   const pctColor =
-    partner.matchPct >= 90 ? "text-[#72e38f]"
-    : partner.matchPct >= 75 ? "text-[#ffbf6b]"
+    partner.matchPct >= 90 ? "text-[var(--color-primary)]"
+    : partner.matchPct >= 75 ? "text-[#587ca1]"
     : "text-[var(--color-text-muted)]";
 
   const displayCourse = partner.sharedCourses[0] ?? partner.allCourses[0] ?? "—";
 
   return (
-    <div className={`${MATCH_CARD_CLS} flex flex-col transition-all hover:-translate-y-1 hover:border-white/16 hover:shadow-[0_24px_48px_rgba(0,0,0,0.34)]`}>
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-[radial-gradient(circle_at_top_right,rgba(232,90,10,0.16),transparent_58%)]" />
+    <div className={`${MATCH_CARD_CLS} flex flex-col transition-all hover:-translate-y-1 hover:border-[var(--color-primary-muted)] hover:shadow-[0_24px_48px_rgba(52,44,35,0.14)]`}>
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-[radial-gradient(circle_at_top_right,rgba(92,132,173,0.14),transparent_58%)]" />
       <div className="p-5 pb-3">
         <div className="mb-3 flex items-start gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] text-[13px] font-bold text-white shadow-[var(--shadow-primary)]">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--color-action-bg)] text-[13px] font-bold text-white shadow-[var(--shadow-primary)]">
             {partner.initials}
           </div>
           <div className="flex-1 min-w-0">
@@ -328,7 +328,7 @@ function MatchCard({
           <div className="relative shrink-0 text-right">
             <button
               onClick={() => setShowBreakdown((v) => !v)}
-              className="group rounded-xl px-2 py-1 transition-colors hover:bg-white/5"
+              className="group rounded-xl px-2 py-1 transition-colors hover:bg-[rgba(92,132,173,0.08)]"
               title="View score breakdown"
             >
               <div className={`text-[22px] font-extrabold leading-none ${pctColor}`}>
@@ -339,7 +339,7 @@ function MatchCard({
               </div>
             </button>
             {showBreakdown && (
-              <div className="absolute right-0 top-12 z-20 w-52 rounded-2xl border border-white/12 bg-[linear-gradient(180deg,rgba(19,39,19,0.98),rgba(10,20,10,0.96))] p-3 shadow-[var(--shadow-lg)] backdrop-blur-sm">
+              <div className="absolute right-0 top-12 z-20 w-52 rounded-2xl border border-[var(--color-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(246,239,229,0.9))] p-3 shadow-[var(--shadow-lg)] backdrop-blur-sm">
                 <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">Score Breakdown</p>
                 <ScoreBreakdown bd={partner.matchBreakdown} />
               </div>
@@ -349,26 +349,26 @@ function MatchCard({
 
         <div className="mb-3 flex flex-col gap-1.5">
           <div className="flex items-center gap-2 text-[12px] text-[var(--color-text-secondary)]">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-[#c8e898]/70">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-[var(--color-text-muted)]">
               <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
             </svg>
             {displayCourse}
             {partner.sharedCourses.length > 1 && (
-              <span className="rounded-full bg-[var(--color-teal-light)] px-1.5 py-0.5 text-[9px] font-bold text-[#d9f2ba]">
+              <span className="rounded-full bg-[var(--color-teal-light)] px-1.5 py-0.5 text-[9px] font-bold text-[#FFFFFF]">
                 +{partner.sharedCourses.length - 1} more
               </span>
             )}
           </div>
           {partner.location && (
             <div className="flex items-center gap-2 text-[12px] text-[var(--color-text-secondary)]">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-[#c8e898]/70">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-[var(--color-text-muted)]">
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
               </svg>
               {partner.location}
             </div>
           )}
           <div className="flex items-center gap-2 text-[12px] text-[var(--color-text-secondary)]">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-[#c8e898]/70">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-[var(--color-text-muted)]">
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
             </svg>
             {partner.rating.toFixed(1)} · {partner.sessionsCompleted} sessions
@@ -376,29 +376,29 @@ function MatchCard({
         </div>
 
         <div className="flex flex-wrap gap-1.5">
-          <span className="rounded-full border border-[#9dd46a]/20 bg-[rgba(114,184,74,0.18)] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#def4be]">
+          <span className="rounded-full border border-[var(--color-border)] bg-white/82 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--color-text-base)]">
             Student
           </span>
           {partner.methods.slice(0, 3).map((m) => (
-            <span key={m} className="rounded-full border border-white/10 bg-white/4 px-2.5 py-0.5 text-[10px] font-medium text-[var(--color-text-secondary)]">
+            <span key={m} className="rounded-full border border-[var(--color-border)] bg-white/72 px-2.5 py-0.5 text-[10px] font-medium text-[var(--color-text-secondary)]">
               {m}
             </span>
           ))}
         </div>
       </div>
 
-      <div className="mt-auto flex items-center justify-between border-t border-white/8 px-5 py-3.5">
+      <div className="mt-auto flex items-center justify-between border-t border-[var(--color-border-light)] px-5 py-3.5">
         <button onClick={onProfile} className="text-[12px] font-semibold text-[var(--color-primary)] hover:underline">
           View Profile
         </button>
         {sent ? (
-          <span className="flex items-center gap-1.5 rounded-full border border-amber-300/28 bg-[rgba(151,102,34,0.24)] px-3 py-1.5 text-[11px] font-semibold text-amber-200">
+          <span className="flex items-center gap-1.5 rounded-full border border-amber-300/36 bg-[rgba(247,231,191,0.62)] px-3 py-1.5 text-[11px] font-semibold text-amber-700">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-300" />
             Request sent
           </span>
         ) : (
           <button onClick={onRequest}
-            className="rounded-xl bg-[var(--color-primary)] px-4 py-2 text-[12px] font-bold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-primary-hover)] hover:-translate-y-px">
+            className="rapt-pill-motion rounded-xl bg-[var(--color-action-bg)] px-4 py-2 text-[12px] font-bold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-action-hover)] hover:-translate-y-px">
             Request Session
           </button>
         )}
@@ -415,24 +415,24 @@ function ProfileModal({ partner, onClose, onRequest }: {
   onClose: () => void;
   onRequest: () => void;
 }) {
-  const pctColor = partner.matchPct >= 90 ? "text-[#72e38f]" : partner.matchPct >= 75 ? "text-[#ffbf6b]" : "text-[var(--color-text-muted)]";
+  const pctColor = partner.matchPct >= 90 ? "text-[var(--color-primary)]" : partner.matchPct >= 75 ? "text-[#587ca1]" : "text-[var(--color-text-muted)]";
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(4,8,4,0.72)] px-4 backdrop-blur-md">
-      <div className="w-full max-w-lg overflow-hidden rounded-[30px] border border-white/12 bg-[linear-gradient(180deg,rgba(18,38,18,0.98),rgba(10,18,10,0.96))] shadow-[0_34px_100px_rgba(0,0,0,0.48)]">
-        <div className="relative bg-[linear-gradient(135deg,rgba(232,90,10,0.92),rgba(191,73,8,0.92))] px-6 pt-6 pb-14 text-white">
-          <button onClick={onClose} className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/18 hover:bg-white/28 transition-colors">
-            <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(52,44,35,0.18)] px-4 backdrop-blur-md">
+      <div className="w-full max-w-lg overflow-hidden rounded-[30px] border border-[var(--color-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.97),rgba(246,239,229,0.9))] shadow-[0_34px_100px_rgba(52,44,35,0.22)]">
+        <div className="relative bg-[linear-gradient(135deg,rgba(92,132,173,0.18),rgba(255,255,255,0.94))] px-6 pt-6 pb-14 text-[var(--color-text-base)]">
+          <button onClick={onClose} className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/72 hover:bg-white transition-colors">
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
               <line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/>
             </svg>
           </button>
           <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/20 text-2xl font-extrabold">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[rgba(92,132,173,0.18)] text-2xl font-extrabold text-[var(--color-primary)]">
               {partner.initials}
             </div>
             <div>
               <h2 className="text-xl font-extrabold">{partner.name}</h2>
-              <p className="text-[13px] text-white/70">{partner.major || "—"} · {partner.year || "—"}</p>
-              <p className="text-[12px] text-white/60">{partner.sharedCourses[0] ?? partner.allCourses[0] ?? ""}</p>
+              <p className="text-[13px] text-[var(--color-text-secondary)]">{partner.major || "—"} · {partner.year || "—"}</p>
+              <p className="text-[12px] text-[var(--color-text-muted)]">{partner.sharedCourses[0] ?? partner.allCourses[0] ?? ""}</p>
             </div>
           </div>
         </div>
@@ -443,7 +443,7 @@ function ProfileModal({ partner, onClose, onRequest }: {
             { label: "Rating",   value: partner.rating.toFixed(1), color: "text-[var(--color-text-base)]" },
             { label: "Sessions", value: `${partner.sessionsCompleted}`, color: "text-[var(--color-text-base)]" },
           ].map((s) => (
-            <div key={s.label} className="rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(20,40,20,0.98),rgba(11,23,11,0.94))] px-3 py-3 text-center shadow-[var(--shadow-md)]">
+            <div key={s.label} className="rounded-2xl border border-[var(--color-border)] bg-white/82 px-3 py-3 text-center shadow-[var(--shadow-md)]">
               <div className={`text-[20px] font-extrabold ${s.color}`}>{s.value}</div>
               <div className="text-[10px] font-medium text-[var(--color-text-muted)]">{s.label}</div>
             </div>
@@ -469,7 +469,7 @@ function ProfileModal({ partner, onClose, onRequest }: {
               <p className="mb-1.5 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">Shared Courses</p>
               <div className="flex flex-wrap gap-1.5">
                 {partner.sharedCourses.map((c) => (
-                  <span key={c} className="rounded-full border border-[#9dd46a]/20 bg-[rgba(114,184,74,0.18)] px-3 py-1 text-[11px] font-semibold text-[#def4be]">
+                  <span key={c} className="rounded-full border border-[var(--color-border)] bg-white/82 px-3 py-1 text-[11px] font-semibold text-[var(--color-text-base)]">
                     {c}
                   </span>
                 ))}
@@ -482,7 +482,7 @@ function ProfileModal({ partner, onClose, onRequest }: {
               { icon: "📍", label: partner.location || "No location set" },
               { icon: "📚", label: partner.methods.join(", ") || "No methods set" },
             ].map((d) => (
-              <div key={d.label} className="flex items-center gap-2 rounded-xl border border-white/8 bg-white/5 px-3 py-2.5">
+              <div key={d.label} className="flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-white/72 px-3 py-2.5">
                 <span className="text-sm">{d.icon}</span>
                 <span className="text-[12px] text-[var(--color-text-secondary)] truncate">{d.label}</span>
               </div>
@@ -490,10 +490,10 @@ function ProfileModal({ partner, onClose, onRequest }: {
           </div>
 
           <div className="flex gap-3 pt-1">
-            <button onClick={onClose} className="flex-1 rounded-xl border border-white/12 bg-white/4 py-3 text-[14px] font-semibold text-[var(--color-text-secondary)] transition-colors hover:border-white/20 hover:bg-white/8">
+            <button onClick={onClose} className="flex-1 rounded-xl border border-[var(--color-border)] bg-white/78 py-3 text-[14px] font-semibold text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-primary-muted)] hover:bg-white">
               Close
             </button>
-            <button onClick={() => { onClose(); onRequest(); }} className="flex-1 rounded-xl bg-[var(--color-primary)] py-3 text-[14px] font-bold text-white shadow-[var(--shadow-primary)] hover:bg-[var(--color-primary-hover)] transition-all">
+            <button onClick={() => { onClose(); onRequest(); }} className="rapt-pill-motion flex-1 rounded-xl bg-[var(--color-action-bg)] py-3 text-[14px] font-bold text-white shadow-[var(--shadow-primary)] hover:bg-[var(--color-action-hover)] transition-all">
               Request Session
             </button>
           </div>
@@ -695,7 +695,7 @@ function MatchesPageContent() {
       <main className="rapt-app-main flex-1 px-8 py-8 md:px-12 md:py-10">
         <div className="rapt-hero-card mb-8 px-7 py-7 md:px-8">
           <span className="rapt-eyebrow">
-            <span className="h-2 w-2 rounded-full bg-[var(--color-primary)]" />
+            <span className="h-2 w-2 rounded-full bg-[var(--color-action-bg)]" />
             Compatibility queue
           </span>
           <div className="mt-5 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
@@ -708,7 +708,7 @@ function MatchesPageContent() {
               </p>
             </div>
             <div className="flex items-center gap-3 text-[12px] font-semibold text-[var(--color-text-secondary)]">
-              <span className="rounded-full border border-white/12 bg-white/8 px-4 py-2 text-[var(--color-text-base)]">
+              <span className="rounded-full border border-[var(--color-border)] bg-white/78 px-4 py-2 text-[var(--color-text-base)]">
                 {displayPartners.length} potential matches
               </span>
             </div>
@@ -744,8 +744,8 @@ function MatchesPageContent() {
                   <button key={c} onClick={() => setCourseFilter(c)}
                     className={`rounded-full border-[1.5px] px-3.5 py-1.5 text-[12px] font-semibold transition-all ${
                       courseFilter === c
-                        ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-white shadow-[var(--shadow-primary)]"
-                        : "border-white/10 bg-white/4 text-[var(--color-text-secondary)] hover:border-white/18 hover:bg-white/7"
+                        ? "border-[var(--color-primary)] bg-[var(--color-action-bg)] text-white shadow-[var(--shadow-primary)]"
+                        : "border-[var(--color-border)] bg-white/78 text-[var(--color-text-secondary)] hover:border-[var(--color-primary-muted)] hover:bg-white"
                     }`}>
                     {c}
                   </button>
@@ -753,7 +753,7 @@ function MatchesPageContent() {
               </div>
             </div>
 
-            <p className="mb-5 text-[13px] text-[#c8e898]/78">
+            <p className="mb-5 text-[13px] text-[var(--color-text-muted)]">
               {filtered.length} match{filtered.length !== 1 ? "es" : ""} found
             </p>
 
@@ -791,7 +791,7 @@ export default function MatchesPage() {
       fallback={
         <div className="rapt-app-shell flex min-h-screen flex-col bg-[var(--color-bg)]">
           <Navbar />
-          <main className="rapt-app-main flex flex-1 items-center justify-center px-8 py-12 text-[15px] text-white/45">
+          <main className="rapt-app-main flex flex-1 items-center justify-center px-8 py-12 text-[15px] text-[var(--color-text-muted)]">
             Loading matches…
           </main>
         </div>

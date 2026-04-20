@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import { RaptLogoAuthHero } from "@/components/RaptLogo";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -16,13 +16,13 @@ const DEMO_MATCH_ID = "cccccccc-cccc-cccc-cccc-cccccccccccc";
 
 function getSafeNextPath(next: string | null) {
   if (!next || !next.startsWith("/") || next.startsWith("//")) {
-    return "/matches";
+    return "/schedule";
   }
 
   return next;
 }
 
-export default function LoginPage() {
+function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
@@ -148,7 +148,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={handleBackNavigation}
-              className="rapt-eyebrow rapt-interactive-lift rapt-motion-enter border-white/10 bg-white/8 text-[#c8e898] transition-all hover:border-white/20 hover:bg-white/12"
+              className="rapt-eyebrow rapt-interactive-lift rapt-motion-enter border-[var(--color-border)] bg-white/72 text-[var(--color-primary)] transition-all hover:border-[var(--color-primary-muted)] hover:bg-white/88"
               style={{ animationDelay: "100ms" }}
             >
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round">
@@ -157,19 +157,19 @@ export default function LoginPage() {
               </svg>
               Back to matching
             </button>
-            <h1 className="rapt-display rapt-motion-enter mt-5 text-[clamp(44px,6vw,72px)] leading-[0.94] text-white" style={{ animationDelay: "180ms" }}>
+            <h1 className="rapt-display rapt-motion-enter mt-5 text-[clamp(44px,6vw,72px)] leading-[0.94] text-[var(--color-text-base)]" style={{ animationDelay: "180ms" }}>
               Welcome back to your
               <br />
-              <span className="italic text-[#ff7c38]">study orbit.</span>
+              <span className="italic text-[var(--color-hero-orange)]">study orbit.</span>
             </h1>
-            <p className="rapt-motion-enter mt-5 text-[16px] leading-relaxed text-[#c8e898]/78" style={{ animationDelay: "260ms" }}>
+            <p className="rapt-motion-enter mt-5 text-[16px] leading-relaxed text-[var(--color-text-secondary)]" style={{ animationDelay: "260ms" }}>
               Pick up where you left off. Matches, sessions, and shared study tools all carry the same RAPT jungle energy from the homepage.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               {["UT Austin ready", "Course-based matching", "Shared live sessions"].map((item, index) => (
                 <span
                   key={item}
-                  className="rapt-pill-motion rapt-motion-enter rounded-full border border-white/12 bg-white/7 px-4 py-2 text-[12px] font-semibold text-white/78 backdrop-blur-sm"
+                  className="rapt-pill-motion rapt-motion-enter rounded-full border border-[var(--color-border)] bg-white/72 px-4 py-2 text-[12px] font-semibold text-[var(--color-text-secondary)] backdrop-blur-sm"
                   style={{ animationDelay: `${340 + index * 110}ms` }}
                 >
                   {item}
@@ -184,7 +184,7 @@ export default function LoginPage() {
             <Link href="/" className="rapt-motion-enter inline-flex justify-center" aria-label="RAPT home">
               <RaptLogoAuthHero className="max-h-[5.25rem] sm:max-h-none" />
             </Link>
-            <p className="rapt-motion-enter mt-2 text-[14px] text-[#c8e898]/80" style={{ animationDelay: "100ms" }}>Welcome back</p>
+            <p className="rapt-motion-enter mt-2 text-[14px] text-[var(--color-text-secondary)]" style={{ animationDelay: "100ms" }}>Welcome back</p>
           </div>
 
           <div className="rapt-auth-card rapt-motion-enter p-8" style={{ animationDelay: "160ms" }}>
@@ -199,7 +199,7 @@ export default function LoginPage() {
               Sign in to browse matches, manage sessions, and keep your study momentum going.
             </p>
             {error && (
-              <div className="mb-5 rounded-lg border border-red-300 bg-[rgba(143,45,38,0.28)] px-4 py-3 text-[13px] font-medium text-[#ffd1c7]">
+              <div className="mb-5 rounded-lg border border-red-300 bg-[rgba(43,43,43,0.28)] px-4 py-3 text-[13px] font-medium text-[#FFFFFF]">
                 {error}
               </div>
             )}
@@ -278,7 +278,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="rapt-glow-pulse rapt-interactive-lift mt-1 w-full rounded-xl bg-[var(--color-primary)] py-3 text-sm font-bold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-primary-hover)] hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-60 disabled:translate-y-0"
+                className="rapt-glow-pulse rapt-interactive-lift mt-1 w-full rounded-xl bg-[var(--color-action-bg)] py-3 text-sm font-bold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-action-hover)] hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-60 disabled:translate-y-0"
               >
                 {loading ? "Logging in…" : "Log in"}
               </button>
@@ -294,5 +294,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginPageContent />
+    </Suspense>
   );
 }

@@ -85,7 +85,7 @@ export default function SetupPanel({ state, setRole, setTopic, setPresenterNotes
                   <p className="text-sm font-semibold text-[var(--color-text-base)]">Upload your notes</p>
                   <p className="mt-1 text-xs text-[var(--color-text-muted)]">TXT, PDF, or DOCX · max 10MB</p>
                 </div>
-                <label className="cursor-pointer rounded-lg bg-[var(--color-primary)] px-4 py-2 text-xs font-bold text-white transition-opacity hover:opacity-90">
+                <label className="cursor-pointer rounded-lg bg-[var(--color-action-bg)] px-4 py-2 text-xs font-bold text-white transition-opacity hover:opacity-90">
                   Choose file
                   <input type="file" accept=".txt,.pdf,.docx" className="hidden" onChange={handleFileUpload}/>
                 </label>
@@ -113,7 +113,7 @@ export default function SetupPanel({ state, setRole, setTopic, setPresenterNotes
         </div>
       </div>
       <button onClick={onStart} disabled={!canStart}
-        className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-base font-black tracking-tight transition-all ${canStart ? "bg-[var(--color-primary)] text-white shadow-lg shadow-[#c4622d]/20 hover:-translate-y-0.5 hover:opacity-90" : "cursor-not-allowed bg-white/8 text-[var(--color-text-muted)]"}`}>
+        className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-base font-black tracking-tight transition-all ${canStart ? "bg-[var(--color-action-bg)] text-white shadow-lg shadow-black/20 hover:-translate-y-0.5 hover:opacity-90" : "cursor-not-allowed bg-white/8 text-[var(--color-text-muted)]"}`}>
         <FossilDigIcon className="h-5 w-5" />
         Start Fossil Dig
         <ArrowRightIcon className="h-5 w-5" />

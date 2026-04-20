@@ -44,12 +44,6 @@ const STEPS = [
   { n: "03", tone: "rapt-step-card--launch", title: "Match & study", desc: "Get paired with compatible classmates and jump straight into an active session." },
 ];
 
-const STATS = [
-  { value: "4,200+", label: "Students matched" },
-  { value: "92%",    label: "Satisfaction rate" },
-  { value: "18",     label: "Universities" },
-];
-
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-[var(--color-bg)] font-sans text-[var(--color-text-base)]">
@@ -61,7 +55,7 @@ export default function HomePage() {
 
         <div className="relative mx-auto max-w-4xl px-2">
           <h1 className="rapt-hero-headline rapt-motion-enter mx-auto mb-8 max-w-[min(100%,28rem)] text-balance sm:mb-10 sm:max-w-5xl">
-            <span className="block text-[clamp(2.75rem,8vw,4.5rem)] font-extrabold leading-[0.92] tracking-[-0.04em] text-white">
+            <span className="block text-[clamp(2.75rem,8vw,4.5rem)] font-extrabold leading-[0.92] tracking-[-0.04em] text-[var(--color-text-base)]">
               Find your
             </span>
             <span className="rapt-hero-line-accent -mt-1 block text-[clamp(3.25rem,11vw,6.75rem)] uppercase leading-[0.85] text-[var(--color-hero-orange)] sm:-mt-2 md:-mt-3">
@@ -69,14 +63,14 @@ export default function HomePage() {
             </span>
           </h1>
 
-          <p className="rapt-motion-enter mx-auto mb-11 max-w-[34rem] text-pretty text-[15px] font-normal leading-[1.7] text-white/90 sm:mb-12 sm:text-[17px] sm:leading-[1.75]" style={{ animationDelay: "120ms" }}>
+          <p className="rapt-motion-enter mx-auto mb-11 max-w-[34rem] text-pretty text-[15px] font-normal leading-[1.7] text-[var(--color-text-secondary)] sm:mb-12 sm:text-[17px] sm:leading-[1.75]" style={{ animationDelay: "120ms" }}>
             RAPT matches you with classmates based on your schedule, courses, and study habits. Stop studying alone.
           </p>
 
-          <div className="rapt-motion-enter flex items-center justify-center gap-4 flex-wrap sm:gap-5" style={{ animationDelay: "240ms" }}>
+          <div className="rapt-motion-enter flex flex-wrap items-center justify-center gap-4 sm:gap-5" style={{ animationDelay: "240ms" }}>
             <Link
               href="/signup"
-              className="rapt-glow-pulse rapt-interactive-lift inline-flex items-center gap-2.5 rounded-full bg-[var(--color-primary)] px-10 py-4 text-[17px] font-semibold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-primary-hover)] hover:-translate-y-0.5 sm:px-11 sm:py-[1.125rem] sm:text-[18px]"
+              className="rapt-glow-pulse rapt-interactive-lift inline-flex items-center gap-2.5 rounded-full bg-[var(--color-action-bg)] px-10 py-4 text-[17px] font-semibold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-action-hover)] hover:-translate-y-0.5 sm:px-11 sm:py-[1.125rem] sm:text-[18px]"
             >
               Get started free
               <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="shrink-0">
@@ -86,26 +80,13 @@ export default function HomePage() {
             </Link>
             <Link
               href="/login"
-              className="rapt-interactive-lift rounded-full border border-white/15 bg-white/[0.06] px-10 py-4 text-[17px] font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/[0.1] sm:px-11 sm:py-[1.125rem] sm:text-[18px]"
+              className="rapt-interactive-lift rounded-full border border-[var(--color-border)] bg-white/70 px-10 py-4 text-[17px] font-semibold text-[var(--color-text-base)] backdrop-blur-sm transition-all hover:bg-white/88 sm:px-11 sm:py-[1.125rem] sm:text-[18px]"
             >
               Log in
             </Link>
           </div>
         </div>
 
-        {/* Stats row inside hero */}
-        <div className="rapt-motion-enter mt-14 flex items-center justify-center gap-12 flex-wrap sm:mt-16 sm:gap-16" style={{ animationDelay: "360ms" }}>
-          {STATS.map((s, index) => (
-            <div key={s.label} className="rapt-pill-motion rapt-float-soft text-center" style={{ animationDelay: `${480 + index * 140}ms` }}>
-              <div className="rapt-display text-[clamp(2.25rem,5vw,3rem)] leading-none text-[var(--color-primary)]">
-                {s.value}
-              </div>
-              <div className="mt-2 text-[14px] font-semibold text-[var(--color-text-muted)] sm:mt-2.5 sm:text-[15px]">
-                {s.label}
-              </div>
-            </div>
-          ))}
-        </div>
       </section>
 
       {/* ── Features ── */}
@@ -113,7 +94,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-6xl">
           <div className="rapt-motion-enter mb-12 text-center" style={{ animationDelay: "120ms" }}>
             <span className="rapt-eyebrow mb-4 inline-flex">
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-primary)]" />
+              <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-action-bg)]" />
               Built for students
             </span>
             <h2 className="rapt-display mt-4 text-[clamp(28px,4vw,40px)] text-[var(--color-text-base)]">
@@ -179,7 +160,7 @@ export default function HomePage() {
           <ScrollReveal>
             <div className="rapt-cta-card flex flex-col items-center px-10 py-14 text-center">
               <span className="rapt-eyebrow mb-4 inline-flex">
-                <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-primary)] animate-pulse" />
+                <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-action-bg)] animate-pulse" />
                 Join your classmates
               </span>
               <h2 className="rapt-display mt-4 text-[clamp(28px,4vw,42px)] leading-tight text-[var(--color-text-base)]">
@@ -189,7 +170,7 @@ export default function HomePage() {
               <p className="mt-4 mb-10 max-w-sm text-[15px] leading-relaxed text-[var(--color-text-secondary)]">
                 Join thousands of students already using RAPT to make the most of their study time.
               </p>
-              <Link href="/signup" className="rapt-glow-pulse rapt-interactive-lift inline-flex items-center gap-2 rounded-2xl bg-[var(--color-primary)] px-10 py-4 text-[15px] font-bold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-primary-hover)] hover:-translate-y-1">
+              <Link href="/signup" className="rapt-glow-pulse rapt-interactive-lift inline-flex items-center gap-2 rounded-2xl bg-[var(--color-action-bg)] px-10 py-4 text-[15px] font-bold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-action-hover)] hover:-translate-y-1">
                 Get started — it&apos;s free
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                   <line x1="3" y1="8" x2="13" y2="8"/><polyline points="9,4 13,8 9,12"/>
@@ -201,7 +182,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="border-t border-[var(--color-border)] bg-[#0a160a] px-5 py-8 sm:px-8">
+      <footer className="border-t border-[var(--color-border)] bg-[rgba(255,249,242,0.92)] px-5 py-8 sm:px-8">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 text-center text-[12px] text-[var(--color-text-muted)] sm:flex-row sm:items-center sm:justify-between sm:text-left">
           <Link href="/" className="inline-flex justify-center" aria-label="RAPT home">
             <RaptLogoSm />

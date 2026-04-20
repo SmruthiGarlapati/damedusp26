@@ -60,7 +60,7 @@ export default function PresenterView({ state, onDone }: Props) {
             className="h-full rounded-full transition-all duration-1000"
             style={{
               width: `${progress}%`,
-              background: isUrgent ? "var(--color-primary)" : "#d4956a",
+              background: isUrgent ? "var(--color-primary)" : "var(--color-action-bg)",
             }}
           />
         </div>
@@ -72,7 +72,7 @@ export default function PresenterView({ state, onDone }: Props) {
         {!running ? (
           <button
             onClick={() => setRunning(true)}
-            className="inline-flex items-center gap-2 rounded-2xl bg-[var(--color-primary)] px-10 py-4 text-base font-black text-white shadow-lg shadow-[#c4622d]/20 transition-opacity hover:opacity-90"
+            className="inline-flex items-center gap-2 rounded-2xl bg-[var(--color-action-bg)] px-10 py-4 text-base font-black text-white shadow-lg shadow-black/20 transition-opacity hover:opacity-90"
           >
             Start presenting
             <ArrowRightIcon className="h-5 w-5" />

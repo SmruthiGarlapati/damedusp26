@@ -78,7 +78,7 @@ export default function ScribeView({ state, setScribeRecall, onSubmit }: Props) 
           </div>
           <button
             onClick={() => setStarted(true)}
-            className="inline-flex items-center gap-2 rounded-2xl bg-[var(--color-primary)] px-10 py-4 text-base font-black text-white shadow-lg shadow-[#c4622d]/20 transition-opacity hover:opacity-90"
+            className="inline-flex items-center gap-2 rounded-2xl bg-[var(--color-action-bg)] px-10 py-4 text-base font-black text-white shadow-lg shadow-black/20 transition-opacity hover:opacity-90"
           >
             Start recall
             <ArrowRightIcon className="h-5 w-5" />
@@ -97,7 +97,7 @@ export default function ScribeView({ state, setScribeRecall, onSubmit }: Props) 
                 className="h-full rounded-full transition-all duration-1000"
                 style={{
                   width: `${progress}%`,
-                  background: isUrgent ? "var(--color-primary)" : "#d4956a",
+                  background: isUrgent ? "var(--color-primary)" : "var(--color-action-bg)",
                 }}
               />
             </div>
@@ -121,7 +121,7 @@ export default function ScribeView({ state, setScribeRecall, onSubmit }: Props) 
             disabled={wordCount < 5}
             className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-base font-black tracking-tight transition-all ${
               wordCount >= 5
-                ? "bg-[var(--color-primary)] text-white shadow-lg shadow-[#c4622d]/20 hover:-translate-y-0.5 hover:opacity-90"
+                ? "bg-[var(--color-action-bg)] text-white shadow-lg shadow-black/20 hover:-translate-y-0.5 hover:opacity-90"
                 : "cursor-not-allowed bg-white/8 text-[var(--color-text-muted)]"
             }`}
           >

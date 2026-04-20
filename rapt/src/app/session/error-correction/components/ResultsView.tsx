@@ -8,6 +8,15 @@ interface Props {
   onRetry: () => void;
 }
 
+const resultHighlightClasses = {
+  error:
+    "box-decoration-clone rounded-md border border-red-200 bg-red-50 px-1.5 py-px font-medium text-red-900 shadow-[inset_0_0_0_1px_rgba(248,113,113,0.08)]",
+  falsePositive:
+    "box-decoration-clone rounded-md border border-amber-200 bg-amber-50 px-1.5 py-px font-medium text-amber-900 shadow-[inset_0_0_0_1px_rgba(251,191,36,0.08)]",
+  correction:
+    "box-decoration-clone rounded-md border border-emerald-200 bg-emerald-50 px-1.5 py-px font-medium text-emerald-900 shadow-[inset_0_0_0_1px_rgba(74,222,128,0.08)]",
+};
+
 export default function ResultsView({ state, onRetry }: Props) {
   // If results aren't loaded yet, don't render
   if (!state.results) return null;
@@ -47,9 +56,9 @@ export default function ResultsView({ state, onRetry }: Props) {
                   key={s.id} 
                   className={`inline transition-colors ${
                     s.isError 
-                      ? "bg-red-500/20 text-red-200 border-b border-red-500/50 px-1 rounded" 
+                      ? resultHighlightClasses.error
                       : userFlagged 
-                      ? "bg-amber-500/20 text-amber-200 border-b border-amber-500/50 px-1 rounded" // Highlight false positives
+                      ? resultHighlightClasses.falsePositive
                       : ""
                   }`}
                 >
@@ -70,7 +79,7 @@ export default function ResultsView({ state, onRetry }: Props) {
               <span 
                 key={s.id} 
                 className={`inline transition-colors ${
-                  s.isError ? "bg-green-500/20 text-green-200 border-b border-green-500/50 px-1 rounded" : ""
+                  s.isError ? resultHighlightClasses.correction : ""
                 }`}
               >
                 {s.correctText || s.text}{" "}
@@ -140,7 +149,7 @@ export default function ResultsView({ state, onRetry }: Props) {
       <div className="flex justify-center pt-4">
         <button
           onClick={onRetry}
-          className="inline-flex items-center gap-2 rounded-2xl bg-[var(--color-primary)] px-10 py-4 text-base font-black text-white shadow-lg transition-transform hover:-translate-y-0.5"
+          className="inline-flex items-center gap-2 rounded-2xl bg-[var(--color-action-bg)] px-10 py-4 text-base font-black text-white shadow-lg transition-transform hover:-translate-y-0.5"
         >
           <RefreshIcon className="h-5 w-5" />
           Play again

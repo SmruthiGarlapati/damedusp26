@@ -245,20 +245,20 @@ export function StudyGameShell({
 
   return (
     <div className="rapt-app-shell min-h-screen px-4 py-4 md:px-6 md:py-6">
-      <div className="mx-auto rounded-[32px] border border-[var(--color-border)] bg-[rgba(13,28,13,0.92)] shadow-[var(--shadow-lg)] backdrop-blur-sm">
-        <div className="rounded-t-[32px] border-b border-white/10 bg-[linear-gradient(180deg,rgba(11,24,11,0.96),rgba(11,24,11,0.9))] px-5 py-4 md:px-8 md:py-5">
+      <div className="mx-auto rounded-[32px] border border-[var(--color-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(246,239,229,0.88))] shadow-[0_24px_56px_rgba(52,44,35,0.12)] backdrop-blur-sm">
+        <div className="rounded-t-[32px] border-b border-[var(--color-border-light)] bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(246,239,229,0.92))] px-5 py-4 md:px-8 md:py-5">
           <div className="flex flex-col gap-4">
             <button
               type="button"
               onClick={handleBack}
-              className="inline-flex items-center gap-2 self-start rounded-full border border-white/12 bg-white/6 px-3 py-2 text-[12px] font-semibold text-[var(--color-text-secondary)] transition-all hover:border-[var(--color-primary-muted)] hover:text-white"
+              className="inline-flex items-center gap-2 self-start rounded-full border border-[var(--color-border)] bg-white/78 px-3 py-2 text-[12px] font-semibold text-[var(--color-text-secondary)] transition-all hover:border-[var(--color-primary-muted)] hover:bg-white hover:text-[var(--color-primary)]"
             >
               <ArrowLeftIcon className="h-4 w-4" />
               {backLabel}
             </button>
 
             <div className="flex items-start gap-4">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/12 bg-white/6 text-[var(--color-primary)] shadow-[0_12px_28px_rgba(0,0,0,0.18)]">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[var(--color-border)] bg-white/82 text-[var(--color-primary)] shadow-[0_12px_28px_rgba(52,44,35,0.1)]">
                 <Icon className="h-6 w-6" />
               </div>
               <div className="space-y-2">
@@ -266,11 +266,11 @@ export function StudyGameShell({
                   {eyebrow}
                 </span>
                 <div className="flex flex-wrap items-center gap-3">
-                  <h1 className="rapt-display text-[clamp(28px,4vw,42px)] tracking-tight text-white">
+                  <h1 className="rapt-display text-[clamp(28px,4vw,42px)] tracking-tight text-[var(--color-text-base)]">
                     {title}
                   </h1>
                   {topic ? (
-                    <span className="rounded-full border border-white/10 bg-white/6 px-3 py-1 text-[12px] font-semibold text-[#d9e8c2]">
+                    <span className="rounded-full border border-[var(--color-primary-muted)] bg-[var(--color-primary-light)] px-3 py-1 text-[12px] font-semibold text-[var(--color-primary)]">
                       {topic}
                     </span>
                   ) : null}

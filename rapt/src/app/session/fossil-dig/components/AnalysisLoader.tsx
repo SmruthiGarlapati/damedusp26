@@ -32,7 +32,7 @@ export default function AnalysisLoader() {
         {[0, 1, 2, 3].map((i) => (
           <div
             key={i}
-            className="h-2 w-2 rounded-full bg-[#c4622d]"
+            className="h-2 w-2 rounded-full bg-white"
             style={{
               animation: `pulse 1.2s ease-in-out ${i * 0.2}s infinite`,
             }}
