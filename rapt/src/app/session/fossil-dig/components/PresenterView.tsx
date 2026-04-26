@@ -15,6 +15,11 @@ export default function PresenterView({ state, partnerName, onDone }: Props) {
   const [secondsLeft, setSecondsLeft] = useState(totalSeconds);
   const [running, setRunning] = useState(false);
   const partnerFirst = partnerName.split(" ")[0];
+  const isUserPresenter = state.role === "presenter";
+  const isTaniSidDemo = partnerFirst === "Tani" || partnerFirst === "Sid";
+  const presenterLabel = isTaniSidDemo ? "Tani" : isUserPresenter ? "You" : partnerFirst;
+  const listenerLabel = isTaniSidDemo ? "Sid" : isUserPresenter ? partnerFirst : "You";
+  const listenerAvatarName = listenerLabel === "Sid" ? "Sid Kapoor" : listenerLabel === "You" ? "You" : partnerName;
 
   const finishPresentation = useCallback(() => {
     onDone();
@@ -44,19 +49,23 @@ export default function PresenterView({ state, partnerName, onDone }: Props) {
           Presenter mode
         </span>
         <h1 className="rapt-display mb-1 text-3xl tracking-tight text-[var(--color-text-base)]">
-          You&apos;re leading the dig
+          {presenterLabel} {presenterLabel === "You" ? "are" : "is"} presenting
         </h1>
         <p className="text-[var(--color-text-secondary)] text-sm">
-          Teach the topic. {partnerFirst} is listening — no interruptions.
+          {isUserPresenter
+            ? `Teach the topic. ${listenerLabel} is listening - no interruptions.`
+            : `${presenterLabel} is teaching the topic. ${listenerLabel} is listening - no interruptions.`}
         </p>
       </div>
 
       {/* Partner listening indicator */}
       <div className="flex items-center gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-strong)] px-5 py-4">
-        <PlayerAvatar name={partnerName} size="md" />
+        <PlayerAvatar name={listenerAvatarName} you={listenerLabel === "You"} size="md" />
         <div className="flex-1">
-          <div className="text-sm font-bold text-[var(--color-text-base)]">{partnerFirst} is listening</div>
-          <div className="text-xs text-[var(--color-text-muted)]">Active listener · will recall everything after you finish</div>
+          <div className="text-sm font-bold text-[var(--color-text-base)]">{listenerLabel} is listening</div>
+          <div className="text-xs text-[var(--color-text-muted)]">
+            Active listener · will recall everything after {presenterLabel === "You" ? "you finish" : `${presenterLabel} finishes`}
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <span className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
@@ -82,7 +91,15 @@ export default function PresenterView({ state, partnerName, onDone }: Props) {
         </div>
 
         <div className="text-sm font-medium text-[var(--color-text-muted)]">
-          {!running ? "Press start when you're ready" : isUrgent ? "Wrapping up soon..." : `${partnerFirst} is taking notes mentally — keep going`}
+          {!running
+            ? isUserPresenter
+              ? "Press start when you're ready"
+              : `Press start when ${presenterLabel} begins`
+            : isUrgent
+            ? "Wrapping up soon..."
+            : isUserPresenter
+            ? `${listenerLabel} is taking notes mentally - keep going`
+            : `${presenterLabel} is presenting while ${listenerLabel} listens`}
         </div>
 
         {!running ? (
@@ -90,7 +107,7 @@ export default function PresenterView({ state, partnerName, onDone }: Props) {
             onClick={() => setRunning(true)}
             className="inline-flex items-center gap-2 rounded-2xl bg-[var(--color-action-bg)] px-10 py-4 text-base font-black text-white shadow-lg shadow-black/20 transition-opacity hover:opacity-90"
           >
-            Start presenting
+            {isUserPresenter ? "Start presenting" : "Start listening"}
             <ArrowRightIcon className="h-5 w-5" />
           </button>
         ) : (
@@ -98,7 +115,7 @@ export default function PresenterView({ state, partnerName, onDone }: Props) {
             onClick={finishPresentation}
             className="inline-flex items-center gap-2 rounded-2xl border-2 border-[var(--color-border)] bg-white/6 px-10 py-4 text-base font-black text-[var(--color-text-secondary)] transition-all hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
           >
-            I&apos;m done early
+            {isUserPresenter ? "I&apos;m done early" : `${presenterLabel} finished presenting`}
             <ArrowRightIcon className="h-5 w-5" />
           </button>
         )}

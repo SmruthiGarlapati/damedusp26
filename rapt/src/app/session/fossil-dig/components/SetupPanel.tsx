@@ -23,8 +23,11 @@ interface Props {
 }
 
 export default function SetupPanel({ state, partnerName, setRole, setTopic, setPresenterNotes, setPresentationMinutes, onStart }: Props) {
-  const canStart = state.topic.trim().length > 0 && (state.role === "scribe" || state.presenterNotes.trim().length > 0);
   const partnerFirst = partnerName.split(" ")[0];
+  const lockedRole = partnerFirst === "Tani" ? "scribe" : partnerFirst === "Sid" ? "presenter" : null;
+  const activeRole = lockedRole ?? state.role;
+  const isTaniSidDemo = lockedRole !== null;
+  const canStart = state.topic.trim().length > 0 && (activeRole === "scribe" || state.presenterNotes.trim().length > 0);
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -33,8 +36,8 @@ export default function SetupPanel({ state, partnerName, setRole, setTopic, setP
     setPresenterNotes(text);
   }
 
-  const youRole = state.role === "presenter" ? "Lead Presenter" : "Field Scribe";
-  const partnerRole = state.role === "presenter" ? "Field Scribe" : "Lead Presenter";
+  const youRole = activeRole === "presenter" ? "Lead Presenter" : "Field Scribe";
+  const partnerRole = activeRole === "presenter" ? "Field Scribe" : "Lead Presenter";
 
   return (
     <div className="flex flex-col gap-6">
@@ -68,21 +71,33 @@ export default function SetupPanel({ state, partnerName, setRole, setTopic, setP
 
       <div>
         <label className="mb-3 block text-xs font-bold uppercase tracking-widest text-[var(--color-text-muted)]">Your role</label>
-        <div className="grid grid-cols-2 gap-3">
-          {[
-            { role: "presenter" as PlayerRole, Icon: PresenterIcon, title: "Lead Presenter", desc: `You teach the topic. ${partnerFirst} listens, then recalls from memory.` },
-            { role: "scribe" as PlayerRole, Icon: ListenerIcon, title: "Field Scribe", desc: `${partnerFirst} teaches. You listen closely, then reconstruct the lesson.` },
-          ].map((r) => (
-            <button key={r.role} onClick={() => setRole(r.role)}
-              className={`text-left rounded-2xl border-2 p-5 transition-all ${state.role === r.role ? "border-[var(--color-primary)] bg-[var(--color-primary-light)]" : "border-[var(--color-border)] bg-[var(--color-surface-strong)] hover:border-[var(--color-primary-muted)]"}`}>
-              <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-[var(--color-text-base)]">
-                <r.Icon className="h-5 w-5" />
-              </div>
-              <div className="mb-1 text-sm font-bold text-[var(--color-text-base)]">{r.title}</div>
-              <div className="text-xs leading-relaxed text-[var(--color-text-muted)]">{r.desc}</div>
-            </button>
-          ))}
-        </div>
+        {isTaniSidDemo ? (
+          <div className="rounded-2xl border-2 border-[var(--color-primary)] bg-[var(--color-primary-light)] p-5">
+            <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-[var(--color-text-base)]">
+              <PresenterIcon className="h-5 w-5" />
+            </div>
+            <div className="mb-1 text-sm font-bold text-[var(--color-text-base)]">Tani presents, Sid listens</div>
+            <div className="text-xs leading-relaxed text-[var(--color-text-muted)]">
+              Tani teaches the topic. Sid listens closely, then reconstructs the lesson from memory.
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { role: "presenter" as PlayerRole, Icon: PresenterIcon, title: "Lead Presenter", desc: `You teach the topic. ${partnerFirst} listens, then recalls from memory.` },
+              { role: "scribe" as PlayerRole, Icon: ListenerIcon, title: "Field Scribe", desc: `${partnerFirst} teaches. You listen closely, then reconstruct the lesson.` },
+            ].map((r) => (
+              <button key={r.role} onClick={() => setRole(r.role)}
+                className={`text-left rounded-2xl border-2 p-5 transition-all ${state.role === r.role ? "border-[var(--color-primary)] bg-[var(--color-primary-light)]" : "border-[var(--color-border)] bg-[var(--color-surface-strong)] hover:border-[var(--color-primary-muted)]"}`}>
+                <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-[var(--color-text-base)]">
+                  <r.Icon className="h-5 w-5" />
+                </div>
+                <div className="mb-1 text-sm font-bold text-[var(--color-text-base)]">{r.title}</div>
+                <div className="text-xs leading-relaxed text-[var(--color-text-muted)]">{r.desc}</div>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
       <div>
         <label className="mb-3 block text-xs font-bold uppercase tracking-widest text-[var(--color-text-muted)]">Topic / Course</label>
@@ -90,7 +105,7 @@ export default function SetupPanel({ state, partnerName, setRole, setTopic, setP
           placeholder="e.g. MIS 333K — Database Normalization"
           className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-strong)] px-4 py-3 text-sm text-[var(--color-text-base)] outline-none transition-colors placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary)]"/>
       </div>
-      {state.role === "presenter" && (
+      {activeRole === "presenter" && (
         <div>
           <label className="mb-3 block text-xs font-bold uppercase tracking-widest text-[var(--color-text-muted)]">Your notes</label>
           <div className="rounded-xl border-2 border-dashed border-[var(--color-border)] bg-[var(--color-surface-strong)] p-6 text-center">

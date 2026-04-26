@@ -33,20 +33,22 @@ export interface GameState {
   reDigAnalysis: AnalysisResult | null;
 }
 
-const initialState: GameState = {
-  phase: "SETUP",
-  role: "presenter",
-  topic: "",
-  presenterNotes: "",
-  presentationMinutes: 5,
-  scribeRecall: "",
-  analysis: null,
-  reDigRecall: "",
-  reDigAnalysis: null,
-};
+function makeInitialState(role: PlayerRole = "presenter"): GameState {
+  return {
+    phase: "SETUP",
+    role,
+    topic: "",
+    presenterNotes: "",
+    presentationMinutes: 5,
+    scribeRecall: "",
+    analysis: null,
+    reDigRecall: "",
+    reDigAnalysis: null,
+  };
+}
 
-export function useGameState() {
-  const [state, setState] = useState<GameState>(initialState);
+export function useGameState(initialRole: PlayerRole = "presenter") {
+  const [state, setState] = useState<GameState>(() => makeInitialState(initialRole));
 
   function setRole(role: PlayerRole) {
     setState((s) => ({ ...s, role }));
@@ -88,7 +90,7 @@ export function useGameState() {
     setState((s) => ({ ...s, phase: "COMPLETE" }));
   }
   function resetGame() {
-    setState(initialState);
+    setState(makeInitialState(initialRole));
   }
 
   return {

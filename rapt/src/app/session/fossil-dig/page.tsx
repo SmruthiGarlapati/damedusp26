@@ -12,15 +12,17 @@ import ReDigPanel from "./components/ReDigPanel";
 import { FossilDigIcon, StudyGameShell } from "../components/gameChrome";
 
 function FossilDigInner() {
-  const game = useGameState();
-  const { state } = game;
   const searchParams = useSearchParams();
   const partnerName = searchParams.get("partner") ?? "Marcus Johnson";
+  const partnerFirst = partnerName.split(" ")[0];
+  const initialRole = partnerFirst === "Tani" ? "scribe" : "presenter";
+  const game = useGameState(initialRole);
+  const { state } = game;
 
   return (
     <StudyGameShell
       title="Fossil Dig"
-      description={`You and ${partnerName.split(" ")[0]} take turns teaching and recalling — then see exactly what knowledge made it across.`}
+      description={`You and ${partnerFirst} take turns teaching and recalling — then see exactly what knowledge made it across.`}
       topic={state.topic}
       Icon={FossilDigIcon}
       contentClassName="mx-auto max-w-4xl"
