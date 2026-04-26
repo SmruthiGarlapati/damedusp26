@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import NextErrorSuppressor from "@/components/NextErrorSuppressor";
 import { fontBaloo } from "./fonts";
 import "./globals.css";
@@ -20,7 +19,6 @@ export default function RootLayout({
       <body suppressHydrationWarning className="min-h-screen font-sans text-[var(--color-text-base)] antialiased">
         <NextErrorSuppressor />
         {children}
-        <Script src="https://mcp.figma.com/mcp/html-to-design/capture.js" strategy="beforeInteractive" />
       </body>
     </html>
   );

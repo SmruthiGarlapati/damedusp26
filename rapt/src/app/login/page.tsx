@@ -5,9 +5,9 @@ import Link from "next/link";
 import { RaptLogoAuthHero } from "@/components/RaptLogo";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  activateDemoAdminSession,
+  activateDemoSession,
   clearDemoAdminSession,
-  isDemoAdminCredentials,
+  findDemoPersona,
   isSupabaseAuthConfigured,
 } from "@/lib/demoAdmin";
 import { createClient } from "@/lib/supabase/client";
@@ -60,11 +60,11 @@ function LoginPageContent() {
 
     setLoading(true);
     const normalizedEmail = email.trim().toLowerCase();
-    const isAdminDemoLogin = isDemoAdminCredentials(normalizedEmail, password);
+    const demoPersona = findDemoPersona(normalizedEmail, password);
     const supabaseConfigured = isSupabaseAuthConfigured();
 
-    if (isAdminDemoLogin) {
-      activateDemoAdminSession();
+    if (demoPersona) {
+      activateDemoSession(demoPersona);
       window.location.assign("/auth/admin");
       return;
     }

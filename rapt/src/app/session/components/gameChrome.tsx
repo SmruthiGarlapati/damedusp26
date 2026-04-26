@@ -2,6 +2,7 @@
 
 import type { ComponentType, ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import { CuteDino } from "@/components/DinoDecoration";
 
 type IconProps = { className?: string };
 type IconComponent = ComponentType<IconProps>;
@@ -201,6 +202,22 @@ export function StoneIcon({ className = "h-5 w-5" }: IconProps) {
   );
 }
 
+export function PlayerAvatar({ name, size = "md", you = false }: { name: string; size?: "sm" | "md" | "lg"; you?: boolean }) {
+  const initials = name === "You" ? "You" : name.split(" ").map((p) => p[0]).join("").slice(0, 2).toUpperCase();
+  const sizeClasses = size === "sm" ? "h-7 w-7 text-[10px]" : size === "lg" ? "h-12 w-12 text-[14px]" : "h-9 w-9 text-[12px]";
+  return (
+    <div
+      className={`flex shrink-0 items-center justify-center rounded-full font-bold ${sizeClasses} ${
+        you
+          ? "border-2 border-[var(--color-primary)] bg-[var(--color-primary-light)] text-[var(--color-primary)]"
+          : "bg-[var(--color-action-bg)] text-white"
+      }`}
+    >
+      {initials === "You" ? <span className="text-[9px]">YOU</span> : initials}
+    </div>
+  );
+}
+
 export const GAME_LAUNCH_ITEMS: readonly GameLaunchItem[] = [
   { label: "Fossil Dig", href: "/session/fossil-dig", available: true, Icon: FossilDigIcon },
   { label: "Proofreader", href: "/session/error-correction", available: true, Icon: ProofreaderIcon },
@@ -246,7 +263,11 @@ export function StudyGameShell({
   return (
     <div className="rapt-app-shell min-h-screen px-4 py-4 md:px-6 md:py-6">
       <div className="mx-auto rounded-[32px] border border-[var(--color-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(246,239,229,0.88))] shadow-[0_24px_56px_rgba(52,44,35,0.12)] backdrop-blur-sm">
-        <div className="rounded-t-[32px] border-b border-[var(--color-border-light)] bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(246,239,229,0.92))] px-5 py-4 md:px-8 md:py-5">
+        <div className="relative overflow-hidden rounded-t-[32px] border-b border-[var(--color-border-light)] bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(246,239,229,0.92))] px-5 py-4 md:px-8 md:py-5">
+          {/* Decorative dino in top-right corner */}
+          <div className="pointer-events-none absolute right-4 bottom-0 hidden opacity-20 sm:block" aria-hidden>
+            <CuteDino className="w-24 h-24" color="#436485" />
+          </div>
           <div className="flex flex-col gap-4">
             <button
               type="button"

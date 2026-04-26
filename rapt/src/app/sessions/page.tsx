@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import { hasDemoAdminSession, isDemoAdminUser } from "@/lib/demoAdmin";
+import { CuteDino } from "@/components/DinoDecoration";
 import { useCurrentUser } from "@/lib/useCurrentUser";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -592,7 +593,7 @@ export default function SessionsPage() {
           </div>
           <button
             onClick={() => router.push("/matches")}
-            className="rapt-pill-motion flex items-center gap-2 rounded-xl bg-[var(--color-action-bg)] px-5 py-3 text-[14px] font-bold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-action-hover)]"
+            className="flex items-center gap-2 rounded-xl bg-[var(--color-action-bg)] px-5 py-3 text-[14px] font-bold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-action-hover)] hover:-translate-y-px active:translate-y-0"
           >
             <svg
               width="16"
@@ -691,30 +692,14 @@ export default function SessionsPage() {
 
             {/* Cards */}
             {tabData.length === 0 ? (
-              <div className="rapt-glass-card flex flex-col items-center justify-center border-dashed py-20 text-center">
-                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)]">
-                  <svg
-                    width="28"
-                    height="28"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <rect x="3" y="4" width="18" height="18" rx="2" />
-                    <line x1="16" y1="2" x2="16" y2="6" />
-                    <line x1="8" y1="2" x2="8" y2="6" />
-                    <line x1="3" y1="10" x2="21" y2="10" />
-                  </svg>
-                </div>
+              <div className="rapt-glass-card flex flex-col items-center justify-center border-dashed py-16 text-center">
+                <CuteDino className="mb-2 w-20 h-20 opacity-65" color="#5c84ad" flip={tab === "past"} />
                 <p className="text-[15px] font-semibold text-[var(--color-text-secondary)]">
                   No {tab} sessions
                 </p>
                 <p className="mt-1 text-[13px] text-[var(--color-text-muted)]">
                   {tab === "upcoming"
-                    ? "Request a match to schedule your first session."
+                    ? "Find a study partner and schedule your first dig."
                     : "Nothing here yet."}
                 </p>
                 {tab === "upcoming" && (
@@ -722,7 +707,7 @@ export default function SessionsPage() {
                     onClick={() => router.push("/matches")}
                     className="mt-5 rounded-xl bg-[var(--color-action-bg)] px-5 py-2.5 text-[13px] font-bold text-white shadow-[var(--shadow-primary)] hover:bg-[var(--color-action-hover)]"
                   >
-                    Browse Partners
+                    Browse Partners 🦕
                   </button>
                 )}
               </div>

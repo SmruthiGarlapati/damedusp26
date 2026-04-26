@@ -3,7 +3,8 @@
 import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
-import { isDemoAdminUser } from "@/lib/demoAdmin";
+import { getActiveDemoPersona, isDemoAdminUser } from "@/lib/demoAdmin";
+import { CuteDino } from "@/components/DinoDecoration";
 import { addSession } from "@/lib/sessionsStore";
 import { createClient } from "@/lib/supabase/client";
 import { useCurrentUser } from "@/lib/useCurrentUser";
@@ -34,6 +35,46 @@ interface MatchBreakdown {
   groupScore: number;    // 0–12
   envScore: number;      // 0–8
 }
+
+// Partner list when Tani is logged in — she sees Sid as her top match
+const DEMO_PARTNERS_TANI: Partner[] = [
+  {
+    id: "demo-sid",
+    name: "Sid Kapoor",
+    initials: "SK",
+    sharedCourses: ["CS 314", "CS 311"],
+    allCourses: ["CS 314", "CS 311", "M 340L"],
+    location: "PCL Level 3",
+    matchPct: 98,
+    matchBreakdown: { courseScore: 50, methodScore: 30, groupScore: 12, envScore: 6 },
+    methods: ["Practice Problems", "Whiteboard", "Pomodoro"],
+    rating: 4.7,
+    bio: "Detail-oriented — I catch the gaps in my own understanding by rebuilding from scratch.",
+    major: "Computer Science",
+    year: "Junior",
+    sessionsCompleted: 6,
+  },
+];
+
+// Partner list when Sid is logged in — he sees Tani as his top match
+const DEMO_PARTNERS_SID: Partner[] = [
+  {
+    id: "demo-tani",
+    name: "Tani Sharma",
+    initials: "TS",
+    sharedCourses: ["CS 314", "CS 311"],
+    allCourses: ["CS 314", "CS 311", "SDS 321"],
+    location: "PCL Level 3",
+    matchPct: 98,
+    matchBreakdown: { courseScore: 50, methodScore: 30, groupScore: 12, envScore: 6 },
+    methods: ["Pomodoro", "Whiteboard", "Practice Problems"],
+    rating: 4.8,
+    bio: "Love breaking down hard concepts by teaching them out loud.",
+    major: "Computer Science",
+    year: "Junior",
+    sessionsCompleted: 8,
+  },
+];
 
 const DEMO_PARTNERS: Partner[] = [
   {
@@ -398,7 +439,7 @@ function MatchCard({
           </span>
         ) : (
           <button onClick={onRequest}
-            className="rapt-pill-motion rounded-xl bg-[var(--color-action-bg)] px-4 py-2 text-[12px] font-bold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-action-hover)] hover:-translate-y-px">
+            className="rounded-xl bg-[var(--color-action-bg)] px-4 py-2 text-[12px] font-bold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-action-hover)] hover:-translate-y-px active:translate-y-0">
             Request Session
           </button>
         )}
@@ -493,7 +534,7 @@ function ProfileModal({ partner, onClose, onRequest }: {
             <button onClick={onClose} className="flex-1 rounded-xl border border-[var(--color-border)] bg-white/78 py-3 text-[14px] font-semibold text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-primary-muted)] hover:bg-white">
               Close
             </button>
-            <button onClick={() => { onClose(); onRequest(); }} className="rapt-pill-motion flex-1 rounded-xl bg-[var(--color-action-bg)] py-3 text-[14px] font-bold text-white shadow-[var(--shadow-primary)] hover:bg-[var(--color-action-hover)] transition-all">
+            <button onClick={() => { onClose(); onRequest(); }} className="flex-1 rounded-xl bg-[var(--color-action-bg)] py-3 text-[14px] font-bold text-white shadow-[var(--shadow-primary)] hover:bg-[var(--color-action-hover)] hover:-translate-y-px transition-all active:translate-y-0">
               Request Session
             </button>
           </div>
@@ -614,7 +655,12 @@ function MatchesPageContent() {
     fetchMatches();
   }, [user, userLoading, isDemoUser]);
 
-  const displayPartners = isDemoUser ? DEMO_PARTNERS : partners;
+  const demoPersona = isDemoUser ? getActiveDemoPersona() : null;
+  const displayPartners = isDemoUser
+    ? demoPersona === "tani" ? DEMO_PARTNERS_TANI
+    : demoPersona === "sid"  ? DEMO_PARTNERS_SID
+    : DEMO_PARTNERS
+    : partners;
 
   /* ── Derived course filter list ────────────────────────────────── */
   const allSharedCourses = Array.from(
@@ -697,6 +743,7 @@ function MatchesPageContent() {
           <span className="rapt-eyebrow">
             <span className="h-2 w-2 rounded-full bg-[var(--color-action-bg)]" />
             Compatibility queue
+            <span className="ml-1 text-base leading-none" aria-hidden>🦕</span>
           </span>
           <div className="mt-5 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
@@ -723,14 +770,9 @@ function MatchesPageContent() {
             </div>
           </div>
         ) : displayPartners.length === 0 ? (
-          <div className="rapt-glass-card flex flex-col items-center justify-center border-dashed py-28 text-center">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-surface)]">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" strokeWidth="1.5" strokeLinecap="round">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-              </svg>
-            </div>
-            <p className="text-[15px] font-semibold text-[var(--color-text-secondary)]">No matches yet</p>
+          <div className="rapt-glass-card flex flex-col items-center justify-center border-dashed py-20 text-center">
+            <CuteDino className="mb-5 w-24 h-24 opacity-70" color="#5c84ad" />
+            <p className="text-[15px] font-semibold text-[var(--color-text-secondary)]">No study partners yet</p>
             <p className="mt-1.5 max-w-xs text-[13px] text-[var(--color-text-muted)]">
               You&apos;ll see matches here once other students join and add their courses.
             </p>
@@ -758,7 +800,8 @@ function MatchesPageContent() {
             </p>
 
             {filtered.length === 0 ? (
-              <div className="rapt-glass-card flex flex-col items-center justify-center border-dashed py-20 text-center">
+              <div className="rapt-glass-card flex flex-col items-center justify-center border-dashed py-16 text-center">
+                <CuteDino className="mb-3 w-16 h-16 opacity-60" color="#5c84ad" flip />
                 <p className="text-[15px] font-semibold text-[var(--color-text-secondary)]">No matches for these filters</p>
                 <button onClick={() => setCourseFilter("All")}
                   className="mt-4 text-[13px] font-semibold text-[var(--color-primary)] hover:underline">

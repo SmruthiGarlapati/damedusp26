@@ -1,5 +1,7 @@
 "use client";
 
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { useGameState } from "./useGameState";
 import SetupPanel from "./components/SetupPanel";
 import PresenterView from "./components/PresenterView";
@@ -9,14 +11,16 @@ import SkeletonReveal from "./components/SkeletonReveal";
 import ReDigPanel from "./components/ReDigPanel";
 import { FossilDigIcon, StudyGameShell } from "../components/gameChrome";
 
-export default function FossilDigPage() {
+function FossilDigInner() {
   const game = useGameState();
   const { state } = game;
+  const searchParams = useSearchParams();
+  const partnerName = searchParams.get("partner") ?? "Marcus Johnson";
 
   return (
     <StudyGameShell
       title="Fossil Dig"
-      description="One player teaches from memory, the other reconstructs the lesson, and both of you see exactly what knowledge made it across."
+      description={`You and ${partnerName.split(" ")[0]} take turns teaching and recalling — then see exactly what knowledge made it across.`}
       topic={state.topic}
       Icon={FossilDigIcon}
       contentClassName="mx-auto max-w-4xl"
@@ -24,6 +28,7 @@ export default function FossilDigPage() {
         {state.phase === "SETUP" && (
           <SetupPanel
             state={state}
+            partnerName={partnerName}
             setRole={game.setRole}
             setTopic={game.setTopic}
             setPresenterNotes={game.setPresenterNotes}
@@ -32,11 +37,12 @@ export default function FossilDigPage() {
           />
         )}
         {state.phase === "PRESENTING" && (
-          <PresenterView state={state} onDone={game.startRecalling}/>
+          <PresenterView state={state} partnerName={partnerName} onDone={game.startRecalling}/>
         )}
         {state.phase === "RECALLING" && (
           <ScribeView
             state={state}
+            partnerName={partnerName}
             setScribeRecall={game.setScribeRecall}
             onSubmit={async () => {
               game.startAnalyzing();
@@ -59,10 +65,11 @@ export default function FossilDigPage() {
             }}
           />
         )}
-        {state.phase === "ANALYZING" && <AnalysisLoader/>}
+        {state.phase === "ANALYZING" && <AnalysisLoader partnerName={partnerName} role={state.role} />}
         {(state.phase === "REVEALING" || state.phase === "REDIG" || state.phase === "COMPLETE") && (
           <SkeletonReveal
             state={state}
+            partnerName={partnerName}
             onStartReDig={game.startReDig}
             onSkipReDig={game.skipReDig}
             onReset={game.resetGame}
@@ -71,6 +78,7 @@ export default function FossilDigPage() {
         {state.phase === "REDIG" && (
           <ReDigPanel
             state={state}
+            partnerName={partnerName}
             setReDigRecall={game.setReDigRecall}
             onSubmit={async () => {
               try {
@@ -94,4 +102,8 @@ export default function FossilDigPage() {
         )}
     </StudyGameShell>
   );
+}
+
+export default function FossilDigPage() {
+  return <Suspense><FossilDigInner /></Suspense>;
 }

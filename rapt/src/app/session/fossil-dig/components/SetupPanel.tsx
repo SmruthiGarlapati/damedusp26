@@ -7,12 +7,14 @@ import {
   ClockIcon,
   FossilDigIcon,
   ListenerIcon,
+  PlayerAvatar,
   PresenterIcon,
   UploadIcon,
 } from "../../components/gameChrome";
 
 interface Props {
   state: GameState;
+  partnerName: string;
   setRole: (role: PlayerRole) => void;
   setTopic: (topic: string) => void;
   setPresenterNotes: (notes: string) => void;
@@ -20,8 +22,9 @@ interface Props {
   onStart: () => void;
 }
 
-export default function SetupPanel({ state, setRole, setTopic, setPresenterNotes, setPresentationMinutes, onStart }: Props) {
+export default function SetupPanel({ state, partnerName, setRole, setTopic, setPresenterNotes, setPresentationMinutes, onStart }: Props) {
   const canStart = state.topic.trim().length > 0 && (state.role === "scribe" || state.presenterNotes.trim().length > 0);
+  const partnerFirst = partnerName.split(" ")[0];
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -30,6 +33,9 @@ export default function SetupPanel({ state, setRole, setTopic, setPresenterNotes
     setPresenterNotes(text);
   }
 
+  const youRole = state.role === "presenter" ? "Lead Presenter" : "Field Scribe";
+  const partnerRole = state.role === "presenter" ? "Field Scribe" : "Lead Presenter";
+
   return (
     <div className="flex flex-col gap-6">
       <div className="space-y-2">
@@ -37,14 +43,35 @@ export default function SetupPanel({ state, setRole, setTopic, setPresenterNotes
           Session setup
         </span>
         <h2 className="rapt-display text-3xl tracking-tight text-[var(--color-text-base)]">Configure your Fossil Dig</h2>
-        <p className="text-sm text-[var(--color-text-secondary)]">One player teaches, one reconstructs from memory, and both get a sharp post-game breakdown.</p>
+        <p className="text-sm text-[var(--color-text-secondary)]">One of you teaches, the other reconstructs from memory — then both get a sharp breakdown of what was transferred.</p>
       </div>
+
+      {/* Playing Together strip */}
+      <div className="flex items-center gap-3 rounded-2xl border border-[var(--color-primary-muted)] bg-[var(--color-primary-light)] px-5 py-4">
+        <div className="flex flex-col items-center gap-1">
+          <PlayerAvatar name="You" you size="md" />
+          <span className="text-[10px] font-bold text-[var(--color-primary)]">{youRole}</span>
+        </div>
+        <div className="flex flex-1 flex-col items-center gap-1">
+          <div className="flex w-full items-center gap-1">
+            <div className="h-px flex-1 border-t-2 border-dashed border-[var(--color-primary-muted)]" />
+            <FossilDigIcon className="h-4 w-4 shrink-0 text-[var(--color-primary)]" />
+            <div className="h-px flex-1 border-t-2 border-dashed border-[var(--color-primary-muted)]" />
+          </div>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-primary)]">Playing together</span>
+        </div>
+        <div className="flex flex-col items-center gap-1">
+          <PlayerAvatar name={partnerName} size="md" />
+          <span className="text-[10px] font-bold text-[var(--color-text-muted)]">{partnerRole}</span>
+        </div>
+      </div>
+
       <div>
         <label className="mb-3 block text-xs font-bold uppercase tracking-widest text-[var(--color-text-muted)]">Your role</label>
         <div className="grid grid-cols-2 gap-3">
           {[
-            { role: "presenter" as PlayerRole, Icon: PresenterIcon, title: "Lead Presenter", desc: "You teach the topic, guide the session, and control the timer." },
-            { role: "scribe" as PlayerRole, Icon: ListenerIcon, title: "Field Scribe", desc: "You listen closely, then reconstruct the lesson from memory." },
+            { role: "presenter" as PlayerRole, Icon: PresenterIcon, title: "Lead Presenter", desc: `You teach the topic. ${partnerFirst} listens, then recalls from memory.` },
+            { role: "scribe" as PlayerRole, Icon: ListenerIcon, title: "Field Scribe", desc: `${partnerFirst} teaches. You listen closely, then reconstruct the lesson.` },
           ].map((r) => (
             <button key={r.role} onClick={() => setRole(r.role)}
               className={`text-left rounded-2xl border-2 p-5 transition-all ${state.role === r.role ? "border-[var(--color-primary)] bg-[var(--color-primary-light)]" : "border-[var(--color-border)] bg-[var(--color-surface-strong)] hover:border-[var(--color-primary-muted)]"}`}>
@@ -67,34 +94,41 @@ export default function SetupPanel({ state, setRole, setTopic, setPresenterNotes
         <div>
           <label className="mb-3 block text-xs font-bold uppercase tracking-widest text-[var(--color-text-muted)]">Your notes</label>
           <div className="rounded-xl border-2 border-dashed border-[var(--color-border)] bg-[var(--color-surface-strong)] p-6 text-center">
-            {state.presenterNotes ? (
-              <div className="flex flex-col items-center gap-2">
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-200 bg-emerald-50 text-emerald-600">
-                  <CheckCircleIcon className="h-6 w-6" />
-                </span>
-                <span className="text-sm font-semibold text-[var(--color-text-base)]">Notes loaded</span>
-                <span className="text-xs text-[var(--color-text-muted)]">{state.presenterNotes.length} characters</span>
-                <button onClick={() => setPresenterNotes("")} className="mt-1 text-xs text-[var(--color-primary)] underline">Remove</button>
+            <div className="flex flex-col items-center gap-3">
+              <span className={`flex h-12 w-12 items-center justify-center rounded-2xl border ${
+                state.presenterNotes
+                  ? "border-emerald-200 bg-emerald-50 text-emerald-600"
+                  : "border-white/10 bg-white/5 text-[var(--color-text-secondary)]"
+              }`}>
+                {state.presenterNotes ? <CheckCircleIcon className="h-6 w-6" /> : <UploadIcon className="h-6 w-6" />}
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-[var(--color-text-base)]">
+                  {state.presenterNotes ? "Notes ready" : "Upload your notes"}
+                </p>
+                <p className="mt-1 text-xs text-[var(--color-text-muted)]">
+                  {state.presenterNotes ? `${state.presenterNotes.length} characters` : "TXT, PDF, or DOCX · max 10MB"}
+                </p>
               </div>
-            ) : (
-              <div className="flex flex-col items-center gap-3">
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-[var(--color-text-secondary)]">
-                  <UploadIcon className="h-6 w-6" />
-                </span>
-                <div>
-                  <p className="text-sm font-semibold text-[var(--color-text-base)]">Upload your notes</p>
-                  <p className="mt-1 text-xs text-[var(--color-text-muted)]">TXT, PDF, or DOCX · max 10MB</p>
-                </div>
+              <div className="flex flex-wrap items-center justify-center gap-3">
                 <label className="cursor-pointer rounded-lg bg-[var(--color-action-bg)] px-4 py-2 text-xs font-bold text-white transition-opacity hover:opacity-90">
                   Choose file
                   <input type="file" accept=".txt,.pdf,.docx" className="hidden" onChange={handleFileUpload}/>
                 </label>
-                <p className="text-xs text-[var(--color-text-muted)]">or paste below</p>
-                <textarea placeholder="...paste your notes directly here"
-                  className="min-h-[80px] w-full resize-none rounded-lg border border-[var(--color-border)] bg-[rgba(255,255,255,0.04)] px-3 py-2 text-xs text-[var(--color-text-base)] outline-none focus:border-[var(--color-primary)]"
-                  onChange={(e) => setPresenterNotes(e.target.value)}/>
+                {state.presenterNotes && (
+                  <button onClick={() => setPresenterNotes("")} className="text-xs text-[var(--color-primary)] underline">
+                    Remove
+                  </button>
+                )}
               </div>
-            )}
+              <p className="text-xs text-[var(--color-text-muted)]">or paste below</p>
+              <textarea
+                value={state.presenterNotes}
+                placeholder="...paste your notes directly here"
+                className="min-h-[120px] w-full resize-y rounded-lg border border-[var(--color-border)] bg-[rgba(255,255,255,0.04)] px-3 py-2 text-xs text-[var(--color-text-base)] outline-none focus:border-[var(--color-primary)]"
+                onChange={(e) => setPresenterNotes(e.target.value)}
+              />
+            </div>
           </div>
         </div>
       )}

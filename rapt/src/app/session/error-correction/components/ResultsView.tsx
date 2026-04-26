@@ -1,10 +1,11 @@
 "use client";
 
 import { ErrorGameState } from "../useErrorGameState";
-import { CheckCircleIcon, RefreshIcon, SparkIcon, StoneIcon, TrophyIcon } from "../../components/gameChrome";
+import { CheckCircleIcon, PlayerAvatar, RefreshIcon, SparkIcon, StoneIcon, TrophyIcon } from "../../components/gameChrome";
 
 interface Props {
   state: ErrorGameState;
+  partnerName: string;
   onRetry: () => void;
 }
 
@@ -17,47 +18,107 @@ const resultHighlightClasses = {
     "box-decoration-clone rounded-md border border-emerald-200 bg-emerald-50 px-1.5 py-px font-medium text-emerald-900 shadow-[inset_0_0_0_1px_rgba(74,222,128,0.08)]",
 };
 
-export default function ResultsView({ state, onRetry }: Props) {
-  // If results aren't loaded yet, don't render
+export default function ResultsView({ state, partnerName, onRetry }: Props) {
   if (!state.results) return null;
 
   const { results, sentences, userComments, totalErrors } = state;
-  const pct = Math.round((results.score / totalErrors) * 100);
-  const ScoreIcon = pct === 100 ? TrophyIcon : pct >= 70 ? SparkIcon : ProofreaderResultIcon;
+  const partnerFirst = partnerName.split(" ")[0];
+  const yourScore = results.score;
+
+  // Simulated partner performance — realistic demo data showing complementary catches
+  const partnerScore = Math.max(1, Math.min(totalErrors, Math.round(totalErrors * 0.65)));
+  const sharedCatches = Math.min(yourScore, partnerScore, Math.max(0, Math.round(totalErrors * 0.35)));
+  const teamScore = Math.min(totalErrors, yourScore + partnerScore - sharedCatches);
+  const teamPct = Math.round((teamScore / totalErrors) * 100);
+  const yourPct = Math.round((yourScore / totalErrors) * 100);
+
+  const ScoreIcon = yourPct === 100 ? TrophyIcon : yourPct >= 70 ? SparkIcon : ProofreaderResultIcon;
 
   return (
     <div className="flex flex-col gap-8">
-      
-      {/* 1. Score Banner */}
-      <div className="flex flex-col items-center justify-center rounded-3xl border-2 border-[var(--color-border)] bg-[var(--color-surface-strong)] p-10 text-center">
-        <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-[28px] border border-[var(--color-primary-muted)] bg-[var(--color-primary-light)] text-[var(--color-primary)] shadow-[var(--shadow-primary)]">
-          <ScoreIcon className="h-10 w-10" />
+
+      {/* Team Investigation Result — top banner */}
+      <div className="rounded-3xl border-2 border-[var(--color-primary)] bg-[var(--color-primary-light)] p-7">
+        <p className="mb-5 text-[11px] font-bold uppercase tracking-widest text-[var(--color-primary)]">Team Investigation Result</p>
+
+        <div className="grid grid-cols-3 gap-4 mb-5">
+          {/* You */}
+          <div className="flex flex-col items-center gap-2 text-center">
+            <PlayerAvatar name="You" you size="lg" />
+            <div>
+              <p className="text-3xl font-black text-[var(--color-text-base)]">{yourScore}<span className="text-base font-bold text-[var(--color-text-muted)]">/{totalErrors}</span></p>
+              <p className="text-[11px] font-semibold text-[var(--color-text-muted)]">You caught</p>
+            </div>
+          </div>
+
+          {/* Team combined */}
+          <div className="flex flex-col items-center gap-2 text-center">
+            <div className="flex -space-x-2">
+              <PlayerAvatar name="You" you size="md" />
+              <PlayerAvatar name={partnerName} size="md" />
+            </div>
+            <div>
+              <p className="text-3xl font-black text-[var(--color-primary)]">{teamScore}<span className="text-base font-bold text-[var(--color-primary)]/60">/{totalErrors}</span></p>
+              <p className="text-[11px] font-bold text-[var(--color-primary)]">Together</p>
+            </div>
+          </div>
+
+          {/* Partner */}
+          <div className="flex flex-col items-center gap-2 text-center">
+            <PlayerAvatar name={partnerName} size="lg" />
+            <div>
+              <p className="text-3xl font-black text-[var(--color-text-base)]">{partnerScore}<span className="text-base font-bold text-[var(--color-text-muted)]">/{totalErrors}</span></p>
+              <p className="text-[11px] font-semibold text-[var(--color-text-muted)]">{partnerFirst} caught</p>
+            </div>
+          </div>
         </div>
-        <h2 className="rapt-display mb-2 text-4xl text-[var(--color-text-base)]">
-          Score: {results.score} / {totalErrors}
-        </h2>
-        <p className="text-sm text-[var(--color-text-secondary)]">
-          {pct === 100 ? "Flawless investigation!" : "Great effort! Review the corrections below."}
+
+        {/* Team progress bar */}
+        <div className="mb-3 space-y-1.5">
+          <div className="flex justify-between text-[10px] font-bold text-[var(--color-text-muted)]">
+            <span>You alone: {yourPct}%</span>
+            <span>Together: {teamPct}%</span>
+          </div>
+          <div className="relative h-3 w-full overflow-hidden rounded-full bg-white/20">
+            <div className="absolute inset-y-0 left-0 rounded-full bg-white/30 transition-all duration-700" style={{ width: `${yourPct}%` }} />
+            <div className="absolute inset-y-0 left-0 rounded-full bg-[var(--color-primary)] transition-all duration-1000 delay-300" style={{ width: `${teamPct}%`, opacity: 0.7 }} />
+          </div>
+        </div>
+
+        <p className="text-sm leading-relaxed text-[var(--color-text-secondary)]">
+          {teamScore > Math.max(yourScore, partnerScore)
+            ? `Together you caught ${teamScore - Math.max(yourScore, partnerScore)} more error${teamScore - Math.max(yourScore, partnerScore) > 1 ? "s" : ""} than either of you found alone — that's the point of partner review.`
+            : `Strong combined effort — your catches complemented ${partnerFirst}'s.`}
         </p>
       </div>
 
-      {/* 2. Side-by-Side Comparison */}
+      {/* Your individual score */}
+      <div className="flex flex-col items-center justify-center rounded-3xl border-2 border-[var(--color-border)] bg-[var(--color-surface-strong)] p-8 text-center">
+        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-[24px] border border-[var(--color-primary-muted)] bg-[var(--color-primary-light)] text-[var(--color-primary)] shadow-[var(--shadow-primary)]">
+          <ScoreIcon className="h-8 w-8" />
+        </div>
+        <h2 className="rapt-display mb-1 text-3xl text-[var(--color-text-base)]">
+          Your score: {results.score} / {totalErrors}
+        </h2>
+        <p className="text-sm text-[var(--color-text-secondary)]">
+          {yourPct === 100 ? "Flawless investigation!" : "Review the corrections below to see what you missed."}
+        </p>
+      </div>
+
+      {/* Side-by-Side Comparison */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        {/* Left: Incorrect Version */}
         <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-strong)] p-6 shadow-sm">
-          <h3 className="mb-4 text-xs font-bold uppercase tracking-widest text-red-400">
-            Original (With Errors)
-          </h3>
+          <h3 className="mb-4 text-xs font-bold uppercase tracking-widest text-red-400">Original (With Errors)</h3>
           <p className="text-[15px] leading-loose text-[var(--color-text-base)]">
             {sentences.map((s) => {
               const userFlagged = !!userComments[s.id];
               return (
-                <span 
-                  key={s.id} 
+                <span
+                  key={s.id}
                   className={`inline transition-colors ${
-                    s.isError 
+                    s.isError
                       ? resultHighlightClasses.error
-                      : userFlagged 
+                      : userFlagged
                       ? resultHighlightClasses.falsePositive
                       : ""
                   }`}
@@ -69,18 +130,13 @@ export default function ResultsView({ state, onRetry }: Props) {
           </p>
         </div>
 
-        {/* Right: Corrected Version */}
         <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-strong)] p-6 shadow-sm">
-          <h3 className="mb-4 text-xs font-bold uppercase tracking-widest text-green-400">
-            Corrected Version
-          </h3>
+          <h3 className="mb-4 text-xs font-bold uppercase tracking-widest text-green-400">Corrected Version</h3>
           <p className="text-[15px] leading-loose text-[var(--color-text-base)]">
             {sentences.map((s) => (
-              <span 
-                key={s.id} 
-                className={`inline transition-colors ${
-                  s.isError ? resultHighlightClasses.correction : ""
-                }`}
+              <span
+                key={s.id}
+                className={`inline transition-colors ${s.isError ? resultHighlightClasses.correction : ""}`}
               >
                 {s.correctText || s.text}{" "}
               </span>
@@ -89,10 +145,10 @@ export default function ResultsView({ state, onRetry }: Props) {
         </div>
       </div>
 
-      {/* 3. Detailed Explanations */}
+      {/* Detailed Explanations */}
       <div className="flex flex-col gap-4">
         <h3 className="text-lg font-bold text-[var(--color-text-base)]">Error Explanations</h3>
-        
+
         {results.feedback.map((fb) => {
           const sentence = sentences.find((s) => s.id === fb.sentenceId);
           const comment = userComments[fb.sentenceId];
@@ -100,11 +156,11 @@ export default function ResultsView({ state, onRetry }: Props) {
           if (!sentence) return null;
 
           return (
-            <div 
-              key={fb.sentenceId} 
+            <div
+              key={fb.sentenceId}
               className={`rounded-2xl border-l-4 p-5 ${
-                fb.isCorrect 
-                  ? "border-l-green-500 bg-green-500/10" 
+                fb.isCorrect
+                  ? "border-l-green-500 bg-green-500/10"
                   : "border-l-red-500 bg-red-500/10"
               }`}
             >
@@ -116,7 +172,7 @@ export default function ResultsView({ state, onRetry }: Props) {
                   {fb.isCorrect ? "Good catch" : "Missed or Incorrect"}
                 </span>
               </div>
-              
+
               <div className="mb-4 grid gap-3 text-sm md:grid-cols-2">
                 <div className="rounded-xl bg-black/20 p-3">
                   <span className="mb-1 block text-xs font-bold text-[var(--color-text-muted)]">Original</span>
@@ -145,7 +201,6 @@ export default function ResultsView({ state, onRetry }: Props) {
         })}
       </div>
 
-      {/* 4. Actions */}
       <div className="flex justify-center pt-4">
         <button
           onClick={onRetry}
@@ -155,7 +210,6 @@ export default function ResultsView({ state, onRetry }: Props) {
           Play again
         </button>
       </div>
-
     </div>
   );
 }

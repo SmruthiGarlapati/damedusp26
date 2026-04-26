@@ -3,6 +3,7 @@ import Link from "next/link";
 import HomeNavbar from "@/components/HomeNavbar";
 import { RaptLogoSm } from "@/components/RaptLogo";
 import ScrollReveal from "@/components/ScrollReveal";
+import { CuteDino, DinoFootprint } from "@/components/DinoDecoration";
 
 const FEATURES = [
   {
@@ -44,6 +45,15 @@ const STEPS = [
   { n: "03", tone: "rapt-step-card--launch", title: "Match & study", desc: "Get paired with compatible classmates and jump straight into an active session." },
 ];
 
+const HERO_FOOTSTEPS = [
+  "left-[14%] top-[42%] h-9 w-9 rotate-[-28deg] text-[#5c84ad]/20",
+  "left-[21%] top-[52%] h-8 w-8 rotate-[-18deg] text-[#436485]/17",
+  "left-[31%] top-[59%] h-7 w-7 rotate-[-8deg] text-[#5c84ad]/14",
+  "right-[31%] top-[59%] h-7 w-7 rotate-[8deg] text-[#436485]/14",
+  "right-[21%] top-[52%] h-8 w-8 rotate-[18deg] text-[#5c84ad]/17",
+  "right-[14%] top-[42%] h-9 w-9 rotate-[28deg] text-[#436485]/20",
+];
+
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-[var(--color-bg)] font-sans text-[var(--color-text-base)]">
@@ -53,7 +63,27 @@ export default function HomePage() {
       {/* ── Hero ── */}
       <section className="rapt-app-shell relative flex flex-col items-center justify-center overflow-hidden px-5 pb-28 pt-20 text-center sm:px-8 sm:pb-32 sm:pt-28">
 
-        <div className="relative mx-auto max-w-4xl px-2">
+        <div className="pointer-events-none absolute inset-0 z-0 hidden lg:block" aria-hidden>
+          {HERO_FOOTSTEPS.map((className) => (
+            <DinoFootprint key={className} className={`absolute ${className}`} />
+          ))}
+        </div>
+        <div className="pointer-events-none absolute inset-x-0 bottom-16 z-0 flex justify-center gap-3 text-[#5c84ad]/15 sm:hidden" aria-hidden>
+          <DinoFootprint className="h-7 w-7 rotate-[-14deg]" />
+          <DinoFootprint className="h-6 w-6 rotate-[4deg]" />
+          <DinoFootprint className="h-7 w-7 rotate-[16deg]" />
+        </div>
+
+        {/* Floating dino decoration — left */}
+        <div className="pointer-events-none absolute left-4 top-16 z-0 hidden opacity-60 lg:block xl:left-12" aria-hidden>
+          <CuteDino className="w-28 h-28 drop-shadow-md" color="#5c84ad" flip />
+        </div>
+        {/* Floating dino decoration — right */}
+        <div className="pointer-events-none absolute right-4 bottom-20 z-0 hidden opacity-55 xl:right-10 lg:block" aria-hidden>
+          <CuteDino className="w-24 h-24 drop-shadow-md" color="#436485" />
+        </div>
+
+        <div className="relative z-10 mx-auto max-w-4xl px-2">
           <h1 className="rapt-hero-headline rapt-motion-enter mx-auto mb-8 max-w-[min(100%,28rem)] text-balance sm:mb-10 sm:max-w-5xl">
             <span className="block text-[clamp(2.75rem,8vw,4.5rem)] font-extrabold leading-[0.92] tracking-[-0.04em] text-[var(--color-text-base)]">
               Find your
@@ -159,6 +189,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-2xl">
           <ScrollReveal>
             <div className="rapt-cta-card flex flex-col items-center px-10 py-14 text-center">
+              <CuteDino className="mb-4 w-20 h-20 opacity-80" color="#5c84ad" />
               <span className="rapt-eyebrow mb-4 inline-flex">
                 <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-action-bg)] animate-pulse" />
                 Join your classmates

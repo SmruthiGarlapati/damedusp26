@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { CuteDino } from "@/components/DinoDecoration";
 import { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
@@ -401,42 +402,73 @@ function SessionPageInner() {
               {/* ── Divider ── */}
               <div className="flex items-center gap-3">
                 <div className="h-px flex-1 bg-[var(--color-border)]" />
-                <span className="text-[11px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">Study Games</span>
+                <span className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">
+                  <span>🦕</span>
+                  Study Games
+                  <span>🦖</span>
+                </span>
                 <div className="h-px flex-1 bg-[var(--color-border)]" />
               </div>
 
-              {/* ── Game launcher pills ── */}
-              <div className="mt-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                <div className="flex min-w-max items-center gap-1.5">
-                  {GAME_LAUNCH_ITEMS.map((game) =>
-                    game.href ? (
-                      <Link
-                        key={game.label}
-                        href={withSessionQuery(game.href, { toString: () => launcherQuery })}
-                        className={`group inline-flex h-11 shrink-0 items-center gap-2 rounded-full px-3.5 transition-all duration-200 ${game.available ? "border border-[var(--color-primary-muted)] bg-[var(--color-primary-light)] text-[var(--color-text-base)] shadow-[0_10px_22px_rgba(52,44,35,0.1)] hover:-translate-y-px hover:border-[var(--color-primary)] hover:bg-[rgba(92,132,173,0.22)]" : "border border-[var(--color-border)] bg-white/74 text-[var(--color-text-muted)] hover:border-[rgba(67,100,133,0.28)] hover:bg-white"}`}
-                      >
-                        <span className={`flex h-7 w-7 items-center justify-center rounded-full transition-transform duration-200 group-hover:scale-105 ${game.available ? "border border-[var(--color-border)] bg-white text-[var(--color-primary)]" : "border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-muted)]"}`}>
-                          <game.Icon className="h-4 w-4" />
-                        </span>
-                        <span className={`whitespace-nowrap text-[13px] font-semibold leading-none tracking-[-0.01em] ${game.available ? "text-[var(--color-text-base)]" : "text-[var(--color-text-muted)]"}`}>
-                          {game.label}
-                        </span>
-                      </Link>
-                    ) : (
-                      <span
-                        key={game.label}
-                        className="inline-flex h-11 shrink-0 items-center gap-2 rounded-full border border-[var(--color-border)] bg-white/74 px-3.5 text-[var(--color-text-muted)]"
-                      >
-                        <span className="flex h-7 w-7 items-center justify-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-muted)]">
-                          <game.Icon className="h-4 w-4" />
-                        </span>
-                        <span className="whitespace-nowrap text-[13px] font-semibold leading-none tracking-[-0.01em] text-[var(--color-text-muted)]">
-                          {game.label}
-                        </span>
-                      </span>
-                    ),
-                  )}
+              {/* ── Playing together banner ── */}
+              <div className="flex items-center gap-3 rounded-2xl border border-[var(--color-primary-muted)] bg-[var(--color-primary-light)] px-4 py-3">
+                <div className="flex -space-x-2">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-[var(--color-primary-light)] text-[9px] font-bold text-[var(--color-primary)]">YOU</div>
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-[var(--color-action-bg)] text-[10px] font-bold text-white">
+                    {partnerName.split(" ").map((p) => p[0]).join("").slice(0,2).toUpperCase()}
+                  </div>
                 </div>
+                <div className="flex-1">
+                  <span className="text-[12px] font-bold text-[var(--color-text-base)]">Playing with {partnerName.split(" ")[0]}</span>
+                  <span className="ml-2 text-[11px] text-[var(--color-text-muted)]">· Pick a game below to play together</span>
+                </div>
+                <span className="rounded-full bg-[var(--color-action-bg)] px-2.5 py-1 text-[10px] font-bold text-white">2 Players</span>
+              </div>
+
+              {/* ── Game launcher cards ── */}
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {GAME_LAUNCH_ITEMS.map((game) => {
+                  const isCollaborative = game.label === "Fossil Dig" || game.label === "Brain Blast" || game.label === "Lightning Rod";
+                  const isFossilDig = game.label === "Fossil Dig";
+                  return game.href ? (
+                    <Link
+                      key={game.label}
+                      href={withSessionQuery(game.href, { toString: () => launcherQuery })}
+                      className={`group relative flex flex-col gap-3 rounded-2xl border p-4 transition-all duration-200 ${game.available ? "border-[var(--color-primary-muted)] bg-[var(--color-primary-light)] shadow-[0_10px_22px_rgba(52,44,35,0.08)] hover:-translate-y-0.5 hover:border-[var(--color-primary)] hover:shadow-[0_14px_28px_rgba(52,44,35,0.12)]" : "border-[var(--color-border)] bg-white/74 hover:border-[rgba(67,100,133,0.28)] hover:bg-white"}`}
+                    >
+                      {isCollaborative && (
+                        <span className="absolute right-3 top-3 rounded-full bg-[var(--color-action-bg)] px-1.5 py-0.5 text-[9px] font-bold text-white">2P</span>
+                      )}
+                      {isFossilDig ? (
+                        <CuteDino className="h-9 w-9 transition-transform duration-200 group-hover:scale-110" color="#436485" />
+                      ) : (
+                        <span className={`flex h-9 w-9 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-105 ${game.available ? "border border-[var(--color-border)] bg-white text-[var(--color-primary)]" : "border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-muted)]"}`}>
+                          <game.Icon className="h-4 w-4" />
+                        </span>
+                      )}
+                      <div>
+                        <span className={`block text-[13px] font-bold leading-tight ${game.available ? "text-[var(--color-text-base)]" : "text-[var(--color-text-muted)]"}`}>
+                          {game.label}
+                        </span>
+                        {isCollaborative && game.available && (
+                          <span className="mt-0.5 block text-[10px] text-[var(--color-text-muted)]">Together with {partnerName.split(" ")[0]}</span>
+                        )}
+                      </div>
+                    </Link>
+                  ) : (
+                    <span
+                      key={game.label}
+                      className="flex flex-col gap-3 rounded-2xl border border-[var(--color-border)] bg-white/74 p-4 text-[var(--color-text-muted)]"
+                    >
+                      <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-muted)]">
+                        <game.Icon className="h-4 w-4" />
+                      </span>
+                      <span className="text-[13px] font-bold leading-tight text-[var(--color-text-muted)]">
+                        {game.label}
+                      </span>
+                    </span>
+                  );
+                })}
               </div>
             </div>
           )}

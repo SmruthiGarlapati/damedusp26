@@ -2,20 +2,22 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { GameState } from "../useGameState";
-import { ArrowRightIcon, ListenerIcon } from "../../components/gameChrome";
+import { ArrowRightIcon, ListenerIcon, PlayerAvatar } from "../../components/gameChrome";
 
 interface Props {
   state: GameState;
+  partnerName: string;
   setScribeRecall: (text: string) => void;
   onSubmit: () => void;
 }
 
-export default function ScribeView({ state, setScribeRecall, onSubmit }: Props) {
+export default function ScribeView({ state, partnerName, setScribeRecall, onSubmit }: Props) {
   const recallMinutes = state.presentationMinutes <= 5 ? 3 : state.presentationMinutes <= 10 ? 4 : 5;
   const totalSeconds = recallMinutes * 60;
   const [secondsLeft, setSecondsLeft] = useState(totalSeconds);
   const [text, setText] = useState("");
   const [started, setStarted] = useState(false);
+  const partnerFirst = partnerName.split(" ")[0];
 
   const handleSubmit = useCallback(() => {
     setScribeRecall(text);
@@ -50,8 +52,18 @@ export default function ScribeView({ state, setScribeRecall, onSubmit }: Props) 
           Capture everything you remember
         </h1>
         <p className="text-[var(--color-text-secondary)] text-sm">
-          Write down everything you remember. No notes, no hints — pure recall.
+          Write down everything from {partnerFirst}&apos;s presentation. No notes, no hints — pure recall.
         </p>
+      </div>
+
+      {/* Partner "just presented" indicator */}
+      <div className="flex items-center gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-strong)] px-5 py-4">
+        <PlayerAvatar name={partnerName} size="md" />
+        <div className="flex-1">
+          <div className="text-sm font-bold text-[var(--color-text-base)]">{partnerFirst} just finished presenting</div>
+          <div className="text-xs text-[var(--color-text-muted)]">Now it&apos;s your turn — recall everything they taught</div>
+        </div>
+        <span className="rounded-full bg-amber-500/15 px-2.5 py-1 text-[10px] font-bold text-amber-500">Your turn</span>
       </div>
 
       {/* Topic reminder */}
@@ -73,7 +85,7 @@ export default function ScribeView({ state, setScribeRecall, onSubmit }: Props) 
               Ready to recall?
             </p>
             <p className="max-w-sm text-sm leading-relaxed text-[var(--color-text-secondary)]">
-              You have {recallMinutes} minutes to write down everything you remember from the presentation. No peeking at notes.
+              You have {recallMinutes} minutes to write down everything you remember from {partnerFirst}&apos;s presentation. No peeking at notes.
             </p>
           </div>
           <button
@@ -111,7 +123,7 @@ export default function ScribeView({ state, setScribeRecall, onSubmit }: Props) 
             autoFocus
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="Start typing everything you remember... concepts, definitions, examples, anything."
+            placeholder={`Write everything you remember from ${partnerFirst}'s presentation — concepts, definitions, examples, anything.`}
             className="min-h-[280px] w-full resize-none rounded-2xl border-2 border-[var(--color-border)] bg-[var(--color-surface-strong)] px-6 py-5 text-sm leading-relaxed text-[var(--color-text-base)] outline-none transition-colors placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary)]"
           />
 
