@@ -83,7 +83,7 @@ const DEMO_TANI: StudySession[] = [
     id: "tani-sid-1",
     partnerName: "Sid Kapoor",
     partnerInitials: "SK",
-    course: "CS 314",
+    course: "American History",
     location: "PCL Level 3",
     scheduledAt: minutesFromNow(1),  // starts in 1 min → shows "Start Session"
     duration: 90,
@@ -100,7 +100,7 @@ const DEMO_SID: StudySession[] = [
     id: "tani-sid-1",
     partnerName: "Tani Sharma",
     partnerInitials: "TS",
-    course: "CS 314",
+    course: "American History",
     location: "PCL Level 3",
     scheduledAt: minutesFromNow(1),  // starts in 1 min → shows "Start Session"
     duration: 90,
