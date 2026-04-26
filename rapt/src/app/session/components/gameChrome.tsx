@@ -2,7 +2,7 @@
 
 import type { ComponentType, ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { CuteDino } from "@/components/DinoDecoration";
+import { CuteDino, DinoFootprint } from "@/components/DinoDecoration";
 
 type IconProps = { className?: string };
 type IconComponent = ComponentType<IconProps>;
@@ -266,6 +266,8 @@ export function StudyGameShell({
         <div className="relative overflow-hidden rounded-t-[32px] border-b border-[var(--color-border-light)] bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(246,239,229,0.92))] px-5 py-4 md:px-8 md:py-5">
           {/* Decorative dino in top-right corner */}
           <div className="pointer-events-none absolute right-4 bottom-0 hidden opacity-20 sm:block" aria-hidden>
+            <DinoFootprint className="absolute -left-12 top-2 h-6 w-6 -rotate-12 text-[#5c84ad]" />
+            <DinoFootprint className="absolute -left-6 top-10 h-5 w-5 rotate-6 text-[#436485]" />
             <CuteDino className="w-24 h-24" color="#436485" />
           </div>
           <div className="flex flex-col gap-4">

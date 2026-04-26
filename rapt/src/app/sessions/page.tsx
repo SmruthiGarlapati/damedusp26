@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import { hasDemoAdminSession, isDemoAdminUser } from "@/lib/demoAdmin";
-import { CuteDino } from "@/components/DinoDecoration";
+import { CuteDino, DinoCardAccent } from "@/components/DinoDecoration";
 import { useCurrentUser } from "@/lib/useCurrentUser";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -579,7 +579,8 @@ export default function SessionsPage() {
       <main className="rapt-app-main flex-1 px-8 py-8 md:px-12 md:py-10">
         {/* Header */}
         <div className="rapt-hero-card mb-8 flex flex-col gap-5 px-7 py-7 md:flex-row md:items-end md:justify-between md:px-8">
-          <div>
+          <DinoCardAccent color="#5c84ad" flip />
+          <div className="relative z-10">
             <span className="rapt-eyebrow">
               <span className="h-2 w-2 rounded-full bg-[var(--color-leaf)]" />
               Session control center
@@ -593,7 +594,7 @@ export default function SessionsPage() {
           </div>
           <button
             onClick={() => router.push("/matches")}
-            className="flex items-center gap-2 rounded-xl bg-[var(--color-action-bg)] px-5 py-3 text-[14px] font-bold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-action-hover)] hover:-translate-y-px active:translate-y-0"
+            className="relative z-10 flex items-center gap-2 rounded-xl bg-[var(--color-action-bg)] px-5 py-3 text-[14px] font-bold text-white shadow-[var(--shadow-primary)] transition-all hover:bg-[var(--color-action-hover)] hover:-translate-y-px active:translate-y-0"
           >
             <svg
               width="16"

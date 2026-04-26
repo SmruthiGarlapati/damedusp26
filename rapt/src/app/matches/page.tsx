@@ -4,7 +4,7 @@ import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import { getActiveDemoPersona, isDemoAdminUser } from "@/lib/demoAdmin";
-import { CuteDino } from "@/components/DinoDecoration";
+import { CuteDino, DinoCardAccent } from "@/components/DinoDecoration";
 import { addSession } from "@/lib/sessionsStore";
 import { createClient } from "@/lib/supabase/client";
 import { useCurrentUser } from "@/lib/useCurrentUser";
@@ -740,12 +740,13 @@ function MatchesPageContent() {
 
       <main className="rapt-app-main flex-1 px-8 py-8 md:px-12 md:py-10">
         <div className="rapt-hero-card mb-8 px-7 py-7 md:px-8">
-          <span className="rapt-eyebrow">
+          <DinoCardAccent color="#436485" />
+          <span className="rapt-eyebrow relative z-10">
             <span className="h-2 w-2 rounded-full bg-[var(--color-action-bg)]" />
             Compatibility queue
             <span className="ml-1 text-base leading-none" aria-hidden>🦕</span>
           </span>
-          <div className="mt-5 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div className="relative z-10 mt-5 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <h1 className="rapt-display text-[38px] leading-[0.95] text-[var(--color-text-base)] md:text-[44px]">
                 Your Matches

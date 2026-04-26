@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Button from "@/components/Button";
+import { DinoCardAccent } from "@/components/DinoDecoration";
 import AvailabilityGrid, {
   CellState,
   makeEmptyGrid,
@@ -408,7 +409,8 @@ function SchedulePageInner() {
       <main className="rapt-app-main flex-1 px-8 py-8 md:px-12 md:py-10">
         {/* Header */}
         <div className="rapt-hero-card mb-8 flex flex-col gap-5 px-7 py-7 md:flex-row md:items-start md:justify-between md:px-8">
-          <div>
+          <DinoCardAccent color="#5c84ad" flip />
+          <div className="relative z-10">
             <span className="rapt-eyebrow">
               <span className="h-2 w-2 rounded-full bg-[var(--color-action-bg)]" />
               Study setup
@@ -428,7 +430,7 @@ function SchedulePageInner() {
           </div>
           <button
             onClick={() => router.push("/matching")}
-            className="rapt-pill-motion mt-2 flex shrink-0 items-center gap-2 rounded-xl border border-[var(--color-border)] bg-white/78 px-4 py-2.5 text-[13px] font-semibold text-[var(--color-text-secondary)] shadow-[var(--shadow-sm)] transition-all hover:border-[var(--color-primary-muted)] hover:bg-white hover:text-[var(--color-primary)]"
+            className="rapt-pill-motion relative z-10 mt-2 flex shrink-0 items-center gap-2 rounded-xl border border-[var(--color-border)] bg-white/78 px-4 py-2.5 text-[13px] font-semibold text-[var(--color-text-secondary)] shadow-[var(--shadow-sm)] transition-all hover:border-[var(--color-primary-muted)] hover:bg-white hover:text-[var(--color-primary)]"
           >
             Go to Matching
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">

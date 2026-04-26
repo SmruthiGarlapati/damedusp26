@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import { DinoCardAccent } from "@/components/DinoDecoration";
 import {
   clearDemoAdminSession,
   isDemoAdminUser,
@@ -163,9 +164,10 @@ export default function SettingsPage() {
 
       <main className="rapt-app-main flex flex-1 gap-6 px-4 py-4 md:px-8 md:py-8">
         {/* Sidebar */}
-        <aside className="w-72 shrink-0 rounded-[28px] border border-[var(--color-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(241,233,223,0.84))] px-6 py-8 text-[var(--color-text-base)] shadow-[var(--shadow-lg)]">
+        <aside className="relative w-72 shrink-0 overflow-hidden rounded-[28px] border border-[var(--color-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(241,233,223,0.84))] px-6 py-8 text-[var(--color-text-base)] shadow-[var(--shadow-lg)]">
+          <DinoCardAccent className="-right-16 opacity-70" color="#5c84ad" flip />
           {/* Avatar */}
-          <div className="mb-6 flex flex-col items-center gap-2 text-center">
+          <div className="relative z-10 mb-6 flex flex-col items-center gap-2 text-center">
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[var(--color-action-bg)] text-[24px] font-extrabold text-white">
               {loading ? "…" : initials}
             </div>
@@ -200,7 +202,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Tabs */}
-          <nav className="flex flex-col gap-1">
+          <nav className="relative z-10 flex flex-col gap-1">
             {TABS.map((t) => (
               <button
                 key={t}
@@ -219,7 +221,7 @@ export default function SettingsPage() {
 
           <button
             onClick={handleSignOut}
-            className="rapt-interactive-lift mt-8 flex w-full items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-[var(--color-text-secondary)] transition-colors hover:bg-[rgba(92,132,173,0.08)] hover:text-[var(--color-primary)]"
+            className="rapt-interactive-lift relative z-10 mt-8 flex w-full items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-[var(--color-text-secondary)] transition-colors hover:bg-[rgba(92,132,173,0.08)] hover:text-[var(--color-primary)]"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>

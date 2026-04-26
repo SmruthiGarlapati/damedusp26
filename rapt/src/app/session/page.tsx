@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { CuteDino } from "@/components/DinoDecoration";
+import { CuteDino, DinoCardAccent } from "@/components/DinoDecoration";
 import { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
@@ -265,9 +265,10 @@ function SessionPageInner() {
     <div className="rapt-app-shell rapt-session-workspace flex min-h-screen flex-col">
       <Navbar />
 
-      <div className="mx-4 mb-4 overflow-hidden rounded-[28px] border border-[var(--color-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(246,239,229,0.88))] shadow-[0_24px_56px_rgba(52,44,35,0.12)] backdrop-blur-sm md:mx-6">
+      <div className="relative mx-4 mb-4 overflow-hidden rounded-[28px] border border-[var(--color-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(246,239,229,0.88))] shadow-[0_24px_56px_rgba(52,44,35,0.12)] backdrop-blur-sm md:mx-6">
+        <DinoCardAccent className="opacity-70" color="#5c84ad" />
         {/* Live banner */}
-        <div className="flex flex-wrap items-center gap-3 border-b border-[var(--color-border-light)] bg-[var(--color-action-bg)] px-6 py-3 text-[var(--color-bone)] md:px-8">
+        <div className="relative z-10 flex flex-wrap items-center gap-3 border-b border-[var(--color-border-light)] bg-[var(--color-action-bg)] px-6 py-3 text-[var(--color-bone)] md:px-8">
           <span className="h-2 w-2 animate-pulse rounded-full bg-white" />
           <span className="text-[13px] font-bold">Live Session · {course} with {partnerName}</span>
           <span className="ml-auto text-[12px] font-medium text-[#D9D9D9]/70">{duration} min · {location}</span>
@@ -281,7 +282,7 @@ function SessionPageInner() {
           </button>
         </div>
 
-        <div className="grid flex-1 overflow-hidden xl:min-h-[calc(100vh-11rem)] xl:grid-cols-[220px_minmax(0,1fr)_268px]">
+        <div className="relative z-10 grid flex-1 overflow-hidden xl:min-h-[calc(100vh-11rem)] xl:grid-cols-[220px_minmax(0,1fr)_268px]">
 
         {/* ── Left sidebar ── */}
         <aside className="order-2 flex flex-col border-t border-[var(--color-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.76),rgba(244,236,226,0.72))] p-5 overflow-y-auto xl:order-1 xl:border-t-0 xl:border-r">
