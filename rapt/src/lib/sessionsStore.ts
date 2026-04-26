@@ -77,7 +77,60 @@ const DEMO: StudySession[] = [
   },
 ];
 
-let _sessions: StudySession[] = [...DEMO];
+// Tani's sessions — she has Sid as her main upcoming session
+const DEMO_TANI: StudySession[] = [
+  {
+    id: "tani-sid-1",
+    partnerName: "Sid Kapoor",
+    partnerInitials: "SK",
+    course: "CS 314",
+    location: "PCL Level 3",
+    scheduledAt: minutesFromNow(1),  // starts in 1 min → shows "Start Session"
+    duration: 90,
+    status: "accepted",
+    requestedByMe: true,
+    studyMethods: ["Whiteboard", "Practice Problems", "Pomodoro"],
+    notes: "Fossil Dig — Tani teaches, Sid recalls",
+  },
+];
+
+// Sid's sessions — he has Tani as his main upcoming session
+const DEMO_SID: StudySession[] = [
+  {
+    id: "tani-sid-1",
+    partnerName: "Tani Sharma",
+    partnerInitials: "TS",
+    course: "CS 314",
+    location: "PCL Level 3",
+    scheduledAt: minutesFromNow(1),  // starts in 1 min → shows "Start Session"
+    duration: 90,
+    status: "accepted",
+    requestedByMe: false,
+    studyMethods: ["Whiteboard", "Practice Problems", "Pomodoro"],
+    notes: "Fossil Dig — Tani teaches, Sid recalls",
+  },
+];
+
+function getActiveDemoPersona(): string | null {
+  if (typeof document === "undefined") return null;
+  const part = document.cookie
+    .split(";")
+    .map((p) => p.trim())
+    .find((p) => p.startsWith("rapt_demo_admin="));
+  if (!part) return null;
+  const val = part.split("=")[1];
+  if (!val || val === "0") return null;
+  return val === "1" ? "admin" : val;
+}
+
+function buildInitialSessions(): StudySession[] {
+  const persona = getActiveDemoPersona();
+  if (persona === "tani") return [...DEMO_TANI];
+  if (persona === "sid") return [...DEMO_SID];
+  return [...DEMO];
+}
+
+let _sessions: StudySession[] = buildInitialSessions();
 const _listeners: Array<() => void> = [];
 
 export function getSessions(): StudySession[] {

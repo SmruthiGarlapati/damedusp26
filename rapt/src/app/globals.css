@@ -1,45 +1,46 @@
 @import "tailwindcss";
 
 @theme {
-  --color-forest:   #152b15;
-  --color-canopy:   #1e3d1e;
-  --color-deepfern: #2a5a2a;
-  --color-fern:     #3d7a2a;
-  --color-leaf:     #72b84a;
-  --color-lime:     #c8e898;
-  --color-bone:     #f5f0e8;
-  --color-raptor:   #e85a0a;
-  --color-ember:    #ff7c38;
-  --color-fossil:   #fae0c8;
-  --color-mud:      #2a2010;
-  /* Hero headline orange (screenshot-matched) */
-  --color-hero-orange: #e86111;
+  --color-forest:   #f3ece2;
+  --color-canopy:   #2c4f74;
+  --color-deepfern: #223f5c;
+  --color-fern:     #f8f3eb;
+  --color-leaf:     #5c84ad;
+  --color-lime:     #6f8baa;
+  --color-bone:     #fffdfa;
+  --color-raptor:   #436485;
+  --color-ember:    #eef4f9;
+  --color-fossil:   #2d261f;
+  --color-mud:      #342c23;
+  --color-hero-orange: #436485;
+  --color-action-bg: #2c4f74;
+  --color-action-hover: #223f5c;
 
   /* App-wide: Baloo Bhaijaan 2 — avoid generic `sans-serif` (often Arial on Windows) */
   --font-sans:    var(--font-baloo), system-ui, -apple-system, "Segoe UI", "Helvetica Neue";
   --font-display: var(--font-baloo), system-ui, -apple-system, "Segoe UI", "Helvetica Neue";
 
-  --color-bg:            #102110;
-  --color-surface:       rgba(24, 49, 24, 0.82);
-  --color-surface-strong:rgba(14, 30, 14, 0.94);
-  --color-border:        rgba(255, 255, 255, 0.12);
-  --color-border-light:  rgba(255, 255, 255, 0.08);
+  --color-bg:            #f3ece2;
+  --color-surface:       rgba(255, 255, 255, 0.72);
+  --color-surface-strong:rgba(255, 255, 255, 0.88);
+  --color-border:        rgba(67, 100, 133, 0.16);
+  --color-border-light:  rgba(67, 100, 133, 0.1);
   --color-primary:       var(--color-raptor);
-  --color-primary-hover: var(--color-ember);
-  --color-primary-light: rgba(232, 90, 10, 0.18);
-  --color-primary-muted: rgba(232, 90, 10, 0.34);
-  --color-text:          rgba(255, 255, 255, 0.96);
-  --color-text-base:     rgba(255, 255, 255, 0.96);
-  --color-text-secondary:rgba(245, 240, 232, 0.82);
-  --color-text-muted:    rgba(200, 232, 152, 0.66);
-  --color-tag-green:     rgba(200, 232, 152, 0.18);
-  --color-teal-light:    rgba(114, 184, 74, 0.16);
-  --color-peach-light:   rgba(232, 90, 10, 0.16);
+  --color-primary-hover: #33516d;
+  --color-primary-light: rgba(92, 132, 173, 0.16);
+  --color-primary-muted: rgba(92, 132, 173, 0.32);
+  --color-text:          rgba(45, 38, 31, 0.96);
+  --color-text-base:     rgba(45, 38, 31, 0.96);
+  --color-text-secondary:rgba(61, 53, 45, 0.78);
+  --color-text-muted:    rgba(86, 76, 66, 0.58);
+  --color-tag-green:     rgba(92, 132, 173, 0.12);
+  --color-teal-light:    rgba(92, 132, 173, 0.12);
+  --color-peach-light:   rgba(221, 193, 164, 0.22);
 
-  --shadow-sm:    0 1px 3px rgba(0,0,0,0.24);
-  --shadow-md:    0 14px 32px rgba(0,0,0,0.28);
-  --shadow-lg:    0 24px 60px rgba(0,0,0,0.34);
-  --shadow-ember: 0 12px 28px rgba(232,90,10,0.28);
+  --shadow-sm:    0 1px 3px rgba(52,44,35,0.08);
+  --shadow-md:    0 18px 36px rgba(52,44,35,0.12);
+  --shadow-lg:    0 26px 64px rgba(52,44,35,0.16);
+  --shadow-ember: 0 16px 34px rgba(44,79,116,0.18);
   --shadow-primary: var(--shadow-ember);
 }
 
@@ -47,14 +48,17 @@
   html { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
   body {
     background:
-      radial-gradient(circle at top left, rgba(114, 184, 74, 0.16), transparent 24%),
-      radial-gradient(circle at top right, rgba(232, 90, 10, 0.13), transparent 20%),
-      linear-gradient(180deg, #152b15 0%, #112311 45%, #0b160b 100%);
+      radial-gradient(circle at top left, rgba(92, 132, 173, 0.18), transparent 24%),
+      radial-gradient(circle at top right, rgba(255, 255, 255, 0.72), transparent 22%),
+      linear-gradient(180deg, #fbf7f0 0%, #f6efe5 45%, #efe6da 100%);
     background-color: var(--color-bg);
     color: var(--color-text-base);
   }
   * { box-sizing: border-box; }
   a { text-decoration: none; color: inherit; }
+  :is(input, textarea, select) {
+    cursor: text;
+  }
 }
 
 @keyframes rapt-enter {
@@ -91,10 +95,10 @@
 @keyframes rapt-glow {
   0%,
   100% {
-    box-shadow: 0 0 0 rgba(232, 90, 10, 0);
+    box-shadow: 0 0 0 rgba(67, 100, 133, 0);
   }
   50% {
-    box-shadow: 0 0 26px rgba(232, 90, 10, 0.22);
+    box-shadow: 0 0 28px rgba(67, 100, 133, 0.22);
   }
 }
 
@@ -142,6 +146,8 @@
   }
 
   .rapt-interactive-lift {
+    position: relative;
+    isolation: isolate;
     transition:
       transform 240ms cubic-bezier(0.22, 1, 0.36, 1),
       box-shadow 240ms ease,
@@ -151,6 +157,8 @@
   }
 
   .rapt-pill-motion {
+    position: relative;
+    isolation: isolate;
     transition:
       transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
       border-color 220ms ease,
@@ -184,9 +192,9 @@
   .rapt-app-shell {
     position: relative;
     background:
-      linear-gradient(180deg, rgba(13, 28, 13, 0.88) 0%, rgba(13, 28, 13, 0.76) 16rem),
-      radial-gradient(circle at 15% 0%, rgba(114, 184, 74, 0.12), transparent 24%),
-      radial-gradient(circle at 90% 8%, rgba(232, 90, 10, 0.1), transparent 20%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.14) 16rem),
+      radial-gradient(circle at 15% 0%, rgba(92, 132, 173, 0.16), transparent 24%),
+      radial-gradient(circle at 90% 8%, rgba(255, 255, 255, 0.5), transparent 20%),
       var(--color-bg);
   }
 
@@ -197,11 +205,11 @@
   .rapt-hero-card {
     position: relative;
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(67, 100, 133, 0.12);
     border-radius: 28px;
     background:
-      linear-gradient(135deg, rgba(23, 52, 23, 0.96), rgba(12, 25, 12, 0.92));
-    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.24);
+      linear-gradient(135deg, rgba(255, 255, 255, 0.88), rgba(246, 239, 229, 0.74));
+    box-shadow: 0 20px 48px rgba(52, 44, 35, 0.12);
     transition:
       transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
       box-shadow 280ms ease,
@@ -216,7 +224,7 @@
     width: 16rem;
     height: 16rem;
     border-radius: 999px;
-    background: radial-gradient(circle, rgba(232, 90, 10, 0.22), transparent 68%);
+    background: radial-gradient(circle, rgba(92, 132, 173, 0.22), transparent 68%);
     pointer-events: none;
     animation: rapt-orb-drift 9s ease-in-out infinite;
   }
@@ -226,10 +234,10 @@
     align-items: center;
     gap: 0.55rem;
     border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(67, 100, 133, 0.14);
+    background: rgba(255, 255, 255, 0.56);
     padding: 0.5rem 0.9rem;
-    color: var(--color-lime);
+    color: var(--color-primary);
     font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 0.18em;
@@ -239,7 +247,7 @@
   .rapt-glass-card {
     border: 1px solid var(--color-border);
     border-radius: 24px;
-    background: linear-gradient(180deg, rgba(16, 32, 16, 0.94), rgba(12, 23, 12, 0.92));
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(247, 240, 232, 0.7));
     box-shadow: var(--shadow-md);
     backdrop-filter: blur(12px);
     transition:
@@ -257,14 +265,14 @@
   }
 
   .rapt-feature-card {
-    --feature-accent: #c8e898;
-    --feature-edge: rgba(200, 232, 152, 0.3);
-    --feature-glow: rgba(200, 232, 152, 0.18);
-    --feature-glow-strong: rgba(200, 232, 152, 0.24);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    --feature-accent: #5c84ad;
+    --feature-edge: rgba(92, 132, 173, 0.32);
+    --feature-glow: rgba(92, 132, 173, 0.12);
+    --feature-glow-strong: rgba(92, 132, 173, 0.18);
+    border: 1px solid rgba(67, 100, 133, 0.12);
     border-radius: 28px;
-    background: linear-gradient(180deg, rgba(14, 30, 14, 0.97), rgba(8, 17, 8, 0.95));
-    box-shadow: 0 22px 54px rgba(0, 0, 0, 0.28);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(247, 240, 232, 0.72));
+    box-shadow: 0 22px 54px rgba(52, 44, 35, 0.12);
     transform-style: preserve-3d;
     transition:
       transform 360ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -279,8 +287,8 @@
     border-radius: 27px;
     background:
       radial-gradient(circle at top right, var(--feature-glow), transparent 34%),
-      linear-gradient(145deg, rgba(255, 255, 255, 0.08), transparent 46%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 76%);
+      linear-gradient(145deg, rgba(92, 132, 173, 0.05), transparent 46%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.3), transparent 76%);
     z-index: 0;
   }
 
@@ -291,7 +299,7 @@
     left: -28%;
     width: 62%;
     height: 190%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+    background: linear-gradient(90deg, transparent, rgba(92, 132, 173, 0.18), transparent);
     opacity: 0;
     transform: rotate(18deg) translate3d(-140%, 0, 0);
     transition:
@@ -348,40 +356,40 @@
   }
 
   .rapt-feature-card__icon {
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.04));
-    box-shadow: 0 18px 34px rgba(0, 0, 0, 0.18);
+    border: 1px solid rgba(67, 100, 133, 0.12);
+    background: linear-gradient(180deg, rgba(92, 132, 173, 0.1), rgba(255, 255, 255, 0.62));
+    box-shadow: 0 18px 34px rgba(52, 44, 35, 0.08);
   }
 
   .rapt-feature-card--sync {
-    --feature-accent: #c8e898;
-    --feature-edge: rgba(200, 232, 152, 0.34);
-    --feature-glow: rgba(200, 232, 152, 0.16);
-    --feature-glow-strong: rgba(200, 232, 152, 0.24);
+    --feature-accent: #6f8baa;
+    --feature-edge: rgba(92, 132, 173, 0.28);
+    --feature-glow: rgba(92, 132, 173, 0.12);
+    --feature-glow-strong: rgba(92, 132, 173, 0.16);
   }
 
   .rapt-feature-card--match {
-    --feature-accent: #ff9b63;
-    --feature-edge: rgba(255, 124, 56, 0.34);
-    --feature-glow: rgba(255, 124, 56, 0.18);
-    --feature-glow-strong: rgba(255, 124, 56, 0.24);
+    --feature-accent: #436485;
+    --feature-edge: rgba(67, 100, 133, 0.28);
+    --feature-glow: rgba(67, 100, 133, 0.14);
+    --feature-glow-strong: rgba(67, 100, 133, 0.2);
   }
 
   .rapt-feature-card--session {
-    --feature-accent: #f5e1c6;
-    --feature-edge: rgba(245, 224, 200, 0.32);
-    --feature-glow: rgba(245, 224, 200, 0.16);
-    --feature-glow-strong: rgba(245, 224, 200, 0.22);
+    --feature-accent: #54789c;
+    --feature-edge: rgba(84, 120, 156, 0.3);
+    --feature-glow: rgba(84, 120, 156, 0.14);
+    --feature-glow-strong: rgba(84, 120, 156, 0.2);
   }
 
   .rapt-step-card {
-    --step-accent: rgba(255, 124, 56, 0.7);
-    --step-glow: rgba(255, 124, 56, 0.16);
+    --step-accent: rgba(67, 100, 133, 0.46);
+    --step-glow: rgba(92, 132, 173, 0.16);
     padding: 1.35rem 1.35rem 1.45rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(67, 100, 133, 0.12);
     border-radius: 24px;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
-    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.18);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(247, 240, 232, 0.54));
+    box-shadow: 0 18px 36px rgba(52, 44, 35, 0.08);
     transition:
       transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
       box-shadow 320ms ease,
@@ -420,31 +428,31 @@
   .rapt-step-card__number {
     display: block;
     margin-bottom: 1rem;
-    color: rgba(255, 255, 255, 0.18);
+    color: rgba(67, 100, 133, 0.18);
     font-size: 3.25rem;
     line-height: 0.9;
   }
 
   .rapt-step-card--profile {
-    --step-accent: rgba(200, 232, 152, 0.78);
-    --step-glow: rgba(200, 232, 152, 0.16);
+    --step-accent: rgba(92, 132, 173, 0.64);
+    --step-glow: rgba(92, 132, 173, 0.16);
   }
 
   .rapt-step-card--availability {
-    --step-accent: rgba(255, 124, 56, 0.78);
-    --step-glow: rgba(255, 124, 56, 0.16);
+    --step-accent: rgba(67, 100, 133, 0.6);
+    --step-glow: rgba(67, 100, 133, 0.16);
   }
 
   .rapt-step-card--launch {
-    --step-accent: rgba(245, 224, 200, 0.72);
-    --step-glow: rgba(245, 224, 200, 0.15);
+    --step-accent: rgba(84, 120, 156, 0.56);
+    --step-glow: rgba(84, 120, 156, 0.14);
   }
 
   .rapt-cta-card {
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(67, 100, 133, 0.12);
     border-radius: 32px;
-    background: linear-gradient(160deg, rgba(13, 28, 13, 0.98), rgba(7, 15, 7, 0.96));
-    box-shadow: 0 26px 72px rgba(0, 0, 0, 0.34);
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.88), rgba(246, 239, 229, 0.72));
+    box-shadow: 0 26px 72px rgba(52, 44, 35, 0.14);
     transition:
       transform 360ms cubic-bezier(0.22, 1, 0.36, 1),
       box-shadow 360ms ease,
@@ -461,15 +469,15 @@
 
   .rapt-cta-card::before {
     background:
-      radial-gradient(circle at 18% 18%, rgba(255, 124, 56, 0.18), transparent 24%),
-      radial-gradient(circle at 82% 82%, rgba(200, 232, 152, 0.16), transparent 28%);
+      radial-gradient(circle at 18% 18%, rgba(92, 132, 173, 0.14), transparent 24%),
+      radial-gradient(circle at 82% 82%, rgba(255, 255, 255, 0.42), transparent 28%);
     animation: rapt-card-aura 12s ease-in-out infinite;
   }
 
   .rapt-cta-card::after {
     inset: 1px;
     border-radius: 31px;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), transparent 30%, rgba(255, 255, 255, 0.02));
+    background: linear-gradient(135deg, rgba(92, 132, 173, 0.04), transparent 30%, rgba(255, 255, 255, 0.18));
   }
 
   .rapt-cta-card > * {
@@ -478,48 +486,48 @@
   }
 
   .rapt-session-workspace :where(.bg-white) {
-    background: linear-gradient(180deg, rgba(18, 37, 18, 0.96), rgba(10, 20, 10, 0.94)) !important;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(60, 110, 113, 0.28)) !important;
     color: var(--color-text-base) !important;
   }
 
   .rapt-session-workspace :where(.bg-red-50) {
-    background-color: rgba(143, 45, 38, 0.22) !important;
+    background-color: rgba(53, 53, 53, 0.24) !important;
   }
 
   .rapt-session-workspace :where(.bg-red-100) {
-    background-color: rgba(143, 45, 38, 0.32) !important;
+    background-color: rgba(53, 53, 53, 0.34) !important;
   }
 
   .rapt-session-workspace :where(.bg-green-50) {
-    background-color: rgba(40, 134, 84, 0.22) !important;
+    background-color: rgba(60, 110, 113, 0.22) !important;
   }
 
   .rapt-session-workspace :where(.bg-green-100) {
-    background-color: rgba(40, 134, 84, 0.3) !important;
+    background-color: rgba(60, 110, 113, 0.3) !important;
   }
 
   .rapt-session-workspace :where(.bg-amber-50) {
-    background-color: rgba(151, 102, 34, 0.22) !important;
+    background-color: rgba(40, 75, 99, 0.22) !important;
   }
 
   .rapt-session-workspace :where(.bg-amber-100) {
-    background-color: rgba(151, 102, 34, 0.3) !important;
+    background-color: rgba(40, 75, 99, 0.3) !important;
   }
 
   .rapt-session-workspace :where(.bg-blue-50) {
-    background-color: rgba(52, 116, 188, 0.22) !important;
+    background-color: rgba(40, 75, 99, 0.22) !important;
   }
 
   .rapt-session-workspace :where(.bg-cyan-50) {
-    background-color: rgba(46, 134, 168, 0.22) !important;
+    background-color: rgba(60, 110, 113, 0.22) !important;
   }
 
   .rapt-session-workspace :where(.bg-violet-50) {
-    background-color: rgba(91, 65, 170, 0.22) !important;
+    background-color: rgba(40, 75, 99, 0.22) !important;
   }
 
   .rapt-session-workspace :where(.bg-emerald-50) {
-    background-color: rgba(40, 134, 84, 0.2) !important;
+    background-color: rgba(60, 110, 113, 0.2) !important;
   }
 
   .rapt-session-workspace :where(.bg-gray-100) {
@@ -535,80 +543,80 @@
   }
 
   .rapt-session-workspace :where(.text-red-500, .text-red-600, .text-red-700, .text-red-800, .text-red-900) {
-    color: #ffd2cb !important;
+    color: #FFFFFF !important;
   }
 
   .rapt-session-workspace :where(.text-green-400, .text-green-500, .text-green-600, .text-green-700, .text-green-800) {
-    color: #d2f8df !important;
+    color: #FFFFFF !important;
   }
 
   .rapt-session-workspace :where(.text-amber-500, .text-amber-700, .text-amber-800, .text-amber-900) {
-    color: #f7d48f !important;
+    color: #D9D9D9 !important;
   }
 
   .rapt-session-workspace :where(.text-violet-200, .text-violet-500, .text-violet-700, .text-violet-800) {
-    color: #dfd1ff !important;
+    color: #D9D9D9 !important;
   }
 
   .rapt-session-workspace :where(.text-blue-100, .text-blue-500, .text-blue-800) {
-    color: #cbe7ff !important;
+    color: #FFFFFF !important;
   }
 
   .rapt-session-workspace :where(.text-cyan-800, .text-cyan-600) {
-    color: #b6efff !important;
+    color: #FFFFFF !important;
   }
 
   .rapt-session-workspace :where(.text-emerald-700, .text-emerald-800) {
-    color: #b9f8d4 !important;
+    color: #FFFFFF !important;
   }
 
   .rapt-session-workspace :where(.from-violet-50) {
-    --tw-gradient-from: rgba(91, 65, 170, 0.24) var(--tw-gradient-from-position) !important;
-    --tw-gradient-to: rgba(91, 65, 170, 0) var(--tw-gradient-to-position) !important;
+    --tw-gradient-from: rgba(40, 75, 99, 0.24) var(--tw-gradient-from-position) !important;
+    --tw-gradient-to: rgba(40, 75, 99, 0) var(--tw-gradient-to-position) !important;
     --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
   }
 
   .rapt-session-workspace :where(.to-purple-50) {
-    --tw-gradient-to: rgba(61, 33, 113, 0.22) var(--tw-gradient-to-position) !important;
+    --tw-gradient-to: rgba(53, 53, 53, 0.22) var(--tw-gradient-to-position) !important;
   }
 
   .rapt-session-workspace :where(.from-green-50) {
-    --tw-gradient-from: rgba(40, 134, 84, 0.22) var(--tw-gradient-from-position) !important;
-    --tw-gradient-to: rgba(40, 134, 84, 0) var(--tw-gradient-to-position) !important;
+    --tw-gradient-from: rgba(60, 110, 113, 0.22) var(--tw-gradient-from-position) !important;
+    --tw-gradient-to: rgba(60, 110, 113, 0) var(--tw-gradient-to-position) !important;
     --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
   }
 
   .rapt-session-workspace :where(.to-emerald-50) {
-    --tw-gradient-to: rgba(17, 71, 45, 0.24) var(--tw-gradient-to-position) !important;
+    --tw-gradient-to: rgba(40, 75, 99, 0.24) var(--tw-gradient-to-position) !important;
   }
 
   .rapt-session-workspace :where(.from-amber-50) {
-    --tw-gradient-from: rgba(151, 102, 34, 0.22) var(--tw-gradient-from-position) !important;
-    --tw-gradient-to: rgba(151, 102, 34, 0) var(--tw-gradient-to-position) !important;
+    --tw-gradient-from: rgba(53, 53, 53, 0.22) var(--tw-gradient-from-position) !important;
+    --tw-gradient-to: rgba(53, 53, 53, 0) var(--tw-gradient-to-position) !important;
     --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
   }
 
   .rapt-session-workspace :where(.to-orange-50) {
-    --tw-gradient-to: rgba(90, 53, 11, 0.22) var(--tw-gradient-to-position) !important;
+    --tw-gradient-to: rgba(40, 75, 99, 0.22) var(--tw-gradient-to-position) !important;
   }
 
   .rapt-session-workspace :where(.from-red-50) {
-    --tw-gradient-from: rgba(143, 45, 38, 0.22) var(--tw-gradient-from-position) !important;
-    --tw-gradient-to: rgba(143, 45, 38, 0) var(--tw-gradient-to-position) !important;
+    --tw-gradient-from: rgba(53, 53, 53, 0.22) var(--tw-gradient-from-position) !important;
+    --tw-gradient-to: rgba(53, 53, 53, 0) var(--tw-gradient-to-position) !important;
     --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
   }
 
   .rapt-session-workspace :where(.to-rose-50) {
-    --tw-gradient-to: rgba(90, 18, 30, 0.22) var(--tw-gradient-to-position) !important;
+    --tw-gradient-to: rgba(40, 75, 99, 0.22) var(--tw-gradient-to-position) !important;
   }
 
   .rapt-auth-shell {
     position: relative;
     overflow: hidden;
     background:
-      linear-gradient(180deg, rgba(15, 31, 15, 0.94), rgba(21, 43, 21, 0.92)),
-      radial-gradient(circle at top left, rgba(114, 184, 74, 0.28), transparent 24%),
-      radial-gradient(circle at bottom right, rgba(232, 90, 10, 0.24), transparent 28%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.18)),
+      radial-gradient(circle at top left, rgba(92, 132, 173, 0.18), transparent 24%),
+      radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.5), transparent 28%),
       var(--color-forest);
   }
 
@@ -626,7 +634,7 @@
     left: -6rem;
     width: 18rem;
     height: 18rem;
-    background: radial-gradient(circle, rgba(114, 184, 74, 0.16), transparent 68%);
+    background: radial-gradient(circle, rgba(92, 132, 173, 0.18), transparent 68%);
     animation: rapt-orb-drift 11s ease-in-out infinite;
   }
 
@@ -635,15 +643,15 @@
     bottom: -9rem;
     width: 24rem;
     height: 24rem;
-    background: radial-gradient(circle, rgba(232, 90, 10, 0.16), transparent 68%);
+    background: radial-gradient(circle, rgba(92, 132, 173, 0.14), transparent 68%);
     animation: rapt-orb-drift 13s ease-in-out infinite reverse;
   }
 
   .rapt-auth-card {
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(67, 100, 133, 0.14);
     border-radius: 28px;
-    background: linear-gradient(180deg, rgba(16, 32, 16, 0.96), rgba(11, 23, 11, 0.94));
-    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.32);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(247, 240, 232, 0.76));
+    box-shadow: 0 28px 80px rgba(52, 44, 35, 0.14);
     color: var(--color-text-base);
     transition:
       transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -660,26 +668,26 @@
   .rapt-app-shell :where(.bg-gray-100),
   .rapt-app-shell :where(.bg-gray-200),
   .rapt-app-shell :where(.bg-slate-800) {
-    background-color: rgba(255, 255, 255, 0.08);
+    background-color: rgba(255, 255, 255, 0.52);
   }
 
-  .rapt-app-shell :where(.bg-red-50) { background-color: rgba(143, 45, 38, 0.24); }
-  .rapt-app-shell :where(.bg-red-100) { background-color: rgba(143, 45, 38, 0.32); }
-  .rapt-app-shell :where(.bg-green-50) { background-color: rgba(72, 129, 76, 0.22); }
-  .rapt-app-shell :where(.bg-green-100) { background-color: rgba(72, 129, 76, 0.3); }
-  .rapt-app-shell :where(.bg-amber-50) { background-color: rgba(151, 102, 34, 0.24); }
-  .rapt-app-shell :where(.bg-amber-100) { background-color: rgba(151, 102, 34, 0.32); }
-  .rapt-app-shell :where(.bg-emerald-50) { background-color: rgba(35, 118, 97, 0.24); }
+  .rapt-app-shell :where(.bg-red-50) { background-color: rgba(244, 217, 217, 0.72); }
+  .rapt-app-shell :where(.bg-red-100) { background-color: rgba(238, 201, 201, 0.78); }
+  .rapt-app-shell :where(.bg-green-50) { background-color: rgba(219, 234, 226, 0.72); }
+  .rapt-app-shell :where(.bg-green-100) { background-color: rgba(204, 225, 214, 0.78); }
+  .rapt-app-shell :where(.bg-amber-50) { background-color: rgba(247, 231, 191, 0.68); }
+  .rapt-app-shell :where(.bg-amber-100) { background-color: rgba(241, 220, 167, 0.76); }
+  .rapt-app-shell :where(.bg-emerald-50) { background-color: rgba(214, 232, 222, 0.72); }
   .rapt-app-shell :where(.bg-blue-50),
-  .rapt-app-shell :where(.bg-cyan-50) { background-color: rgba(37, 93, 140, 0.24); }
+  .rapt-app-shell :where(.bg-cyan-50) { background-color: rgba(92, 132, 173, 0.16); }
   .rapt-app-shell :where(.bg-violet-50),
-  .rapt-app-shell :where(.bg-purple-50) { background-color: rgba(84, 61, 152, 0.24); }
+  .rapt-app-shell :where(.bg-purple-50) { background-color: rgba(125, 136, 184, 0.14); }
 
   .rapt-app-shell :where(.text-gray-900),
   .rapt-app-shell :where(.text-gray-800),
   .rapt-app-shell :where(.text-slate-800),
   .rapt-app-shell :where(.text-red-900) {
-    color: rgba(255, 255, 255, 0.94);
+    color: var(--color-text-base);
   }
 
   .rapt-app-shell :where(.text-gray-500),
@@ -689,51 +697,51 @@
 
   .rapt-app-shell :where(.text-green-800),
   .rapt-app-shell :where(.text-green-700) {
-    color: #d8f2b7;
+    color: #325d49;
   }
 
   .rapt-app-shell :where(.text-amber-800),
   .rapt-app-shell :where(.text-amber-700),
   .rapt-app-shell :where(.text-amber-600) {
-    color: #ffd792;
+    color: #8b6219;
   }
 
   .rapt-app-shell :where(.text-red-700),
   .rapt-app-shell :where(.text-red-600),
   .rapt-app-shell :where(.text-red-500) {
-    color: #ffb4a7;
+    color: #9c4f4f;
   }
 
   .rapt-app-shell :where(.text-emerald-800) {
-    color: #9af2d2;
+    color: #325d49;
   }
 
   .rapt-app-shell :where(.text-violet-800) {
-    color: #e2d4ff;
+    color: #5e6291;
   }
 
   .rapt-app-shell :where(.text-blue-800),
   .rapt-app-shell :where(.text-cyan-800) {
-    color: #bae8ff;
+    color: var(--color-primary);
   }
 
   .rapt-app-shell :where(.border-red-200),
   .rapt-app-shell :where(.border-red-300) {
-    border-color: rgba(255, 132, 113, 0.34);
+    border-color: rgba(192, 120, 120, 0.34);
   }
 
   .rapt-app-shell :where(.border-green-200),
   .rapt-app-shell :where(.border-green-300) {
-    border-color: rgba(157, 227, 126, 0.32);
+    border-color: rgba(116, 156, 134, 0.34);
   }
 
   .rapt-app-shell :where(.border-amber-200),
   .rapt-app-shell :where(.border-amber-300) {
-    border-color: rgba(255, 197, 102, 0.32);
+    border-color: rgba(204, 166, 87, 0.42);
   }
 
   .rapt-app-shell :where(.border-emerald-200) {
-    border-color: rgba(108, 229, 192, 0.28);
+    border-color: rgba(116, 156, 134, 0.34);
   }
 
   .rapt-app-shell :where(.border-violet-200),
@@ -741,34 +749,34 @@
   .rapt-app-shell :where(.border-cyan-500),
   .rapt-app-shell :where(.border-violet-400),
   .rapt-app-shell :where(.border-cyan-400) {
-    border-color: rgba(169, 141, 255, 0.34);
+    border-color: rgba(92, 132, 173, 0.3);
   }
 }
 
-@media (hover: hover) and (pointer: fine) {
+@media all {
   .rapt-interactive-lift:hover,
   .rapt-glass-card:hover,
   .rapt-hero-card:hover {
     transform: translate3d(0, -6px, 0);
-    box-shadow: 0 26px 52px rgba(0, 0, 0, 0.32);
+    box-shadow: 0 24px 48px rgba(52, 44, 35, 0.16);
   }
 
   .rapt-pill-motion:hover {
     transform: translate3d(0, -3px, 0);
-    border-color: rgba(255, 255, 255, 0.2);
-    background-color: rgba(255, 255, 255, 0.11);
+    border-color: rgba(92, 132, 173, 0.26);
+    background-color: rgba(255, 255, 255, 0.78);
   }
 
   .rapt-auth-card:hover {
     transform: translate3d(0, -4px, 0);
-    border-color: rgba(255, 255, 255, 0.18);
-    box-shadow: 0 34px 88px rgba(0, 0, 0, 0.36);
+    border-color: rgba(92, 132, 173, 0.18);
+    box-shadow: 0 30px 72px rgba(52, 44, 35, 0.16);
   }
 
   .rapt-feature-card:hover {
     transform: translate3d(0, -10px, 0) rotateX(4deg) rotateY(-3deg);
     border-color: var(--feature-edge);
-    box-shadow: 0 34px 82px rgba(0, 0, 0, 0.42);
+    box-shadow: 0 30px 72px rgba(52, 44, 35, 0.16);
   }
 
   .rapt-feature-card:hover::after {
@@ -778,14 +786,14 @@
 
   .rapt-step-card:hover {
     transform: translate3d(0, -8px, 0);
-    border-color: rgba(255, 255, 255, 0.18);
-    box-shadow: 0 30px 64px rgba(0, 0, 0, 0.26);
+    border-color: rgba(92, 132, 173, 0.18);
+    box-shadow: 0 26px 52px rgba(52, 44, 35, 0.14);
   }
 
   .rapt-cta-card:hover {
     transform: translate3d(0, -10px, 0);
-    border-color: rgba(255, 255, 255, 0.18);
-    box-shadow: 0 40px 96px rgba(0, 0, 0, 0.42);
+    border-color: rgba(92, 132, 173, 0.18);
+    box-shadow: 0 34px 82px rgba(52, 44, 35, 0.16);
   }
 }
 

@@ -9,13 +9,13 @@ const ANCHORS = [
 ] as const;
 
 const linkClass =
-  "inline-flex min-h-9 items-center rounded-lg px-3 text-[15px] font-semibold leading-none tracking-tight text-white/66 hover:bg-white/[0.06] hover:text-white sm:min-h-9 sm:px-3.5";
+  "rapt-interactive-lift inline-flex min-h-9 items-center rounded-lg px-3 text-[15px] font-semibold leading-none tracking-tight text-[var(--color-text-secondary)] hover:bg-white/70 hover:text-[var(--color-primary)] sm:min-h-9 sm:px-3.5";
 
 export default function HomeNavbar() {
   return (
-    <header className="sticky top-0 z-50 border-b border-white/[0.08] bg-[#0c180c]/85 font-sans backdrop-blur-xl supports-[backdrop-filter]:bg-[#0c180c]/72">
+    <header className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[rgba(255,250,244,0.84)] font-sans backdrop-blur-xl supports-[backdrop-filter]:bg-[rgba(255,250,244,0.72)]">
       <nav
-        className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4 sm:gap-6 sm:px-6"
+        className="mx-auto flex min-h-[4rem] max-w-6xl items-center justify-between gap-3 px-4 pt-2.5 pb-1.5 sm:gap-6 sm:px-6"
         aria-label="Primary"
         style={{ fontFamily: "var(--font-baloo), system-ui, -apple-system" }}
       >
@@ -42,12 +42,12 @@ export default function HomeNavbar() {
         </div>
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          <Link href="/login?next=/matches" className={linkClass}>
+          <Link href="/login?next=/schedule" className={linkClass}>
             Log in
           </Link>
           <Link
             href="/signup"
-            className="inline-flex min-h-9 items-center justify-center rounded-lg bg-[var(--color-primary)] px-4 text-[15px] font-bold leading-none tracking-tight text-white shadow-[var(--shadow-primary)] hover:bg-[var(--color-primary-hover)] sm:min-h-9 sm:px-5"
+            className="rapt-interactive-lift inline-flex min-h-9 items-center justify-center rounded-lg bg-[var(--color-action-bg)] px-4 text-[15px] font-bold leading-none tracking-tight text-white shadow-[var(--shadow-primary)] hover:bg-[var(--color-action-hover)] sm:min-h-9 sm:px-5"
           >
             Get started
           </Link>

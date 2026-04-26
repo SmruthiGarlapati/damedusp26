@@ -36,7 +36,7 @@ export interface ErrorGameState {
 
 const initialState: ErrorGameState = {
   phase: "SETUP",
-  topic: "",
+  topic: "American History",
   notes: "",
   sentences: [],
   totalErrors: 0,

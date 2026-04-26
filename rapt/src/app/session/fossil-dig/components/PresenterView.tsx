@@ -2,17 +2,20 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { GameState } from "../useGameState";
-import { ArrowRightIcon } from "../../components/gameChrome";
+import { ArrowRightIcon, PlayerAvatar } from "../../components/gameChrome";
 
 interface Props {
   state: GameState;
+  partnerName: string;
   onDone: () => void;
 }
 
-export default function PresenterView({ state, onDone }: Props) {
+export default function PresenterView({ state, partnerName, onDone }: Props) {
   const totalSeconds = state.presentationMinutes * 60;
   const [secondsLeft, setSecondsLeft] = useState(totalSeconds);
   const [running, setRunning] = useState(false);
+  const partnerFirst = partnerName.split(" ")[0];
+
   const finishPresentation = useCallback(() => {
     onDone();
   }, [onDone]);
@@ -44,8 +47,21 @@ export default function PresenterView({ state, onDone }: Props) {
           You&apos;re leading the dig
         </h1>
         <p className="text-[var(--color-text-secondary)] text-sm">
-          Teach the topic. Your partner is listening — no interruptions.
+          Teach the topic. {partnerFirst} is listening — no interruptions.
         </p>
+      </div>
+
+      {/* Partner listening indicator */}
+      <div className="flex items-center gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-strong)] px-5 py-4">
+        <PlayerAvatar name={partnerName} size="md" />
+        <div className="flex-1">
+          <div className="text-sm font-bold text-[var(--color-text-base)]">{partnerFirst} is listening</div>
+          <div className="text-xs text-[var(--color-text-muted)]">Active listener · will recall everything after you finish</div>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
+          <span className="text-xs font-semibold text-green-500">Live</span>
+        </div>
       </div>
 
       {/* Timer */}
@@ -60,19 +76,19 @@ export default function PresenterView({ state, onDone }: Props) {
             className="h-full rounded-full transition-all duration-1000"
             style={{
               width: `${progress}%`,
-              background: isUrgent ? "var(--color-primary)" : "#d4956a",
+              background: isUrgent ? "var(--color-primary)" : "var(--color-action-bg)",
             }}
           />
         </div>
 
         <div className="text-sm font-medium text-[var(--color-text-muted)]">
-          {!running ? "Press start when you're ready" : isUrgent ? "Wrapping up soon..." : "Keep going, you're doing great"}
+          {!running ? "Press start when you're ready" : isUrgent ? "Wrapping up soon..." : `${partnerFirst} is taking notes mentally — keep going`}
         </div>
 
         {!running ? (
           <button
             onClick={() => setRunning(true)}
-            className="inline-flex items-center gap-2 rounded-2xl bg-[var(--color-primary)] px-10 py-4 text-base font-black text-white shadow-lg shadow-[#c4622d]/20 transition-opacity hover:opacity-90"
+            className="inline-flex items-center gap-2 rounded-2xl bg-[var(--color-action-bg)] px-10 py-4 text-base font-black text-white shadow-lg shadow-black/20 transition-opacity hover:opacity-90"
           >
             Start presenting
             <ArrowRightIcon className="h-5 w-5" />

@@ -64,7 +64,7 @@ export default function SetupPanel({ state, setTopic, setNotes, onStart }: Props
                 <p className="text-sm font-semibold text-[var(--color-text-base)]">Upload your notes</p>
                 <p className="mt-1 text-xs text-[var(--color-text-muted)]">TXT, PDF, or DOCX</p>
               </div>
-              <label className="cursor-pointer rounded-lg bg-[var(--color-primary)] px-4 py-2 text-xs font-bold text-white transition-opacity hover:opacity-90">
+              <label className="cursor-pointer rounded-lg bg-[var(--color-action-bg)] px-4 py-2 text-xs font-bold text-white transition-opacity hover:opacity-90">
                 Choose file
                 <input type="file" accept=".txt,.pdf,.docx" className="hidden" onChange={handleFileUpload}/>
               </label>
@@ -84,7 +84,7 @@ export default function SetupPanel({ state, setTopic, setNotes, onStart }: Props
         disabled={!canStart}
         className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-base font-black tracking-tight transition-all ${
           canStart 
-            ? "bg-[var(--color-primary)] text-white shadow-lg transition-transform hover:-translate-y-0.5" 
+            ? "bg-[var(--color-action-bg)] text-white shadow-lg transition-transform hover:-translate-y-0.5" 
             : "cursor-not-allowed bg-white/8 text-[var(--color-text-muted)]"
         }`}
       >

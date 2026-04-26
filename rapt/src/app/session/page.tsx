@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { CuteDino, DinoCardAccent } from "@/components/DinoDecoration";
 import { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
@@ -232,6 +233,30 @@ function SessionPageInner() {
     saveFlashcards(next);
   }
   const colorMap: Record<string, string> = { blue: "border-l-[var(--color-primary)]", green: "border-l-green-500", purple: "border-l-violet-500", amber: "border-l-amber-500" };
+  const fileBadgeClasses: Record<DBResource["type"], string> = {
+    pdf: "border-[#f0c7bf] bg-[#fff1ed] text-[#cb5f4b]",
+    image: "border-[#bfd4ee] bg-[#eef6ff] text-[#4b78b0]",
+    other: "border-[var(--color-primary-muted)] bg-[var(--color-primary-light)] text-[var(--color-primary)]",
+  };
+
+  function renderFileBadge(resource: DBResource, size: "compact" | "regular" = "regular") {
+    const badgeSize = size === "compact" ? "h-10 w-10 rounded-xl" : "h-11 w-11 rounded-xl";
+    const iconClassName = size === "compact" ? "h-[18px] w-[18px]" : "h-5 w-5";
+
+    return (
+      <div
+        className={`flex shrink-0 items-center justify-center border ${badgeSize} ${fileBadgeClasses[resource.type]}`}
+      >
+        {resource.type === "pdf" ? (
+          <PdfIcon className={iconClassName} />
+        ) : resource.type === "image" ? (
+          <ImageFileIcon className={iconClassName} />
+        ) : (
+          <FileIcon className={iconClassName} />
+        )}
+      </div>
+    );
+  }
 
   /* ════════════════════════════════════════
      RENDER
@@ -240,26 +265,27 @@ function SessionPageInner() {
     <div className="rapt-app-shell rapt-session-workspace flex min-h-screen flex-col">
       <Navbar />
 
-      <div className="mx-4 mb-4 overflow-hidden rounded-[28px] border border-[var(--color-border)] bg-[rgba(13,28,13,0.88)] shadow-[var(--shadow-lg)] backdrop-blur-sm md:mx-6">
+      <div className="relative mx-4 mb-4 overflow-hidden rounded-[28px] border border-[var(--color-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(246,239,229,0.88))] shadow-[0_24px_56px_rgba(52,44,35,0.12)] backdrop-blur-sm md:mx-6">
+        <DinoCardAccent className="opacity-70" color="#5c84ad" />
         {/* Live banner */}
-        <div className="flex flex-wrap items-center gap-3 border-b border-white/10 bg-[#173417] px-6 py-3 text-[var(--color-bone)] md:px-8">
-          <span className="h-2 w-2 animate-pulse rounded-full bg-[#72b84a]" />
+        <div className="relative z-10 flex flex-wrap items-center gap-3 border-b border-[var(--color-border-light)] bg-[var(--color-action-bg)] px-6 py-3 text-[var(--color-bone)] md:px-8">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-white" />
           <span className="text-[13px] font-bold">Live Session · {course} with {partnerName}</span>
-          <span className="ml-auto text-[12px] font-medium text-[#c8e898]/70">{duration} min · {location}</span>
-          <button onClick={() => router.push("/sessions")} className="ml-4 flex items-center gap-1.5 rounded-lg border border-[#c8e898]/20 px-3 py-1 text-[12px] font-semibold text-[#f5f0e8] transition-colors hover:bg-white/10">
+          <span className="ml-auto text-[12px] font-medium text-[#D9D9D9]/70">{duration} min · {location}</span>
+          <button onClick={() => router.push("/sessions")} className="ml-4 flex items-center gap-1.5 rounded-lg border border-[#D9D9D9]/20 px-3 py-1 text-[12px] font-semibold text-[#FFFFFF] transition-colors hover:bg-white/10">
             <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="13" y1="8" x2="3" y2="8"/><polyline points="7,4 3,8 7,12"/></svg>
             Back
           </button>
-          <button onClick={handleEndSession} className="flex items-center gap-1.5 rounded-lg bg-[var(--color-primary)] px-3 py-1 text-[12px] font-bold text-white transition-colors hover:bg-[var(--color-primary-hover)]">
+          <button onClick={handleEndSession} className="flex items-center gap-1.5 rounded-lg bg-[var(--color-action-bg)] px-3 py-1 text-[12px] font-bold text-white transition-colors hover:bg-[var(--color-action-hover)]">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>
             End Session
           </button>
         </div>
 
-        <div className="grid flex-1 overflow-hidden xl:min-h-[calc(100vh-11rem)] xl:grid-cols-[220px_minmax(0,1fr)_268px]">
+        <div className="relative z-10 grid flex-1 overflow-hidden xl:min-h-[calc(100vh-11rem)] xl:grid-cols-[220px_minmax(0,1fr)_268px]">
 
         {/* ── Left sidebar ── */}
-        <aside className="order-2 flex flex-col border-t border-[var(--color-border)] bg-[rgba(255,255,255,0.04)] p-5 overflow-y-auto xl:order-1 xl:border-t-0 xl:border-r">
+        <aside className="order-2 flex flex-col border-t border-[var(--color-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.76),rgba(244,236,226,0.72))] p-5 overflow-y-auto xl:order-1 xl:border-t-0 xl:border-r">
           <div className="mb-4">
             <h2 className="rapt-display text-[18px] font-extrabold tracking-tight text-[var(--color-text-base)]">Study Session</h2>
             <p className="mt-0.5 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">{course}</p>
@@ -271,7 +297,7 @@ function SessionPageInner() {
               { id: "discussion", label: "AI Summary", icon: <SparkleIcon /> },
             ] as { id: Tab; label: string; icon: React.ReactNode }[]).map((item) => (
               <button key={item.id} onClick={() => setActiveTab(item.id)}
-                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all ${activeTab === item.id ? "bg-[var(--color-primary)] font-semibold text-white shadow-[var(--shadow-primary)]" : "text-[var(--color-text-secondary)] hover:bg-white/7"}`}>
+                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all ${activeTab === item.id ? "bg-[var(--color-action-bg)] font-semibold text-white shadow-[var(--shadow-primary)]" : "text-[var(--color-text-secondary)] hover:bg-white/80"}`}>
                 {item.icon}{item.label}
               </button>
             ))}
@@ -283,9 +309,12 @@ function SessionPageInner() {
             <div className="flex flex-col gap-1.5">
               {resources.slice(0, 4).map((r, i) => (
                 <button key={i} onClick={() => setPreviewFile(r)}
-                  className="flex items-center gap-2 rounded-lg border border-[var(--color-border)] bg-white p-2 text-left transition-colors hover:border-[var(--color-primary-muted)] hover:bg-[var(--color-surface)]">
-                  <span className="shrink-0">{r.type === "pdf" ? <PdfIcon /> : r.type === "image" ? <ImageFileIcon /> : <FileIcon />}</span>
-                  <p className="truncate text-[11px] font-semibold">{r.name}</p>
+                  className="flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-white/94 p-2.5 text-left shadow-[0_6px_16px_rgba(52,44,35,0.06)] transition-all hover:border-[var(--color-primary-muted)] hover:bg-white hover:shadow-[0_10px_22px_rgba(52,44,35,0.1)]">
+                  {renderFileBadge(r, "compact")}
+                  <div className="min-w-0">
+                    <p className="truncate text-[11px] font-semibold text-[var(--color-text-base)]">{r.name}</p>
+                    <p className="mt-0.5 truncate text-[10px] text-[var(--color-text-muted)]">{r.uploader}</p>
+                  </div>
                 </button>
               ))}
               <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileUpload} />
@@ -306,21 +335,21 @@ function SessionPageInner() {
               <div className="flex items-center gap-3">
                 <div className="flex gap-1">
                   {FLASHCARDS.map((_, i) => (
-                    <div key={i} className={`h-1.5 w-8 rounded-full transition-colors ${flipped[i] === "know" ? "bg-green-500" : flipped[i] === "review" ? "bg-amber-400" : i === cardIdx % FLASHCARDS.length ? "bg-[var(--color-primary)]" : "bg-[var(--color-border)]"}`} />
+                    <div key={i} className={`h-1.5 w-8 rounded-full transition-colors ${flipped[i] === "know" ? "bg-green-500" : flipped[i] === "review" ? "bg-amber-400" : i === cardIdx % FLASHCARDS.length ? "bg-[var(--color-action-bg)]" : "bg-[var(--color-border)]"}`} />
                   ))}
                 </div>
                 <span className="text-[12px] text-[var(--color-text-muted)]">{knownCount} known · {reviewCount} to review</span>
               </div>
-              <div className="flex min-h-[340px] flex-col items-center justify-center rounded-[26px] border border-white/10 bg-white p-10 shadow-[var(--shadow-md)]">
+              <div className="flex min-h-[340px] flex-col items-center justify-center rounded-[26px] border border-[var(--color-border)] bg-white p-10 shadow-[var(--shadow-md)]">
                 <span className="mb-4 rounded-full bg-[var(--color-primary-light)] px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-[var(--color-primary)]">Card {(cardIdx % FLASHCARDS.length) + 1} of {FLASHCARDS.length}</span>
                 <p className="mb-6 max-w-lg text-center text-[18px] font-bold leading-snug text-[var(--color-text-base)]">{card.q}</p>
                 {!revealed ? (
-                  <button onClick={() => setRevealed(true)} className="flex items-center gap-2 rounded-xl bg-[var(--color-primary)] px-8 py-3 text-[14px] font-bold text-white shadow-[var(--shadow-primary)] hover:-translate-y-px hover:bg-[var(--color-primary-hover)] transition-all">
+                  <button onClick={() => setRevealed(true)} className="flex items-center gap-2 rounded-xl bg-[var(--color-action-bg)] px-8 py-3 text-[14px] font-bold text-white shadow-[var(--shadow-primary)] hover:-translate-y-px hover:bg-[var(--color-action-hover)] transition-all">
                     <EyeIcon /> Reveal Answer
                   </button>
                 ) : (
                   <div className="max-w-lg text-center">
-                    <div className="rounded-xl border border-white/10 bg-[rgba(255,255,255,0.05)] px-6 py-4">
+                    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-4">
                       <p className="text-[14px] leading-relaxed text-[var(--color-text-secondary)]">{card.a}</p>
                     </div>
                     <div className="mt-5 flex justify-center gap-3">
@@ -342,7 +371,7 @@ function SessionPageInner() {
             <div className="flex flex-col gap-5">
 
               {/* ── Notepad FIRST ── */}
-              <div className="flex flex-col rounded-2xl border border-[var(--color-border)] bg-white shadow-[var(--shadow-md)] overflow-hidden">
+              <div className="flex flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white shadow-[var(--shadow-md)]">
                 <div className="flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-3 shrink-0">
                   <div className="flex items-center gap-2">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
@@ -363,8 +392,8 @@ function SessionPageInner() {
                     lineHeight: "32px",
                     padding: "12px 20px 20px",
                     minHeight: 320,
-                    backgroundColor: "rgba(12, 23, 12, 0.94)",
-                    backgroundImage: "repeating-linear-gradient(transparent, transparent 31px, rgba(255,255,255,0.08) 31px, rgba(255,255,255,0.08) 32px)",
+                    backgroundColor: "rgba(255,253,250,0.98)",
+                    backgroundImage: "repeating-linear-gradient(transparent, transparent 31px, rgba(67,100,133,0.09) 31px, rgba(67,100,133,0.09) 32px)",
                     backgroundAttachment: "local",
                     backgroundPosition: "0 11px",
                   }}
@@ -374,42 +403,73 @@ function SessionPageInner() {
               {/* ── Divider ── */}
               <div className="flex items-center gap-3">
                 <div className="h-px flex-1 bg-[var(--color-border)]" />
-                <span className="text-[11px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">Study Games</span>
+                <span className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">
+                  <span>🦕</span>
+                  Study Games
+                  <span>🦖</span>
+                </span>
                 <div className="h-px flex-1 bg-[var(--color-border)]" />
               </div>
 
-              {/* ── Game launcher pills ── */}
-              <div className="mt-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                <div className="flex min-w-max items-center gap-1.5">
-                  {GAME_LAUNCH_ITEMS.map((game) =>
-                    game.href ? (
-                      <Link
-                        key={game.label}
-                        href={withSessionQuery(game.href, { toString: () => launcherQuery })}
-                        className={`group inline-flex h-11 shrink-0 items-center gap-2 rounded-full px-3.5 transition-all duration-200 ${game.available ? "border border-[rgba(232,90,10,0.72)] bg-[linear-gradient(180deg,rgba(232,90,10,0.16),rgba(232,90,10,0.06))] text-[var(--color-fossil)] shadow-[0_10px_22px_rgba(0,0,0,0.14)] hover:-translate-y-px hover:border-[var(--color-primary-hover)] hover:bg-[linear-gradient(180deg,rgba(232,90,10,0.22),rgba(232,90,10,0.1))]" : "border border-[rgba(232,90,10,0.2)] bg-[rgba(232,90,10,0.06)] text-[rgba(250,224,200,0.62)] hover:border-[rgba(232,90,10,0.35)] hover:bg-[rgba(232,90,10,0.1)]"}`}
-                      >
-                        <span className={`flex h-7 w-7 items-center justify-center rounded-full transition-transform duration-200 group-hover:scale-105 ${game.available ? "border border-[rgba(250,224,200,0.12)] bg-[rgba(7,31,10,0.3)] text-[var(--color-fossil)]" : "border border-[rgba(250,224,200,0.08)] bg-[rgba(7,31,10,0.18)] text-[rgba(250,224,200,0.45)]"}`}>
-                          <game.Icon className="h-4 w-4" />
-                        </span>
-                        <span className={`whitespace-nowrap text-[13px] font-semibold leading-none tracking-[-0.01em] ${game.available ? "text-[var(--color-fossil)]" : "text-[rgba(250,224,200,0.62)]"}`}>
-                          {game.label}
-                        </span>
-                      </Link>
-                    ) : (
-                      <span
-                        key={game.label}
-                        className="inline-flex h-11 shrink-0 items-center gap-2 rounded-full border border-[rgba(232,90,10,0.2)] bg-[rgba(232,90,10,0.06)] px-3.5 text-[rgba(250,224,200,0.62)]"
-                      >
-                        <span className="flex h-7 w-7 items-center justify-center rounded-full border border-[rgba(250,224,200,0.08)] bg-[rgba(7,31,10,0.18)] text-[rgba(250,224,200,0.45)]">
-                          <game.Icon className="h-4 w-4" />
-                        </span>
-                        <span className="whitespace-nowrap text-[13px] font-semibold leading-none tracking-[-0.01em] text-[rgba(250,224,200,0.62)]">
-                          {game.label}
-                        </span>
-                      </span>
-                    ),
-                  )}
+              {/* ── Playing together banner ── */}
+              <div className="flex items-center gap-3 rounded-2xl border border-[var(--color-primary-muted)] bg-[var(--color-primary-light)] px-4 py-3">
+                <div className="flex -space-x-2">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-[var(--color-primary-light)] text-[9px] font-bold text-[var(--color-primary)]">YOU</div>
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-[var(--color-action-bg)] text-[10px] font-bold text-white">
+                    {partnerName.split(" ").map((p) => p[0]).join("").slice(0,2).toUpperCase()}
+                  </div>
                 </div>
+                <div className="flex-1">
+                  <span className="text-[12px] font-bold text-[var(--color-text-base)]">Playing with {partnerName.split(" ")[0]}</span>
+                  <span className="ml-2 text-[11px] text-[var(--color-text-muted)]">· Pick a game below to play together</span>
+                </div>
+                <span className="rounded-full bg-[var(--color-action-bg)] px-2.5 py-1 text-[10px] font-bold text-white">2 Players</span>
+              </div>
+
+              {/* ── Game launcher cards ── */}
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {GAME_LAUNCH_ITEMS.map((game) => {
+                  const isCollaborative = game.label === "Fossil Dig" || game.label === "Brain Blast" || game.label === "Lightning Rod";
+                  const isFossilDig = game.label === "Fossil Dig";
+                  return game.href ? (
+                    <Link
+                      key={game.label}
+                      href={withSessionQuery(game.href, { toString: () => launcherQuery })}
+                      className={`group relative flex flex-col gap-3 rounded-2xl border p-4 transition-all duration-200 ${game.available ? "border-[var(--color-primary-muted)] bg-[var(--color-primary-light)] shadow-[0_10px_22px_rgba(52,44,35,0.08)] hover:-translate-y-0.5 hover:border-[var(--color-primary)] hover:shadow-[0_14px_28px_rgba(52,44,35,0.12)]" : "border-[var(--color-border)] bg-white/74 hover:border-[rgba(67,100,133,0.28)] hover:bg-white"}`}
+                    >
+                      {isCollaborative && (
+                        <span className="absolute right-3 top-3 rounded-full bg-[var(--color-action-bg)] px-1.5 py-0.5 text-[9px] font-bold text-white">2P</span>
+                      )}
+                      {isFossilDig ? (
+                        <CuteDino className="h-9 w-9 transition-transform duration-200 group-hover:scale-110" color="#436485" />
+                      ) : (
+                        <span className={`flex h-9 w-9 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-105 ${game.available ? "border border-[var(--color-border)] bg-white text-[var(--color-primary)]" : "border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-muted)]"}`}>
+                          <game.Icon className="h-4 w-4" />
+                        </span>
+                      )}
+                      <div>
+                        <span className={`block text-[13px] font-bold leading-tight ${game.available ? "text-[var(--color-text-base)]" : "text-[var(--color-text-muted)]"}`}>
+                          {game.label}
+                        </span>
+                        {isCollaborative && game.available && (
+                          <span className="mt-0.5 block text-[10px] text-[var(--color-text-muted)]">Together with {partnerName.split(" ")[0]}</span>
+                        )}
+                      </div>
+                    </Link>
+                  ) : (
+                    <span
+                      key={game.label}
+                      className="flex flex-col gap-3 rounded-2xl border border-[var(--color-border)] bg-white/74 p-4 text-[var(--color-text-muted)]"
+                    >
+                      <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-muted)]">
+                        <game.Icon className="h-4 w-4" />
+                      </span>
+                      <span className="text-[13px] font-bold leading-tight text-[var(--color-text-muted)]">
+                        {game.label}
+                      </span>
+                    </span>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -423,7 +483,7 @@ function SessionPageInner() {
 
               {/* ── Header ── */}
               <div className="flex items-center gap-3 rounded-2xl border border-[var(--color-border)] bg-white px-5 py-4 shadow-[var(--shadow-sm)]">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--color-primary)]">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--color-action-bg)]">
                   <SparkleIcon color="white" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -454,12 +514,10 @@ function SessionPageInner() {
                 <div className="grid gap-2 md:grid-cols-2">
                   {resources.map((r, i) => (
                     <button key={i} onClick={() => setPreviewFile(r)}
-                      className="flex items-center gap-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-3 text-left transition-colors hover:border-[var(--color-primary-muted)] hover:shadow-sm cursor-pointer">
-                      <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--color-border)] ${r.type==="pdf"?"bg-red-50":r.type==="image"?"bg-blue-50":"bg-white"}`}>
-                        {r.type === "pdf" ? <PdfIcon /> : r.type === "image" ? <ImageFileIcon /> : <FileIcon />}
-                      </div>
+                      className="flex items-center gap-3 rounded-xl border border-[var(--color-border)] bg-white p-3 text-left shadow-[0_8px_18px_rgba(52,44,35,0.06)] transition-all hover:border-[var(--color-primary-muted)] hover:shadow-[0_12px_26px_rgba(52,44,35,0.1)] cursor-pointer">
+                      {renderFileBadge(r)}
                       <div className="min-w-0">
-                        <p className="truncate text-[12px] font-semibold leading-tight">{r.name}</p>
+                        <p className="truncate text-[12px] font-semibold leading-tight text-[var(--color-text-base)]">{r.name}</p>
                         <p className="text-[10px] text-[var(--color-text-muted)] mt-0.5">{r.uploader}</p>
                       </div>
                     </button>
@@ -540,7 +598,7 @@ function SessionPageInner() {
         </main>
 
         {/* ── Right sidebar ── */}
-        <aside className="order-3 border-t border-[var(--color-border)] bg-[rgba(255,255,255,0.04)] p-5 overflow-y-auto xl:border-t-0 xl:border-l">
+        <aside className="order-3 border-t border-[var(--color-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.76),rgba(244,236,226,0.72))] p-5 overflow-y-auto xl:border-t-0 xl:border-l">
           <p className="mb-4 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">Session Logistics</p>
 
           {/* Google Maps */}
@@ -564,7 +622,7 @@ function SessionPageInner() {
           <div className="mb-5">
             <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Study Partner</p>
             <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-primary)] text-[12px] font-bold text-white">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-action-bg)] text-[12px] font-bold text-white">
                 {partnerName.split(" ").map((p) => p[0]).join("").slice(0,2).toUpperCase()}
               </div>
               <div>
@@ -588,13 +646,11 @@ function SessionPageInner() {
 
       {/* ── File Preview Modal ── */}
       {previewFile && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setPreviewFile(null)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(52,44,35,0.24)] backdrop-blur-sm p-4" onClick={() => setPreviewFile(null)}>
           <div className="flex flex-col bg-white rounded-2xl shadow-2xl overflow-hidden w-full max-w-4xl" style={{ height: "85vh" }} onClick={(e) => e.stopPropagation()}>
             {/* Modal header */}
             <div className="flex items-center gap-3 border-b border-[var(--color-border)] px-5 py-3.5 shrink-0">
-              <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--color-border)] ${previewFile.type === "pdf" ? "bg-red-50" : previewFile.type === "image" ? "bg-blue-50" : "bg-white"}`}>
-                {previewFile.type === "pdf" ? <PdfIcon /> : previewFile.type === "image" ? <ImageFileIcon /> : <FileIcon />}
-              </div>
+              {renderFileBadge(previewFile, "compact")}
               <div className="flex-1 min-w-0">
                 <p className="truncate text-[13px] font-bold">{previewFile.name}</p>
                 <p className="text-[11px] text-[var(--color-text-muted)]">Shared by {previewFile.uploader}</p>
@@ -631,14 +687,14 @@ function SparkleIcon({ color="currentColor" }: { color?: string }) { return <svg
 function EyeIcon() { return <svg width="18" height="13" viewBox="0 0 22 15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M1 7.5C1 7.5 4.5 2 11 2C17.5 2 21 7.5 21 7.5C21 7.5 17.5 13 11 13C4.5 13 1 7.5 1 7.5Z"/><circle cx="11" cy="7.5" r="2.5"/></svg>; }
 function ChevronLeftIcon() { return <svg width="8" height="12" viewBox="0 0 8 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="6,1 2,6 6,11"/></svg>; }
 function ChevronRightIcon() { return <svg width="8" height="12" viewBox="0 0 8 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="2,1 6,6 2,11"/></svg>; }
-function PdfIcon() { return <svg width="14" height="18" viewBox="0 0 16 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className="text-[#c8e898]/70"><path d="M9 1H3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7L9 1z"/><path d="M9 1v6h6"/></svg>; }
-function ImageFileIcon() { return <svg width="16" height="16" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className="text-[#c8e898]/70"><rect x="1" y="1" width="16" height="16" rx="2"/><circle cx="6" cy="6" r="2"/><path d="M1 13l4-4 3 3 3-3 4 4"/></svg>; }
-function FileIcon() { return <svg width="14" height="18" viewBox="0 0 16 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className="text-[#c8e898]/70"><path d="M9 1H3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7L9 1z"/><path d="M9 1v6h6"/><line x1="4" y1="13" x2="12" y2="13"/></svg>; }
+function PdfIcon({ className = "h-5 w-5" }: { className?: string }) { return <svg viewBox="0 0 16 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className={className}><path d="M9 1H3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7L9 1z"/><path d="M9 1v6h6"/></svg>; }
+function ImageFileIcon({ className = "h-5 w-5" }: { className?: string }) { return <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className={className}><rect x="1" y="1" width="16" height="16" rx="2"/><circle cx="6" cy="6" r="2"/><path d="M1 13l4-4 3 3 3-3 4 4"/></svg>; }
+function FileIcon({ className = "h-5 w-5" }: { className?: string }) { return <svg viewBox="0 0 16 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className={className}><path d="M9 1H3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7L9 1z"/><path d="M9 1v6h6"/><line x1="4" y1="13" x2="12" y2="13"/></svg>; }
 function PlusIcon() { return <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>; }
-function WhiteboardIcon() { return <svg width="13" height="11" viewBox="0 0 13 11" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="text-[#c8e898]/70"><rect x="0" y="0" width="13" height="9" rx="1"/><line x1="0" y1="4" x2="13" y2="4"/></svg>; }
-function WifiIcon() { return <svg width="14" height="10" viewBox="0 0 16 11" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="text-[#c8e898]/70"><path d="M1 4C4 1.5 7 1 8 4C9 1 12 1.5 15 4"/><path d="M3 6.5C5 5 6.5 5 8 6.5C9.5 5 11 5 13 6.5"/><circle cx="8" cy="9" r="1" fill="currentColor"/></svg>; }
-function QuietIcon() { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className="text-[#c8e898]/70"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>; }
-function CafeIcon() { return <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="text-[#c8e898]/70"><path d="M3 1h6l1 4H2L3 1z"/><path d="M2 5v5a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V5"/></svg>; }
+function WhiteboardIcon() { return <svg width="13" height="11" viewBox="0 0 13 11" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="text-[#D9D9D9]/70"><rect x="0" y="0" width="13" height="9" rx="1"/><line x1="0" y1="4" x2="13" y2="4"/></svg>; }
+function WifiIcon() { return <svg width="14" height="10" viewBox="0 0 16 11" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="text-[#D9D9D9]/70"><path d="M1 4C4 1.5 7 1 8 4C9 1 12 1.5 15 4"/><path d="M3 6.5C5 5 6.5 5 8 6.5C9.5 5 11 5 13 6.5"/><circle cx="8" cy="9" r="1" fill="currentColor"/></svg>; }
+function QuietIcon() { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className="text-[#D9D9D9]/70"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>; }
+function CafeIcon() { return <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="text-[#D9D9D9]/70"><path d="M3 1h6l1 4H2L3 1z"/><path d="M2 5v5a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V5"/></svg>; }
 
 export default function SessionPage() {
   return <Suspense><SessionPageInner /></Suspense>;

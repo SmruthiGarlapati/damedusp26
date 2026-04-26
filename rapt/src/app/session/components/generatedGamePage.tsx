@@ -142,7 +142,7 @@ const DEMO_AI_GAMES: AIGames = {
 };
 
 const GAME_PANEL = "overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-strong)] shadow-[var(--shadow-md)]";
-const GAME_HEADER = "flex items-center justify-between border-b border-[var(--color-border)] bg-[rgba(255,255,255,0.04)] px-6 py-4";
+const GAME_HEADER = "flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-4";
 const GAME_EYEBROW = "text-[11px] font-bold uppercase tracking-widest text-[var(--color-primary)]";
 const GAME_SUBTITLE = "mt-0.5 text-[13px] font-semibold text-[var(--color-text-base)]";
 const GAME_BADGE = "rounded-full border border-[var(--color-primary-muted)] bg-[var(--color-primary-light)] px-3 py-1 text-[13px] font-bold text-[var(--color-primary)]";
@@ -172,7 +172,7 @@ export function GeneratedGamePage({ gameId, title, description, Icon }: Generate
       contentClassName="mx-auto max-w-4xl"
     >
       <div className="space-y-5">
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--color-border)] bg-white/78 px-4 py-3">
           <p className="text-[12px] font-medium text-[var(--color-text-secondary)]">
             Built from your latest {course} notes with {partnerName.split(" ")[0]}.
           </p>
@@ -181,7 +181,7 @@ export function GeneratedGamePage({ gameId, title, description, Icon }: Generate
             onClick={() => {
               void refresh();
             }}
-            className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/6 px-3 py-2 text-[12px] font-semibold text-[var(--color-text-secondary)] transition-all hover:border-[var(--color-primary-muted)] hover:text-white"
+            className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-white px-3 py-2 text-[12px] font-semibold text-[var(--color-text-secondary)] transition-all hover:border-[var(--color-primary-muted)] hover:text-[var(--color-primary)]"
           >
             <RefreshIcon className="h-4 w-4" />
             Refresh questions
@@ -189,7 +189,7 @@ export function GeneratedGamePage({ gameId, title, description, Icon }: Generate
         </div>
 
         {warning ? (
-          <div className="rounded-2xl border border-amber-200/30 bg-amber-100/10 px-4 py-3 text-[12px] text-amber-100">
+          <div className="rounded-2xl border border-amber-300/55 bg-[rgba(247,231,191,0.72)] px-4 py-3 text-[12px] text-amber-700">
             {warning}
           </div>
         ) : null}
@@ -342,7 +342,7 @@ function BrainBlastGame({ pool }: { pool: LogicQ[] }) {
       </div>
       <div className="p-6">
         <ProgressBar current={questionIndex} total={pool.length} />
-        <div className="my-5 rounded-xl border border-white/10 bg-[rgba(0,0,0,0.2)] px-6 py-5 shadow-inner">
+        <div className="my-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.32)]">
           <p className="text-[15px] font-semibold leading-relaxed text-[var(--color-text-base)]">{question.prompt}</p>
         </div>
         <div className="grid gap-2 md:grid-cols-2">
@@ -356,12 +356,12 @@ function BrainBlastGame({ pool }: { pool: LogicQ[] }) {
                 onClick={() => pickOption(index)}
                 className={`rounded-xl border-2 px-4 py-3.5 text-left text-[13px] font-semibold transition-all ${
                   selectedIndex === null
-                    ? "cursor-pointer border-white/10 bg-white/5 text-[var(--color-text-base)] hover:border-[var(--color-primary-muted)] hover:bg-white/8"
+                    ? "cursor-pointer border-[var(--color-border)] bg-white text-[var(--color-text-base)] hover:border-[var(--color-primary-muted)] hover:bg-[var(--color-surface)]"
                     : correct
-                      ? "border-emerald-400/40 bg-emerald-500/10 text-emerald-100"
+                      ? "border-emerald-300/55 bg-[rgba(223,244,232,0.92)] text-emerald-800"
                       : selected
-                        ? "border-red-400/40 bg-red-500/10 text-red-100"
-                        : "border-white/10 opacity-35"
+                        ? "border-rose-200 bg-[rgba(252,236,236,0.84)] text-rose-700"
+                        : "border-[var(--color-border)] opacity-40"
                 }`}
               >
                 <span
@@ -369,10 +369,10 @@ function BrainBlastGame({ pool }: { pool: LogicQ[] }) {
                     selectedIndex === null
                       ? "bg-[var(--color-primary-light)] text-[var(--color-primary)]"
                       : correct
-                        ? "bg-emerald-400 text-[#092313]"
+                        ? "bg-emerald-500 text-white"
                         : selected
-                          ? "bg-red-400 text-[#230909]"
-                          : "bg-[rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.55)]"
+                          ? "bg-rose-400 text-white"
+                          : "bg-[var(--color-surface)] text-[var(--color-text-muted)]"
                   }`}
                 >
                   {String.fromCharCode(65 + index)}
@@ -383,9 +383,9 @@ function BrainBlastGame({ pool }: { pool: LogicQ[] }) {
           })}
         </div>
         {selectedIndex !== null ? (
-          <div className={`mt-4 flex items-start gap-3 rounded-xl border px-4 py-3 ${selectedIndex === question.answer ? "border-emerald-400/40 bg-emerald-500/10" : "border-red-400/40 bg-red-500/10"}`}>
+          <div className={`mt-4 flex items-start gap-3 rounded-xl border px-4 py-3 ${selectedIndex === question.answer ? "border-emerald-300/55 bg-[rgba(223,244,232,0.92)]" : "border-rose-200 bg-[rgba(252,236,236,0.84)]"}`}>
             <span className="text-[18px]">{selectedIndex === question.answer ? "🎉" : "💡"}</span>
-            <p className={`text-[13px] leading-relaxed ${selectedIndex === question.answer ? "text-emerald-100" : "text-red-100"}`}>
+            <p className={`text-[13px] leading-relaxed ${selectedIndex === question.answer ? "text-emerald-800" : "text-rose-700"}`}>
               {selectedIndex === question.answer ? "Nailed it! " : "Not quite — "}
               {question.explain}
             </p>
@@ -465,16 +465,16 @@ function FlipMatchGame({ pool }: { pool: PairQ[] }) {
                 onClick={() => !done && clickCard("term", index)}
                 className={`rounded-xl border-2 px-4 py-3 text-left text-[13px] font-bold transition-all duration-150 ${
                   done
-                    ? "cursor-default border-emerald-400/40 bg-emerald-500/10 text-emerald-100"
+                    ? "cursor-default border-emerald-300/55 bg-[rgba(223,244,232,0.92)] text-emerald-800"
                     : selected
                       ? "scale-[1.02] border-[var(--color-primary)] bg-[var(--color-primary-light)] text-[var(--color-text-base)] shadow-md"
                       : wrong
-                        ? "border-red-400/40 bg-red-500/10 text-red-100"
-                        : "cursor-pointer border-white/10 bg-white/5 text-[var(--color-text-base)] hover:border-[var(--color-primary-muted)] hover:bg-white/8"
+                        ? "border-rose-200 bg-[rgba(252,236,236,0.84)] text-rose-700"
+                        : "cursor-pointer border-[var(--color-border)] bg-white text-[var(--color-text-base)] hover:border-[var(--color-primary-muted)] hover:bg-[var(--color-surface)]"
                 }`}
               >
                 {item.term}
-                {done ? <span className="ml-1 text-emerald-300">✓</span> : null}
+                {done ? <span className="ml-1 text-emerald-600">✓</span> : null}
               </button>
             );
           })}
@@ -492,16 +492,16 @@ function FlipMatchGame({ pool }: { pool: PairQ[] }) {
                 onClick={() => !done && clickCard("def", index)}
                 className={`rounded-xl border-2 px-4 py-3 text-left text-[12px] leading-snug transition-all duration-150 ${
                   done
-                    ? "cursor-default border-emerald-400/40 bg-emerald-500/10 text-emerald-100"
+                    ? "cursor-default border-emerald-300/55 bg-[rgba(223,244,232,0.92)] text-emerald-800"
                     : selected
                       ? "scale-[1.02] border-[var(--color-primary)] bg-[var(--color-primary-light)] text-[var(--color-text-base)] shadow-md"
                       : wrong
-                        ? "border-red-400/40 bg-red-500/10 text-red-100"
-                        : "cursor-pointer border-white/10 bg-white/5 text-[var(--color-text-secondary)] hover:border-[var(--color-primary-muted)] hover:bg-white/8"
+                        ? "border-rose-200 bg-[rgba(252,236,236,0.84)] text-rose-700"
+                        : "cursor-pointer border-[var(--color-border)] bg-white text-[var(--color-text-secondary)] hover:border-[var(--color-primary-muted)] hover:bg-[var(--color-surface)]"
                 }`}
               >
                 {item.def}
-                {done ? <span className="ml-1 text-emerald-300">✓</span> : null}
+                {done ? <span className="ml-1 text-emerald-600">✓</span> : null}
               </button>
             );
           })}
@@ -572,18 +572,18 @@ function WordSniperGame({ pool }: { pool: FillQ[] }) {
       </div>
       <div className="p-6">
         <ProgressBar current={questionIndex} total={pool.length} />
-        <div className="my-5 rounded-xl border-2 border-dashed border-[var(--color-primary-muted)] bg-[rgba(255,255,255,0.04)] px-6 py-5 text-center">
+        <div className="my-5 rounded-xl border-2 border-dashed border-[var(--color-primary-muted)] bg-[var(--color-surface)] px-6 py-5 text-center">
           <p className="text-[18px] font-bold leading-snug text-[var(--color-text-base)]">
             {question.sentence.split("___").map((part, index, allParts) => (
               <span key={`${part}-${index}`}>
                 {part}
                 {index < allParts.length - 1 ? (
                   selectedAnswer ? (
-                    <span className={`mx-1 rounded-lg border-2 px-3 py-0.5 font-mono ${selectedAnswer === question.answer ? "border-emerald-400/40 bg-emerald-500/10 text-emerald-100" : "border-red-400/40 bg-red-500/10 text-red-100"}`}>
+                    <span className={`mx-1 rounded-lg border-2 px-3 py-0.5 font-mono ${selectedAnswer === question.answer ? "border-emerald-300/55 bg-[rgba(223,244,232,0.92)] text-emerald-800" : "border-rose-200 bg-[rgba(252,236,236,0.84)] text-rose-700"}`}>
                       {selectedAnswer}
                     </span>
                   ) : (
-                    <span className="mx-1 inline-flex min-w-[80px] justify-center rounded-lg border-2 border-dashed border-[var(--color-primary-muted)] bg-[rgba(0,0,0,0.18)] px-3 py-0.5 font-mono text-[var(--color-primary)]">
+                    <span className="mx-1 inline-flex min-w-[80px] justify-center rounded-lg border-2 border-dashed border-[var(--color-primary-muted)] bg-white px-3 py-0.5 font-mono text-[var(--color-primary)]">
                       ?
                     </span>
                   )
@@ -603,12 +603,12 @@ function WordSniperGame({ pool }: { pool: FillQ[] }) {
                 onClick={() => pickOption(option)}
                 className={`rounded-xl border-2 px-5 py-3 text-[14px] font-bold transition-all ${
                   !selectedAnswer
-                    ? "cursor-pointer border-white/10 bg-white/5 text-[var(--color-text-base)] hover:border-[var(--color-primary-muted)] hover:bg-white/8"
+                    ? "cursor-pointer border-[var(--color-border)] bg-white text-[var(--color-text-base)] hover:border-[var(--color-primary-muted)] hover:bg-[var(--color-surface)]"
                     : correct
-                      ? "border-emerald-400/40 bg-emerald-500/10 text-emerald-100"
+                      ? "border-emerald-300/55 bg-[rgba(223,244,232,0.92)] text-emerald-800"
                       : selected
-                        ? "border-red-400/40 bg-red-500/10 text-red-100"
-                        : "border-white/10 opacity-35"
+                        ? "border-rose-200 bg-[rgba(252,236,236,0.84)] text-rose-700"
+                        : "border-[var(--color-border)] opacity-40"
                 }`}
               >
                 {option}
@@ -684,7 +684,7 @@ function LightningRodGame({ pool }: { pool: DrillQ[] }) {
           <p className={GAME_SUBTITLE}>True or False. Move fast.</p>
         </div>
         <div className="flex items-center gap-3">
-          {streak >= 3 ? <span className="rounded-full border border-amber-400/30 bg-amber-500/10 px-2 py-0.5 text-[12px] font-bold text-amber-100">🔥 {streak}</span> : null}
+          {streak >= 3 ? <span className="rounded-full border border-amber-300/55 bg-[rgba(247,231,191,0.72)] px-2 py-0.5 text-[12px] font-bold text-amber-700">🔥 {streak}</span> : null}
           <span className={GAME_BADGE}>{score} pts</span>
         </div>
       </div>
@@ -697,7 +697,7 @@ function LightningRodGame({ pool }: { pool: DrillQ[] }) {
             <button
               type="button"
               onClick={() => setRunning(true)}
-              className="rounded-xl bg-[var(--color-primary)] px-10 py-3.5 text-[15px] font-extrabold text-white shadow-[var(--shadow-primary)] transition-all hover:-translate-y-0.5 hover:bg-[var(--color-primary-hover)]"
+              className="rounded-xl bg-[var(--color-action-bg)] px-10 py-3.5 text-[15px] font-extrabold text-white shadow-[var(--shadow-primary)] transition-all hover:-translate-y-0.5 hover:bg-[var(--color-action-hover)]"
             >
               Go
             </button>
@@ -708,10 +708,10 @@ function LightningRodGame({ pool }: { pool: DrillQ[] }) {
               <span className={`text-[28px] font-extrabold tabular-nums ${timeLeft <= 10 ? "text-red-300" : "text-[var(--color-primary)]"}`}>{timeLeft}s</span>
               <span className="text-[12px] font-bold text-[var(--color-text-muted)]">Q {questionIndex + 1}</span>
             </div>
-            <div className="mb-1 h-2.5 w-full overflow-hidden rounded-full bg-white/10">
-              <div className={`h-2.5 rounded-full transition-all duration-1000 ${timeLeft <= 10 ? "bg-red-400" : "bg-[var(--color-primary)]"}`} style={{ width: `${(timeLeft / 30) * 100}%` }} />
+            <div className="mb-1 h-2.5 w-full overflow-hidden rounded-full bg-[var(--color-border-light)]">
+              <div className={`h-2.5 rounded-full transition-all duration-1000 ${timeLeft <= 10 ? "bg-red-400" : "bg-[var(--color-action-bg)]"}`} style={{ width: `${(timeLeft / 30) * 100}%` }} />
             </div>
-            <div className="my-5 rounded-xl border border-white/10 bg-[rgba(0,0,0,0.2)] px-5 py-6">
+            <div className="my-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-6">
               <p className="text-center text-[17px] font-bold leading-snug text-[var(--color-text-base)]">{pool[questionIndex % pool.length].q}</p>
             </div>
             <div className="flex gap-3">
@@ -739,10 +739,10 @@ function LightningRodGame({ pool }: { pool: DrillQ[] }) {
 
 function GeneratedGameLoading({ title }: { title: string }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-strong)] px-6 py-20 text-center text-white shadow-[var(--shadow-md)]">
+    <div className="flex flex-col items-center justify-center gap-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-strong)] px-6 py-20 text-center shadow-[var(--shadow-md)]">
       <div className="h-14 w-14 animate-spin rounded-full border-[3px] border-[var(--color-primary)] border-t-transparent" />
       <div className="space-y-2">
-        <p className="rapt-display text-3xl tracking-tight text-white">Building {title}</p>
+        <p className="rapt-display text-3xl tracking-tight text-[var(--color-text-base)]">Building {title}</p>
         <p className="text-sm text-[var(--color-text-muted)]">Pulling your session notes into a fresh round now.</p>
       </div>
     </div>
@@ -754,7 +754,7 @@ function ProgressBar({ current, total }: { current: number; total: number }) {
     <div className="mt-2 flex items-center gap-3">
       <div className="flex flex-1 gap-1">
         {Array.from({ length: total }).map((_, index) => (
-          <div key={index} className={`h-1.5 flex-1 rounded-full ${index < current ? "bg-[var(--color-primary)]" : index === current ? "bg-[var(--color-primary)] opacity-45" : "bg-white/10"}`} />
+          <div key={index} className={`h-1.5 flex-1 rounded-full ${index < current ? "bg-[var(--color-action-bg)]" : index === current ? "bg-[var(--color-action-bg)] opacity-45" : "bg-[var(--color-border-light)]"}`} />
         ))}
       </div>
       <span className="shrink-0 text-[12px] font-semibold text-[var(--color-text-muted)]">{current + 1}/{total}</span>
@@ -782,7 +782,7 @@ function ScoreScreen({ score, total, onRetry, perfect }: { score: number; total:
       <button
         type="button"
         onClick={onRetry}
-        className="mt-5 rounded-xl bg-[var(--color-primary)] px-7 py-2.5 text-[13px] font-bold text-white shadow-[var(--shadow-primary)] hover:bg-[var(--color-primary-hover)]"
+        className="mt-5 rounded-xl bg-[var(--color-action-bg)] px-7 py-2.5 text-[13px] font-bold text-white shadow-[var(--shadow-primary)] hover:bg-[var(--color-action-hover)]"
       >
         Play Again
       </button>

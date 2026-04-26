@@ -1,14 +1,18 @@
 "use client";
 
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { useErrorGameState } from "./useErrorGameState";
 import GameView from "./components/GameView";
 import SetupPanel from "./components/ErrorGameSetupPanel";
 import ResultsView from "./components/ResultsView";
 import { ProofreaderIcon, StudyGameShell } from "../components/gameChrome";
 
-export default function ErrorCorrectionPage() {
+function ErrorCorrectionInner() {
   const game = useErrorGameState();
   const { state } = game;
+  const searchParams = useSearchParams();
+  const partnerName = searchParams.get("partner") ?? "Marcus Johnson";
 
   async function handleGenerate() {
     game.startGenerating();
@@ -18,8 +22,7 @@ export default function ErrorCorrectionPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ topic: state.topic, notes: state.notes }),
       });
-      
-      // Safety check: if the API crashes, stop here before trying to parse JSON
+
       if (!res.ok) {
         console.error("API Error:", await res.text());
         alert("Failed to generate game. Check the console or your API keys.");
@@ -64,7 +67,7 @@ export default function ErrorCorrectionPage() {
   return (
     <StudyGameShell
       title="Proofreader"
-      description="Turn study notes into a focused editing challenge, flag anything suspicious, and get AI feedback on every catch."
+      description={`You and ${partnerName.split(" ")[0]} each investigate the same passage independently — then compare what each of you caught.`}
       topic={state.topic}
       Icon={ProofreaderIcon}
       contentClassName="mx-auto max-w-6xl"
@@ -85,7 +88,7 @@ export default function ErrorCorrectionPage() {
           </div>
           <div className="space-y-2">
             <p className="rapt-display text-3xl tracking-tight text-white">Building your proofreader round</p>
-            <p className="text-sm text-[var(--color-text-muted)]">We&apos;re rewriting the passage with realistic mistakes to investigate.</p>
+            <p className="text-sm text-[var(--color-text-muted)]">Rewriting the passage with realistic mistakes for both of you to investigate.</p>
           </div>
         </div>
       )}
@@ -93,6 +96,7 @@ export default function ErrorCorrectionPage() {
       {state.phase === "PLAYING" && (
         <GameView
           state={state}
+          partnerName={partnerName}
           onAddComment={game.addComment}
           onRemoveComment={game.removeComment}
           onSubmit={handleGrade}
@@ -112,8 +116,12 @@ export default function ErrorCorrectionPage() {
       )}
 
       {state.phase === "RESULTS" && (
-        <ResultsView state={state} onRetry={game.resetGame} />
+        <ResultsView state={state} partnerName={partnerName} onRetry={game.resetGame} />
       )}
     </StudyGameShell>
   );
+}
+
+export default function ErrorCorrectionPage() {
+  return <Suspense><ErrorCorrectionInner /></Suspense>;
 }

@@ -2,15 +2,16 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { GameState } from "../useGameState";
-import { ArrowRightIcon, FossilDigIcon } from "../../components/gameChrome";
+import { ArrowRightIcon, FossilDigIcon, PlayerAvatar } from "../../components/gameChrome";
 
 interface Props {
   state: GameState;
+  partnerName: string;
   setReDigRecall: (text: string) => void;
   onSubmit: () => void;
 }
 
-export default function ReDigPanel({ state, setReDigRecall, onSubmit }: Props) {
+export default function ReDigPanel({ state, partnerName, setReDigRecall, onSubmit }: Props) {
   const [text, setText] = useState("");
   const [secondsLeft, setSecondsLeft] = useState(90);
   const [started, setStarted] = useState(false);
@@ -22,6 +23,10 @@ export default function ReDigPanel({ state, setReDigRecall, onSubmit }: Props) {
   const secs = secondsLeft % 60;
   const isUrgent = secondsLeft <= 30;
   const progress = ((90 - secondsLeft) / 90) * 100;
+  const partnerFirst = partnerName.split(" ")[0];
+
+  const presenterLabel = state.role === "presenter" ? "You" : partnerFirst;
+  const scribeLabel = state.role === "scribe" ? "You" : partnerFirst;
 
   const handleSubmit = useCallback(() => {
     setReDigRecall(text);
@@ -43,8 +48,13 @@ export default function ReDigPanel({ state, setReDigRecall, onSubmit }: Props) {
   return (
     <div className="flex flex-col gap-6 mt-6">
       <div className="rounded-2xl border-2 border-[var(--color-primary)] bg-[var(--color-primary-light)] p-6">
-        <div className="mb-2 text-xs font-bold uppercase tracking-widest text-[var(--color-primary)]">
-          Re-dig — missed concepts
+        <div className="mb-3 flex items-center gap-3">
+          <PlayerAvatar name={state.role === "presenter" ? "You" : partnerName} you={state.role === "presenter"} size="sm" />
+          <span className="text-[11px] text-[var(--color-text-muted)]">→ re-explains →</span>
+          <PlayerAvatar name={state.role === "scribe" ? "You" : partnerName} you={state.role === "scribe"} size="sm" />
+          <div className="ml-1 text-xs font-bold uppercase tracking-widest text-[var(--color-primary)]">
+            Re-dig — missed concepts
+          </div>
         </div>
         <div className="flex flex-wrap gap-2 mb-3">
           {missedConcepts.map((c) => (
@@ -60,20 +70,22 @@ export default function ReDigPanel({ state, setReDigRecall, onSubmit }: Props) {
 
       {!started ? (
         <div className="flex flex-col items-center gap-6 rounded-3xl border-2 border-[var(--color-border)] bg-[var(--color-surface-strong)] p-10 text-center">
-          <span className="flex h-16 w-16 items-center justify-center rounded-[24px] border border-white/10 bg-white/5 text-[var(--color-text-base)]">
-            <FossilDigIcon className="h-8 w-8" />
-          </span>
+          <div className="flex items-center gap-3">
+            <PlayerAvatar name={state.role === "presenter" ? "You" : partnerName} you={state.role === "presenter"} size="lg" />
+            <FossilDigIcon className="h-6 w-6 text-[var(--color-primary)]" />
+            <PlayerAvatar name={state.role === "scribe" ? "You" : partnerName} you={state.role === "scribe"} size="lg" />
+          </div>
           <div>
             <p className="mb-2 text-xl font-black text-[var(--color-text-base)]">
               Second chance to excavate
             </p>
             <p className="max-w-sm text-sm leading-relaxed text-[var(--color-text-secondary)]">
-              The presenter will re-explain the missed concepts. Then you get 90 seconds to recall them.
+              {presenterLabel === "You" ? "Re-explain" : `${presenterLabel} will re-explain`} the missed concepts. Then {scribeLabel === "You" ? "you get" : `${scribeLabel} gets`} 90 seconds to recall them.
             </p>
           </div>
           <button
             onClick={() => setStarted(true)}
-            className="inline-flex items-center gap-2 rounded-2xl bg-[var(--color-primary)] px-10 py-4 text-base font-black text-white shadow-lg shadow-[#c4622d]/20 transition-opacity hover:opacity-90"
+            className="inline-flex items-center gap-2 rounded-2xl bg-[var(--color-action-bg)] px-10 py-4 text-base font-black text-white shadow-lg shadow-black/20 transition-opacity hover:opacity-90"
           >
             Start re-dig
             <ArrowRightIcon className="h-5 w-5" />
@@ -91,7 +103,7 @@ export default function ReDigPanel({ state, setReDigRecall, onSubmit }: Props) {
                 className="h-full rounded-full transition-all duration-1000"
                 style={{
                   width: `${progress}%`,
-                  background: isUrgent ? "var(--color-primary)" : "#d4956a",
+                  background: isUrgent ? "var(--color-primary)" : "var(--color-action-bg)",
                 }}
               />
             </div>
@@ -114,7 +126,7 @@ export default function ReDigPanel({ state, setReDigRecall, onSubmit }: Props) {
             disabled={wordCount < 3}
             className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-base font-black tracking-tight transition-all ${
               wordCount >= 3
-                ? "bg-[var(--color-primary)] text-white shadow-lg shadow-[#c4622d]/20 hover:-translate-y-0.5 hover:opacity-90"
+                ? "bg-[var(--color-action-bg)] text-white shadow-lg shadow-black/20 hover:-translate-y-0.5 hover:opacity-90"
                 : "cursor-not-allowed bg-white/8 text-[var(--color-text-muted)]"
             }`}
           >

@@ -18,7 +18,8 @@ export async function proxy(request: NextRequest) {
   const isProtected = protectedPaths.some((p) =>
     request.nextUrl.pathname.startsWith(p)
   );
-  const hasDemoAdminSession = request.cookies.get(DEMO_ADMIN_COOKIE)?.value === "1";
+  const demoCookieVal = request.cookies.get(DEMO_ADMIN_COOKIE)?.value ?? "";
+  const hasDemoAdminSession = demoCookieVal.length > 0 && demoCookieVal !== "0";
 
   if (isProtected && hasDemoAdminSession) {
     return supabaseResponse;

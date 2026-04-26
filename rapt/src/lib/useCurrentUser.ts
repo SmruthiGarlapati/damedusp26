@@ -23,15 +23,7 @@ export function useCurrentUser() {
   const [loading, setLoading] = useState(() => !hasDemoSession && supabaseConfigured);
 
   useEffect(() => {
-    if (hasDemoSession) {
-      // Handles SSR/hydration mismatch: server rendered user=null but client has cookie
-      setUser(readDemoAdminProfile());
-      setLoading(false);
-      return;
-    }
-
-    if (!supabaseConfigured) {
-      setLoading(false);
+    if (hasDemoSession || !supabaseConfigured) {
       return;
     }
 
